@@ -1,5 +1,5 @@
 {
-  "name": "izanami",
+  "name": "@bizhermit/izanami",
   "version": "0.0.0",
   "description": "project creator",
   "main": "bin/izanami.js",
@@ -22,5 +22,9 @@
     "@types/node": "^16.11.13",
     "license-checker": "^25.0.1",
     "typescript": "^4.5.4"
-  }
+  },
+  "keywords": [
+    "bizhermit",
+    "application starter"
+  ]
 }
