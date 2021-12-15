@@ -1,0 +1,26 @@
+{
+  "name": "izanami",
+  "version": "0.0.0",
+  "description": "project creator",
+  "main": "bin/izanami.js",
+  "bin": {
+    "izanami": "bin/izanami.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx license-checker --production > LICENSE && npx tsc -p src/bin"
+  },
+  "author": "bizhermit.com <support@bizhermit.com> (https://bizhermit.com)",
+  "contributors": [
+    "Ryoichi Senda <rsenda@bizhermit.com> (https://bizhermit.com)"
+  ],
+  "license": "MIT",
+  "files": [
+    "bin"
+  ],
+  "devDependencies": {
+    "@types/node": "^16.11.13",
+    "license-checker": "^25.0.1",
+    "typescript": "^4.5.4"
+  }
+}
