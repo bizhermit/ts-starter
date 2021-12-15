@@ -2,6 +2,13 @@
   "name": "@bizhermit/izanami",
   "version": "0.0.0",
   "description": "project creator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bizhermit/izanami.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bizhermit/izanami/issues"
+  },
   "main": "bin/izanami.js",
   "bin": {
     "izanami": "bin/izanami.js"
@@ -11,6 +18,7 @@
     "build": "npx license-checker --production > LICENSE && npx tsc -p src/bin"
   },
   "author": "bizhermit.com <support@bizhermit.com> (https://bizhermit.com)",
+  "homepage": "https://bizhermit.com",
   "contributors": [
     "Ryoichi Senda <rsenda@bizhermit.com> (https://bizhermit.com)"
   ],
