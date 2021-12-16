@@ -50,6 +50,13 @@ const changeDir = () => {
     }
     cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
+const succeededProcess = () => {
+    process.stdout.write(`\n${pkg.name} succeeded.\n`);
+    if (process.argv[2] != null && process.cwd() !== dir) {
+        process.stdout.write(`\nstart with change directory`);
+        process.stdout.write(`\n  cd ${process.argv[2]}\n`);
+    }
+};
 (0, input_line_1.default)({ message: `please input (default c) > ` }).then(async (mode) => {
     try {
         switch (mode) {
@@ -57,32 +64,36 @@ const changeDir = () => {
                 process.stdout.write(`\ncreate homepage...\n`);
                 changeDir();
                 await (0, create_project_1.create_homepage)(dir);
+                succeededProcess();
                 break;
             case "cli":
                 process.stdout.write(`\ncreate command line interface application...\n`);
                 changeDir();
                 await (0, create_project_1.create_cli)(dir);
+                succeededProcess();
                 break;
             case "web":
                 process.stdout.write(`\ncreate web application...\n`);
                 changeDir();
                 await (0, create_project_1.create_web)(dir);
+                succeededProcess();
                 break;
             case "dt":
                 process.stdout.write(`\ncreate desktop application...\n`);
                 changeDir();
                 await (0, create_project_1.create_desktop)(dir);
+                succeededProcess();
                 break;
             case "wd":
                 process.stdout.write(`\ncreate web and desktop application...\n`);
                 changeDir();
                 await (0, create_project_1.create_web_desktop)(dir);
+                succeededProcess();
                 break;
             default:
                 process.stdout.write(`\ncancel\n`);
                 break;
         }
-        process.stdout.write(`\n${pkg.name} succeeded.\n`);
     }
     catch (err) {
         process.stderr.write(String(err));
