@@ -98,6 +98,7 @@ export const create_homepage = async (dir: string) => {
         "@types/react",
         "@types/react-dom",
     ]);
+    
 };
 
 export const create_cli = async (dir: string) => {
