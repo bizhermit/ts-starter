@@ -26,6 +26,8 @@ exports.create_web_desktop = exports.create_desktop = exports.create_web = expor
 const path_1 = __importDefault(require("path"));
 const fse = __importStar(require("fs-extra"));
 const cp = __importStar(require("child_process"));
+const rimraf = __importStar(require("rimraf"));
+const simple_git_1 = __importDefault(require("simple-git"));
 const getPackageJson = (cwd) => {
     let pkg = {};
     try {
@@ -100,13 +102,24 @@ const npmInstall = (cwd, args = [], devArgs = []) => {
     cp.spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd });
     ;
 };
+const getGit = (dir) => {
+    return (0, simple_git_1.default)({ baseDir: dir, binary: "git" });
+    ;
+};
+const moveItem = (dir, itemName) => {
+    try {
+        fse.moveSync(path_1.default.join(dir, itemName), path_1.default.join(dir, "src", itemName));
+    }
+    catch { }
+};
 const create_homepage = async (dir) => {
+    fse.mkdirSync(path_1.default.join(dir, "src"));
     const pkg = getPackageJson(dir);
     pkg.scripts = {
-        "start": "npx react-scripts start",
-        "build": "npx react-scripts build",
-        "test": "npx react-scripts test",
-        "eject": "npx react-scripts eject",
+        start: "npx react-scripts start",
+        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/LICENSE",
+        test: "npx react-scripts test",
+        eject: "npx react-scripts eject",
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
@@ -114,24 +127,174 @@ const create_homepage = async (dir) => {
         "react-dom",
         "web-vitals",
     ], [
-        "node-sass",
-        "react-scripts",
-        "typescript",
         "@types/node",
         "@types/react",
         "@types/react-dom",
+        "license-checker",
+        "node-sass",
+        "react-scripts",
+        "rimraf",
+        "typescript",
     ]);
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone("https://github.com/bizhermit/clone/homepage.git", cloneDir);
+    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
+    fse.moveSync(path_1.default.join(cloneDir, "public"), path_1.default.join(dir, "public"));
+    fse.moveSync(path_1.default.join(cloneDir, "README.md"), path_1.default.join(dir, "README.md"));
+    rimraf.sync(cloneDir);
 };
 exports.create_homepage = create_homepage;
 const create_cli = async (dir) => {
+    const pkg = getPackageJson(dir);
+    pkg.main = "bin/cli.js";
+    pkg.bin = "bin/cli.js";
+    pkg.scripts = {
+        dev: "npx tsc -w -p src",
+        build: "npx tsc -p src && npx license-checker --production > build/LICENSE",
+        pack: "npx rimraf build && npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
+    };
+    pkg.files = ["bin"];
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [], [
+        "@types/node",
+        "license-checker",
+        "pkg",
+        "typescript",
+        "rimraf",
+    ]);
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone("https://github.com/bizhermit/clone/cli-app.git", cloneDir);
+    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
+    fse.moveSync(path_1.default.join(cloneDir, "README.md"), path_1.default.join(dir, "README.md"));
+    rimraf.sync(cloneDir);
 };
 exports.create_cli = create_cli;
+const create_nextApp = async (dir) => {
+    cp.spawnSync("npx", ["create-next-app", "--ts", "."], { shell: true, stdio: "inherit", cwd: dir });
+    fse.mkdirSync(path_1.default.join(dir, "src"));
+    rimraf.sync(path_1.default.join(dir, "pages"));
+    rimraf.sync(path_1.default.join(dir, "public"));
+    rimraf.sync(path_1.default.join(dir, "styles"));
+    moveItem(dir, "next-env.d.ts");
+    moveItem(dir, "tsconfig.json");
+    moveItem(dir, ".eslintrc.json");
+};
+const packageJsonScripts_web = {
+    server: "npx tsc -p src-server && node main/index.js -dev",
+    start: "npx tsc -p src-server && npx tsc -p src && npx next build src && node main/index.js",
+};
+const packageJsonScripts_desktop = (name) => {
+    return {
+        electron: "npx tsc -p src-electron && npx electron main/src-electron/index.js",
+        "pack:win": "npx rimraf build && npm run license && npx next build src && npx next export src && npx tsc -p src-electron && electron-builder --win --dir",
+        pack: "npm run pack:win",
+        "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
+        confirm: "npm run confirm:win",
+        "build:win": "npx rimraf build && npm run license && npx next build src && npx next export src && npx tsc -p src-electron && electron-builder --win",
+        build: "npm run build:win",
+    };
+};
+const packageJsonDesktopBuild = (name) => {
+    return {
+        appId: `com.seekones.${name}`,
+        productName: name,
+        asar: true,
+        extends: null,
+        extraMetadata: {
+            main: "main/src-electron/index.js"
+        },
+        files: ["main", "src/out"],
+        extraFiles: [{
+                from: "LICENSE",
+                to: "LICENSE"
+            }, {
+                from: "src/i18n.json",
+                to: "resources/i18n.json"
+            }],
+        directories: {
+            output: "build"
+        },
+        win: {
+            icon: "src/public/favicon.ico",
+            target: {
+                target: "nsis",
+                arch: ["x64"]
+            }
+        },
+        mac: {},
+        linux: {},
+        nsis: {
+            oneClick: false,
+            allowToChangeInstallationDirectory: true
+        }
+    };
+};
 const create_web = async (dir) => {
+    create_nextApp(dir);
+    const pkg = getPackageJson(dir);
+    pkg.scripts = packageJsonScripts_web;
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [], [
+        "@types/node",
+        "license-checker",
+        "rimraf",
+    ]);
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone("https://github.com/bizhermit/clone/next-app.git", cloneDir);
+    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
+    fse.moveSync(path_1.default.join(cloneDir, "src-server"), path_1.default.join(dir, "src-server"));
+    fse.moveSync(path_1.default.join(cloneDir, "README.web.md"), path_1.default.join(dir, "README.md"));
+    rimraf.sync(cloneDir);
 };
 exports.create_web = create_web;
 const create_desktop = async (dir) => {
+    create_nextApp(dir);
+    const pkg = getPackageJson(dir);
+    pkg.scripts = packageJsonScripts_desktop(path_1.default.basename(dir));
+    pkg.build = packageJsonDesktopBuild(path_1.default.basename(dir));
+    pkg.browser = {
+        fs: false,
+        path: false,
+    };
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [], [
+        "@types/node",
+        "electron",
+        "electron-builder",
+        "license-checker",
+        "rimraf",
+    ]);
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone("https://github.com/bizhermit/clone/next-app.git", cloneDir);
+    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
+    fse.moveSync(path_1.default.join(cloneDir, "src-electron"), path_1.default.join(dir, "src-electron"));
+    fse.moveSync(path_1.default.join(cloneDir, "README.desktop.md"), path_1.default.join(dir, "README.md"));
+    rimraf.sync(cloneDir);
 };
 exports.create_desktop = create_desktop;
 const create_web_desktop = async (dir) => {
+    create_nextApp(dir);
+    const pkg = getPackageJson(dir);
+    pkg.scripts = { ...packageJsonScripts_web, ...packageJsonScripts_desktop(path_1.default.basename(dir)) };
+    pkg.build = packageJsonDesktopBuild(path_1.default.basename(dir));
+    pkg.browser = {
+        fs: false,
+        path: false,
+    };
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [], [
+        "@types/node",
+        "electron",
+        "electron-builder",
+        "license-checker",
+        "rimraf",
+    ]);
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone("https://github.com/bizhermit/clone/next-app.git", cloneDir);
+    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
+    fse.moveSync(path_1.default.join(cloneDir, "src-server"), path_1.default.join(dir, "src-server"));
+    fse.moveSync(path_1.default.join(cloneDir, "src-electron"), path_1.default.join(dir, "src-electron"));
+    fse.moveSync(path_1.default.join(cloneDir, "README.wd.md"), path_1.default.join(dir, "README.md"));
+    rimraf.sync(cloneDir);
 };
 exports.create_web_desktop = create_web_desktop;
