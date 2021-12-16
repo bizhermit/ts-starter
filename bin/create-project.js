@@ -142,6 +142,7 @@ const create_homepage = async (dir) => {
     await getGit(dir).clone("https://github.com/bizhermit/clone-homepage.git", cloneDir);
     fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
     fse.moveSync(path_1.default.join(cloneDir, "public"), path_1.default.join(dir, "public"));
+    fse.moveSync(path_1.default.join(cloneDir, "tsconfig.json"), path_1.default.join(dir, "tsconfig.json"));
     fse.moveSync(path_1.default.join(cloneDir, "README.md"), path_1.default.join(dir, "README.md"));
     rimraf.sync(cloneDir);
 };
