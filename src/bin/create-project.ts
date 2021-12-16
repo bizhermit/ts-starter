@@ -34,18 +34,19 @@ const savePackageJson = (cwd: string, pkg: PackageJson) => {
         "name",
         "version",
         "description",
-        "main",
-        "bin",
         "repository",
         "bugs",
         "author",
+        "homepage",
         "contributors",
         "license",
         "private",
+        "main",
+        "bin",
+        "files",
         "scripts",
         "dependencies",
         "devDependencies",
-        "files",
         "build",
         "browser",
     ]
@@ -98,6 +99,18 @@ export const create_homepage = async (dir: string) => {
     };
     pkg.eslintConfig = {
         extends: ["react-app", "react-app/jest"]
+    };
+    pkg.browserslist = {
+        production: [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        development: [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ],
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
