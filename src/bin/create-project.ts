@@ -89,13 +89,15 @@ const moveItem = (dir: string, itemName: string) => {
 };
 
 export const create_homepage = async (dir: string) => {
-    fse.mkdirSync(path.join(dir, "src"))
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
         build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/LICENSE",
         test: "npx react-scripts test",
         eject: "npx react-scripts eject",
+    };
+    pkg.eslintConfig = {
+        extends: ["react-app", "react-app/jest"]
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
