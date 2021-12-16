@@ -1,21 +1,19 @@
 {
-  "name": "@bizhermit/izanami",
+  "name": "@bizhermit/starter",
   "version": "0.0.0",
   "description": "project creator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bizhermit/izanami.git"
+    "url": "https://github.com/bizhermit/starter.git"
   },
   "bugs": {
-    "url": "https://github.com/bizhermit/izanami/issues"
+    "url": "https://github.com/bizhermit/starter/issues"
   },
-  "main": "bin/izanami.js",
-  "bin": {
-    "izanami": "bin/izanami.js"
-  },
+  "main": "bin/starter.js",
+  "bin": "bin/starter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx license-checker --production > LICENSE && npx tsc -p src/bin"
+    "build": "npx rimraf bin scripts && npx license-checker --production > LICENSE && npx tsc -p src/bin"
   },
   "author": "bizhermit.com <support@bizhermit.com> (https://bizhermit.com)",
   "homepage": "https://bizhermit.com",
@@ -26,13 +24,19 @@
   "files": [
     "bin"
   ],
+  "keywords": [
+    "bizhermit",
+    "starter"
+  ],
   "devDependencies": {
     "@types/node": "^16.11.13",
     "license-checker": "^25.0.1",
+    "rimraf": "^3.0.2",
     "typescript": "^4.5.4"
   },
-  "keywords": [
-    "bizhermit",
-    "application starter"
-  ]
+  "dependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "fs-extra": "^10.0.0",
+    "readline": "^1.3.0"
+  }
 }
