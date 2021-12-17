@@ -258,7 +258,7 @@ const moveItemsWhenNextApp = [
     "src/pages",
     "src/public",
     "src/styles",
-    "src/i18n",
+    "src/i18n.json",
     "src/index.d.ts",
 ];
 
