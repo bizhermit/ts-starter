@@ -22,9 +22,10 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rimraf bin && npx license-checker --production > LICENSE && npx tsc -p src"
+    "build": "npx rimraf bin && npx license-checker --production > LICENSE && npx tsc -p src && npx minifier ./bin"
   },
   "devDependencies": {
+    "@bizhermit/minifier": "^1.0.3",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.13",
     "@types/rimraf": "^3.0.2",
