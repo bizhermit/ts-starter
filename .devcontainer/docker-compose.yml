@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  node:
+    image: node:lts
+    tty: true
+    restart: always
+    working_dir: /workspace
+    volumes:
+      - ../:/workspace
