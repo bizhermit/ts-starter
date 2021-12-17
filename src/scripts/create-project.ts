@@ -210,11 +210,11 @@ const packageJsonScripts_desktop = (name: string) => {
     return {
         "clean:next": "npx rimraf main src/.next src/out",
         electron: "npm run clean:next && npx tsc -p src-nextron && npx electron main/src-nextron/index.js",
-        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && electron-builder --win --dir",
+        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
         pack: "npm run pack:win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
         confirm: "npm run confirm:win",
-        "build:win": "npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && electron-builder --win",
+        "build:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
         build: "npm run build:win",
     };
 };
@@ -225,7 +225,7 @@ const packageJsonDesktopBuild = (name: string) => {
         asar: true,
         extends: null,
         extraMetadata: {
-            main: "main/src-electron/index.js"
+            main: "main/src-nextron/index.js"
         },
         files: ["main", "src/out"],
         extraFiles: [{
@@ -296,6 +296,7 @@ export const create_desktop = async (dir: string) => {
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         "@bizhermit/nextron",
+        "@bizhermit/minifier",
     ], [
         "@types/node",
         "electron",
@@ -326,6 +327,7 @@ export const create_web_desktop = async (dir: string) => {
     npmInstall(dir, [
         "@bizhermit/nexpress",
         "@bizhermit/nextron",
+        "@bizhermit/minifier"
     ], [
         "@types/node",
         "electron",
@@ -340,6 +342,6 @@ export const create_web_desktop = async (dir: string) => {
             "src-nextron",
             ".gitignore",
         ]);
-        fse.moveSync(path.join(cloneDir, "README.wd.md"), path.join(dir, "README.md"), { overwrite: true });
+        fse.moveSync(path.join(cloneDir, "README.md"), path.join(dir, "README.md"), { overwrite: true });
     });
 };
