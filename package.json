@@ -15,14 +15,14 @@
     "Ryoichi Senda <rsenda@bizhermit.com> (https://bizhermit.com)"
   ],
   "license": "MIT",
-  "main": "bin/starter.js",
-  "bin": "bin/starter.js",
+  "main": "bin/cli.js",
+  "bin": "bin/cli.js",
   "files": [
     "bin"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rimraf bin scripts && npx license-checker --production > LICENSE && npx tsc -p src/bin"
+    "build": "npx rimraf bin && npx license-checker --production > LICENSE && npx tsc -p src"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",

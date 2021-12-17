@@ -9,7 +9,7 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "outDir": "../../bin",
+    "outDir": "../bin",
     "declaration": false
   },
   "include": ["**/*.ts"]
