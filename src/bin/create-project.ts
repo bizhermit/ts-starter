@@ -139,11 +139,13 @@ export const create_homepage = async (dir: string) => {
         "react",
         "react-dom",
         "react-router-dom",
+        "styled-components",
         "web-vitals",
     ], [
         "@types/node",
         "@types/react",
         "@types/react-dom",
+        "@types/styled-components",
         "license-checker",
         "node-sass",
         "react-scripts",
@@ -154,9 +156,9 @@ export const create_homepage = async (dir: string) => {
         moveItemsCloneToDir(dir, [
             "src",
             "public",
-            "tsconfig.json",
-            "README.md",
             ".gitignore",
+            "README.md",
+            "tsconfig.json",
         ]);
     });
 };
