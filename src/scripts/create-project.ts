@@ -204,7 +204,7 @@ const create_nextApp = async (dir: string) => {
 const packageJsonScripts_web = {
     "clean:next": "npx rimraf main src/.next src/out",
     server: "npm run clean:next && npx tsc -p src-nexpress && node main/index.js -dev",
-    start: "npm run clean:next && npx tsc -p src-nexpress && npx tsc -p src && npx next build src && node main/index.js",
+    start: "npm run clean:next && npx tsc -p src-nexpress && npx tsc -p src && npx next build src && npx minifier main && npx minifier src/.next && node main/index.js",
 };
 const packageJsonScripts_desktop = (name: string) => {
     return {
