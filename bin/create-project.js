@@ -107,11 +107,35 @@ const getGit = (dir) => {
     return (0, simple_git_1.default)({ baseDir: dir, binary: "git" });
     ;
 };
-const moveItem = (dir, itemName) => {
+const moveItemToSrc = (dir, itemName) => {
     try {
         fse.moveSync(path_1.default.join(dir, itemName), path_1.default.join(dir, "src", itemName));
     }
-    catch { }
+    catch {
+        process.stderr.write(`file or dir move failed: ${itemName}\n`);
+    }
+};
+const cloneFiles = async (dir, url, func) => {
+    const cloneDir = path_1.default.join(dir, "_clone");
+    await getGit(dir).clone(url, cloneDir);
+    try {
+        await func(cloneDir);
+    }
+    catch (err) {
+        process.stderr.write(`clone process failed.\n`);
+        process.stderr.write(String(err));
+    }
+    rimraf.sync(cloneDir);
+};
+const moveItemsCloneToDir = (dir, itemNames) => {
+    for (const itemName of itemNames) {
+        try {
+            fse.moveSync(path_1.default.join(dir, "_clone", itemName), path_1.default.join(dir, itemName));
+        }
+        catch {
+            process.stderr.write(`file or dir move failed: ${itemName}\n`);
+        }
+    }
 };
 const create_homepage = async (dir) => {
     const pkg = getPackageJson(dir);
@@ -140,6 +164,7 @@ const create_homepage = async (dir) => {
     npmInstall(dir, [
         "react",
         "react-dom",
+        "react-router-dom",
         "web-vitals",
     ], [
         "@types/node",
@@ -151,13 +176,15 @@ const create_homepage = async (dir) => {
         "rimraf",
         "typescript",
     ]);
-    const cloneDir = path_1.default.join(dir, "_clone");
-    await getGit(dir).clone("https://github.com/bizhermit/clone-homepage.git", cloneDir);
-    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
-    fse.moveSync(path_1.default.join(cloneDir, "public"), path_1.default.join(dir, "public"));
-    fse.moveSync(path_1.default.join(cloneDir, "tsconfig.json"), path_1.default.join(dir, "tsconfig.json"));
-    fse.moveSync(path_1.default.join(cloneDir, "README.md"), path_1.default.join(dir, "README.md"));
-    rimraf.sync(cloneDir);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-homepage.git", async () => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "public",
+            "tsconfig.json",
+            "README.md",
+            ".gitignore",
+        ]);
+    });
 };
 exports.create_homepage = create_homepage;
 const create_cli = async (dir) => {
@@ -178,11 +205,13 @@ const create_cli = async (dir) => {
         "typescript",
         "rimraf",
     ]);
-    const cloneDir = path_1.default.join(dir, "_clone");
-    await getGit(dir).clone("https://github.com/bizhermit/clone-cli-app.git", cloneDir);
-    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
-    fse.moveSync(path_1.default.join(cloneDir, "README.md"), path_1.default.join(dir, "README.md"));
-    rimraf.sync(cloneDir);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "README.md",
+            ".gitignore",
+        ]);
+    });
 };
 exports.create_cli = create_cli;
 const create_nextApp = async (dir) => {
@@ -191,9 +220,9 @@ const create_nextApp = async (dir) => {
     rimraf.sync(path_1.default.join(dir, "pages"));
     rimraf.sync(path_1.default.join(dir, "public"));
     rimraf.sync(path_1.default.join(dir, "styles"));
-    moveItem(dir, "next-env.d.ts");
-    moveItem(dir, "tsconfig.json");
-    moveItem(dir, ".eslintrc.json");
+    moveItemToSrc(dir, "next-env.d.ts");
+    moveItemToSrc(dir, "tsconfig.json");
+    moveItemToSrc(dir, ".eslintrc.json");
 };
 const packageJsonScripts_web = {
     server: "npx tsc -p src-server && node main/index.js -dev",
@@ -255,12 +284,14 @@ const create_web = async (dir) => {
         "license-checker",
         "rimraf",
     ]);
-    const cloneDir = path_1.default.join(dir, "_clone");
-    await getGit(dir).clone("https://github.com/bizhermit/clone-next-app.git", cloneDir);
-    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
-    fse.moveSync(path_1.default.join(cloneDir, "src-server"), path_1.default.join(dir, "src-server"));
-    fse.moveSync(path_1.default.join(cloneDir, "README.web.md"), path_1.default.join(dir, "README.md"));
-    rimraf.sync(cloneDir);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "src-server",
+            ".gitignore",
+        ]);
+        fse.moveSync(path_1.default.join(cloneDir, "README.web.md"), path_1.default.join(dir, "README.md"));
+    });
 };
 exports.create_web = create_web;
 const create_desktop = async (dir) => {
@@ -280,12 +311,14 @@ const create_desktop = async (dir) => {
         "license-checker",
         "rimraf",
     ]);
-    const cloneDir = path_1.default.join(dir, "_clone");
-    await getGit(dir).clone("https://github.com/bizhermit/clone-next-app.git", cloneDir);
-    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
-    fse.moveSync(path_1.default.join(cloneDir, "src-electron"), path_1.default.join(dir, "src-electron"));
-    fse.moveSync(path_1.default.join(cloneDir, "README.desktop.md"), path_1.default.join(dir, "README.md"));
-    rimraf.sync(cloneDir);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "src-electron",
+            ".gitignore",
+        ]);
+        fse.moveSync(path_1.default.join(cloneDir, "README.desktop.md"), path_1.default.join(dir, "README.md"));
+    });
 };
 exports.create_desktop = create_desktop;
 const create_web_desktop = async (dir) => {
@@ -305,12 +338,14 @@ const create_web_desktop = async (dir) => {
         "license-checker",
         "rimraf",
     ]);
-    const cloneDir = path_1.default.join(dir, "_clone");
-    await getGit(dir).clone("https://github.com/bizhermit/clone-next-app.git", cloneDir);
-    fse.moveSync(path_1.default.join(cloneDir, "src"), path_1.default.join(dir, "src"));
-    fse.moveSync(path_1.default.join(cloneDir, "src-server"), path_1.default.join(dir, "src-server"));
-    fse.moveSync(path_1.default.join(cloneDir, "src-electron"), path_1.default.join(dir, "src-electron"));
-    fse.moveSync(path_1.default.join(cloneDir, "README.wd.md"), path_1.default.join(dir, "README.md"));
-    rimraf.sync(cloneDir);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "src-server",
+            "src-electron",
+            ".gitignore",
+        ]);
+        fse.moveSync(path_1.default.join(cloneDir, "README.wd.md"), path_1.default.join(dir, "README.md"));
+    });
 };
 exports.create_web_desktop = create_web_desktop;
