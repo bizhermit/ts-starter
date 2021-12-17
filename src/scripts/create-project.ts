@@ -101,10 +101,10 @@ const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => 
     }
     rimraf.sync(cloneDir);
 };
-const moveItemsCloneToDir = (dir: string, itemNames: Array<string>) => {
+const moveItemsCloneToDir = (dir: string, itemNames: Array<string>, overwrite?: boolean) => {
     for (const itemName of itemNames) {
         try {
-            fse.moveSync(path.join(dir, "_clone", itemName), path.join(dir, itemName));
+            fse.moveSync(path.join(dir, "_clone", itemName), path.join(dir, itemName), { overwrite: overwrite ?? true });
         } catch {
             process.stderr.write(`file or dir move failed: ${itemName}\n`);
         }
@@ -202,17 +202,19 @@ const create_nextApp = async (dir: string) => {
 };
 
 const packageJsonScripts_web = {
-    server: "npx tsc -p src-server && node main/index.js -dev",
-    start: "npx tsc -p src-server && npx tsc -p src && npx next build src && node main/index.js",
+    "clean:next": "npx rimraf main src/.next src/out",
+    server: "npm run clean:next && npx tsc -p src-nexpress && node main/index.js -dev",
+    start: "npm run clean:next && npx tsc -p src-nexpress && npx tsc -p src && npx next build src && node main/index.js",
 };
 const packageJsonScripts_desktop = (name: string) => {
     return {
-        electron: "npx tsc -p src-electron && npx electron main/src-electron/index.js",
-        "pack:win": "npx rimraf build && npm run license && npx next build src && npx next export src && npx tsc -p src-electron && electron-builder --win --dir",
+        "clean:next": "npx rimraf main src/.next src/out",
+        electron: "npm run clean:next && npx tsc -p src-nextron && npx electron main/src-nextron/index.js",
+        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && electron-builder --win --dir",
         pack: "npm run pack:win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
         confirm: "npm run confirm:win",
-        "build:win": "npx rimraf build && npm run license && npx next build src && npx next export src && npx tsc -p src-electron && electron-builder --win",
+        "build:win": "npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && electron-builder --win",
         build: "npm run build:win",
     };
 };
@@ -252,23 +254,33 @@ const packageJsonDesktopBuild = (name: string) => {
     };
 };
 
+const moveItemsWhenNextApp = [
+    "src/pages",
+    "src/public",
+    "src/styles",
+    "src/i18n",
+    "src/index.d.ts",
+];
+
 export const create_web = async (dir: string) => {
     create_nextApp(dir);
     const pkg = getPackageJson(dir);
     pkg.scripts = packageJsonScripts_web;
     savePackageJson(dir, pkg);
-    npmInstall(dir, [], [
+    npmInstall(dir, [
+        "@bizhermit/nexpress",
+    ], [
         "@types/node",
         "license-checker",
         "rimraf",
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
         moveItemsCloneToDir(dir, [
-            "src",
-            "src-server",
+            ...moveItemsWhenNextApp,
+            "src-nexpress",
             ".gitignore",
         ]);
-        fse.moveSync(path.join(cloneDir, "README.web.md"), path.join(dir, "README.md"));
+        fse.moveSync(path.join(cloneDir, "README.web.md"), path.join(dir, "README.md"), { overwrite: true });
     });
 };
 
@@ -282,7 +294,9 @@ export const create_desktop = async (dir: string) => {
         path: false,
     };
     savePackageJson(dir, pkg);
-    npmInstall(dir, [], [
+    npmInstall(dir, [
+        "@bizhermit/nextron",
+    ], [
         "@types/node",
         "electron",
         "electron-builder",
@@ -291,11 +305,11 @@ export const create_desktop = async (dir: string) => {
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
         moveItemsCloneToDir(dir, [
-            "src",
-            "src-electron",
+            ...moveItemsWhenNextApp,
+            "src-nextron",
             ".gitignore",
         ]);
-        fse.moveSync(path.join(cloneDir, "README.desktop.md"), path.join(dir, "README.md"));
+        fse.moveSync(path.join(cloneDir, "README.desktop.md"), path.join(dir, "README.md"), { overwrite: true });
     });
 };
 
@@ -309,7 +323,10 @@ export const create_web_desktop = async (dir: string) => {
         path: false,
     };
     savePackageJson(dir, pkg);
-    npmInstall(dir, [], [
+    npmInstall(dir, [
+        "@bizhermit/nexpress",
+        "@bizhermit/nextron",
+    ], [
         "@types/node",
         "electron",
         "electron-builder",
@@ -318,11 +335,11 @@ export const create_web_desktop = async (dir: string) => {
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
         moveItemsCloneToDir(dir, [
-            "src",
-            "src-server",
-            "src-electron",
+            ...moveItemsWhenNextApp,
+            "src-nexpress",
+            "src-nextron",
             ".gitignore",
         ]);
-        fse.moveSync(path.join(cloneDir, "README.wd.md"), path.join(dir, "README.md"));
+        fse.moveSync(path.join(cloneDir, "README.wd.md"), path.join(dir, "README.md"), { overwrite: true });
     });
 };
