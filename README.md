@@ -4,9 +4,9 @@ Typescriptプロジェクトを手軽に始めるためのツールです。
 
 # 使い方
 
-@bizhermit/starterをnpxで実行します。
+@biz-hermit/starterをnpxで実行します。
 ```bash
-> npx @bizhermit/starter [dirname]
+> npx @biz-hermit/starter [dirname]
 ```
 - dirname : ひな型を展開するディレクトリの相対パス（初期値はカレントディレクトリ）
 

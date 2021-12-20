@@ -115,7 +115,7 @@ export const create_homepage = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
-        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/LICENSE",
+        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/AUTHORS",
         test: "npx react-scripts test",
         eject: "npx react-scripts eject",
     };
@@ -169,7 +169,7 @@ export const create_cli = async (dir: string) => {
     pkg.bin = "bin/cli.js";
     pkg.scripts = {
         dev: "npx tsc -w -p src",
-        build: "npx rimraf bin && npx tsc -p src && npx license-checker --production > LICENSE",
+        build: "npx rimraf bin && npx tsc -p src && npx license-checker --production > AUTHORS",
         pack: "npx rimraf build && npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
     };
     pkg.files = ["bin"];
@@ -210,11 +210,11 @@ const packageJsonScripts_desktop = (name: string) => {
     return {
         "clean:next": "npx rimraf main src/.next src/out",
         electron: "npm run clean:next && npx tsc -p src-nextron && npx electron main/src-nextron/index.js",
-        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
+        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > AUTHORS && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
         pack: "npm run pack:win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
         confirm: "npm run confirm:win",
-        "build:win": "npm run clean:next && npx rimraf build && npx license-checker --production > LICENSE && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
+        "build:win": "npm run clean:next && npx rimraf build && npx license-checker --production > AUTHORS && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
         build: "npm run build:win",
     };
 };
@@ -231,6 +231,9 @@ const packageJsonDesktopBuild = (name: string) => {
         extraFiles: [{
             from: "LICENSE",
             to: "LICENSE"
+        }, {
+            from: "AUTHORS",
+            to: "AUTHORS"
         }, {
             from: "src/i18n.json",
             to: "resources/i18n.json"
@@ -268,7 +271,7 @@ export const create_web = async (dir: string) => {
     pkg.scripts = packageJsonScripts_web;
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@bizhermit/nexpress",
+        "@biz-hermit/nexpress",
     ], [
         "@types/node",
         "license-checker",
@@ -295,9 +298,9 @@ export const create_desktop = async (dir: string) => {
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@bizhermit/nextron",
+        "@biz-hermit/nextron",
     ], [
-        "@bizhermit/minifier",
+        "@biz-hermit/minifier",
         "@types/node",
         "electron",
         "electron-builder",
@@ -325,10 +328,10 @@ export const create_web_desktop = async (dir: string) => {
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@bizhermit/nexpress",
-        "@bizhermit/nextron",
+        "@biz-hermit/nexpress",
+        "@biz-hermit/nextron",
     ], [
-        "@bizhermit/minifier",
+        "@biz-hermit/minifier",
         "@types/node",
         "electron",
         "electron-builder",

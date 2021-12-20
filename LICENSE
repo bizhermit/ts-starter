@@ -1,167 +1,21 @@
-├─ @bizhermit/starter@0.1.0
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/bizhermit/starter
-│  ├─ publisher: bizhermit.com
-│  ├─ email: support@bizhermit.com
-│  ├─ url: https://bizhermit.com
-│  ├─ path: E:\bizhermit\npm\starter
-│  └─ licenseFile: E:\bizhermit\npm\starter\LICENSE
-├─ @kwsites/file-exists@1.1.1
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/kwsites/file-exists
-│  ├─ publisher: Steve King
-│  ├─ email: steve@mydev.co
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists\LICENSE
-├─ @kwsites/promise-deferred@1.1.1
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/kwsites/promise-deferred
-│  ├─ publisher: Steve King
-│  ├─ email: steve@mydev.co
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\@kwsites\promise-deferred
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\@kwsites\promise-deferred\LICENSE
-├─ balanced-match@1.0.2
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/juliangruber/balanced-match
-│  ├─ publisher: Julian Gruber
-│  ├─ email: mail@juliangruber.com
-│  ├─ url: http://juliangruber.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\balanced-match
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\balanced-match\LICENSE.md
-├─ brace-expansion@1.1.11
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/juliangruber/brace-expansion
-│  ├─ publisher: Julian Gruber
-│  ├─ email: mail@juliangruber.com
-│  ├─ url: http://juliangruber.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\brace-expansion
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\brace-expansion\LICENSE
-├─ concat-map@0.0.1
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/substack/node-concat-map
-│  ├─ publisher: James Halliday
-│  ├─ email: mail@substack.net
-│  ├─ url: http://substack.net
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\concat-map
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\concat-map\LICENSE
-├─ debug@4.3.3
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/debug-js/debug
-│  ├─ publisher: Josh Junon
-│  ├─ email: josh.junon@protonmail.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists\node_modules\debug
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists\node_modules\debug\LICENSE
-├─ fs-extra@10.0.0
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/jprichardson/node-fs-extra
-│  ├─ publisher: JP Richardson
-│  ├─ email: jprichardson@gmail.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\fs-extra
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\fs-extra\LICENSE
-├─ fs.realpath@1.0.0
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/fs.realpath
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me/
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\fs.realpath
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\fs.realpath\LICENSE
-├─ glob@7.2.0
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/node-glob
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me/
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\glob
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\glob\LICENSE
-├─ graceful-fs@4.2.8
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/node-graceful-fs
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\graceful-fs
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\graceful-fs\LICENSE
-├─ inflight@1.0.6
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/npm/inflight
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me/
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\inflight
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\inflight\LICENSE
-├─ inherits@2.0.4
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/inherits
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\inherits
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\inherits\LICENSE
-├─ jsonfile@6.1.0
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/jprichardson/node-jsonfile
-│  ├─ publisher: JP Richardson
-│  ├─ email: jprichardson@gmail.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\jsonfile
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\jsonfile\LICENSE
-├─ minimatch@3.0.4
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/minimatch
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\minimatch
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\minimatch\LICENSE
-├─ ms@2.1.2
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/zeit/ms
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists\node_modules\ms
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\@kwsites\file-exists\node_modules\ms\license.md
-├─ once@1.4.0
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/once
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me/
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\once
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\once\LICENSE
-├─ path-is-absolute@1.0.1
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/sindresorhus/path-is-absolute
-│  ├─ publisher: Sindre Sorhus
-│  ├─ email: sindresorhus@gmail.com
-│  ├─ url: sindresorhus.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\path-is-absolute
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\path-is-absolute\license
-├─ readline@1.3.0
-│  ├─ licenses: BSD*
-│  ├─ repository: https://github.com/maleck13/readline
-│  ├─ publisher: craig brookes
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\readline
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\readline\README.md
-├─ rimraf@3.0.2
-│  ├─ licenses: ISC
-│  ├─ repository: https://github.com/isaacs/rimraf
-│  ├─ publisher: Isaac Z. Schlueter
-│  ├─ email: i@izs.me
-│  ├─ url: http://blog.izs.me/
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\rimraf
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\rimraf\LICENSE
-├─ simple-git@2.48.0
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/steveukx/git-js
-│  ├─ publisher: Steve King
-│  ├─ email: steve@mydev.co
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\simple-git
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\simple-git\LICENSE
-├─ universalify@2.0.0
-│  ├─ licenses: MIT
-│  ├─ repository: https://github.com/RyanZim/universalify
-│  ├─ publisher: Ryan Zimmerman
-│  ├─ email: opensrc@ryanzim.com
-│  ├─ path: E:\bizhermit\npm\starter\node_modules\universalify
-│  └─ licenseFile: E:\bizhermit\npm\starter\node_modules\universalify\LICENSE
-└─ wrappy@1.0.2
-   ├─ licenses: ISC
-   ├─ repository: https://github.com/npm/wrappy
-   ├─ publisher: Isaac Z. Schlueter
-   ├─ email: i@izs.me
-   ├─ url: http://blog.izs.me/
-   ├─ path: E:\bizhermit\npm\starter\node_modules\wrappy
-   └─ licenseFile: E:\bizhermit\npm\starter\node_modules\wrappy\LICENSE
+MIT License
 
+Copyright (c) 2021 Ryoichi Senda
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
