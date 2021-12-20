@@ -276,6 +276,7 @@ export const create_web = async (dir: string) => {
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         "@biz-hermit/nexpress",
+        "@biz-hermit/next-absorber",
     ], [
         "@types/node",
         "license-checker",
@@ -303,6 +304,7 @@ export const create_desktop = async (dir: string) => {
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         "@biz-hermit/nextron",
+        "@biz-hermit/next-absorber",
     ], [
         "@biz-hermit/minifier",
         "@types/node",
@@ -334,6 +336,7 @@ export const create_web_desktop = async (dir: string) => {
     npmInstall(dir, [
         "@biz-hermit/nexpress",
         "@biz-hermit/nextron",
+        "@biz-hermit/next-absorber",
     ], [
         "@biz-hermit/minifier",
         "@types/node",
