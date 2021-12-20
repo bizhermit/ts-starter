@@ -296,8 +296,8 @@ export const create_desktop = async (dir: string) => {
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         "@bizhermit/nextron",
-        "@bizhermit/minifier",
     ], [
+        "@bizhermit/minifier",
         "@types/node",
         "electron",
         "electron-builder",
@@ -327,8 +327,8 @@ export const create_web_desktop = async (dir: string) => {
     npmInstall(dir, [
         "@bizhermit/nexpress",
         "@bizhermit/nextron",
-        "@bizhermit/minifier"
     ], [
+        "@bizhermit/minifier",
         "@types/node",
         "electron",
         "electron-builder",
