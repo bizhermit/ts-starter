@@ -115,7 +115,7 @@ export const create_homepage = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
-        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/AUTHORS",
+        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/AUTHORS && npx cpx LICENSE build",
         test: "npx react-scripts test",
         eject: "npx react-scripts eject",
     };
@@ -146,6 +146,7 @@ export const create_homepage = async (dir: string) => {
         "@types/react",
         "@types/react-dom",
         "@types/styled-components",
+        "cpx",
         "license-checker",
         "node-sass",
         "react-scripts",
@@ -157,6 +158,7 @@ export const create_homepage = async (dir: string) => {
             "src",
             "public",
             ".gitignore",
+            "LICENSE",
             "README.md",
             "tsconfig.json",
         ]);
@@ -185,6 +187,7 @@ export const create_cli = async (dir: string) => {
         moveItemsCloneToDir(dir, [
             "src",
             "README.md",
+            "LICENSE",
             ".gitignore",
         ]);
     });
@@ -263,6 +266,7 @@ const moveItemsWhenNextApp = [
     "src/styles",
     "src/i18n.json",
     "src/index.d.ts",
+    "LICENSE",
 ];
 
 export const create_web = async (dir: string) => {
