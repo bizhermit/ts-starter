@@ -171,6 +171,7 @@ export const create_cli = async (dir: string) => {
     pkg.bin = "bin/cli.js";
     pkg.scripts = {
         dev: "npx tsc -w -p src",
+        start: "node .",
         build: "npx rimraf bin && npx tsc -p src && npx license-checker --production > AUTHORS",
         pack: "npx rimraf build && npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
     };
