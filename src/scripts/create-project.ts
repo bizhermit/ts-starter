@@ -194,6 +194,12 @@ export const create_cli = async (dir: string) => {
     });
 };
 
+const rewriteTsconfig = (path: string) => {
+    const tsconfig = require(path);
+    tsconfig.compilerOptions.strictNullChecks = false;
+    fse.writeFileSync(path, JSON.stringify(tsconfig, null, 2));
+};
+
 const create_nextApp = async (dir: string) => {
     cp.spawnSync("npx", ["create-next-app", "--ts", "."], { shell: true, stdio: "inherit", cwd: dir });
     fse.mkdirSync(path.join(dir, "src"));
@@ -203,6 +209,7 @@ const create_nextApp = async (dir: string) => {
     moveItemToSrc(dir, "next-env.d.ts");
     moveItemToSrc(dir, "tsconfig.json");
     moveItemToSrc(dir, ".eslintrc.json");
+    rewriteTsconfig(path.join(dir, "src/tsconfig.json"));
 };
 
 const packageJsonScripts_web = {
