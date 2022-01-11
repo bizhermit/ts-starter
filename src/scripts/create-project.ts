@@ -4,6 +4,7 @@ import * as cp from "child_process";
 import * as rimraf from "rimraf";
 import simpleGit from "simple-git";
 
+const bizhermitPrefix = "@biz-hermit";
 type PackageJson = {[key: string]: any};
 
 const getPackageJson = (cwd: string) => {
@@ -141,6 +142,7 @@ export const create_homepage = async (dir: string) => {
         "react-router-dom",
         "styled-components",
         "web-vitals",
+        `${bizhermitPrefix}/react-sdk`,
     ], [
         "@types/node",
         "@types/react",
@@ -283,8 +285,9 @@ export const create_web = async (dir: string) => {
     pkg.scripts = packageJsonScripts_web;
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@biz-hermit/nexpress",
-        "@biz-hermit/next-absorber",
+        `${bizhermitPrefix}/nexpress`,
+        `${bizhermitPrefix}/next-absorber`,
+        `${bizhermitPrefix}/react-sdk`,
     ], [
         "@types/node",
         "license-checker",
@@ -311,10 +314,11 @@ export const create_desktop = async (dir: string) => {
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@biz-hermit/nextron",
-        "@biz-hermit/next-absorber",
+        `${bizhermitPrefix}/nextron`,
+        `${bizhermitPrefix}/next-absorber`,
+        `${bizhermitPrefix}/react-sdk`,
     ], [
-        "@biz-hermit/minifier",
+        `${bizhermitPrefix}/minifier`,
         "@types/node",
         "electron",
         "electron-builder",
@@ -342,11 +346,12 @@ export const create_web_desktop = async (dir: string) => {
     };
     savePackageJson(dir, pkg);
     npmInstall(dir, [
-        "@biz-hermit/nexpress",
-        "@biz-hermit/nextron",
-        "@biz-hermit/next-absorber",
+        `${bizhermitPrefix}/nexpress`,
+        `${bizhermitPrefix}/nextron`,
+        `${bizhermitPrefix}/next-absorber`,
+        `${bizhermitPrefix}/react-sdk`,
     ], [
-        "@biz-hermit/minifier",
+        `${bizhermitPrefix}/minifier`,
         "@types/node",
         "electron",
         "electron-builder",
