@@ -143,6 +143,7 @@ export const create_homepage = async (dir: string) => {
         "styled-components",
         "web-vitals",
         `${bizhermitPrefix}/react-sdk`,
+        `${bizhermitPrefix}/basic-utils`,
     ], [
         "@types/node",
         "@types/react",
@@ -185,6 +186,7 @@ export const create_cli = async (dir: string) => {
         "pkg",
         "typescript",
         "rimraf",
+        `${bizhermitPrefix}/basic-utils`,
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
         moveItemsCloneToDir(dir, [
@@ -288,6 +290,7 @@ export const create_web = async (dir: string) => {
         `${bizhermitPrefix}/nexpress`,
         `${bizhermitPrefix}/next-absorber`,
         `${bizhermitPrefix}/react-sdk`,
+        `${bizhermitPrefix}/basic-utils`,
     ], [
         "@types/node",
         "license-checker",
@@ -317,6 +320,7 @@ export const create_desktop = async (dir: string) => {
         `${bizhermitPrefix}/nextron`,
         `${bizhermitPrefix}/next-absorber`,
         `${bizhermitPrefix}/react-sdk`,
+        `${bizhermitPrefix}/basic-utils`,
     ], [
         `${bizhermitPrefix}/minifier`,
         "@types/node",
@@ -350,6 +354,7 @@ export const create_web_desktop = async (dir: string) => {
         `${bizhermitPrefix}/nextron`,
         `${bizhermitPrefix}/next-absorber`,
         `${bizhermitPrefix}/react-sdk`,
+        `${bizhermitPrefix}/basic-utils`,
     ], [
         `${bizhermitPrefix}/minifier`,
         "@types/node",
