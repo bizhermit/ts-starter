@@ -1,6 +1,6 @@
 {
-  "name": "@biz-hermit/starter",
-  "version": "0.0.4",
+  "name": "@bizhermit/starter",
+  "version": "1.0.0",
   "description": "project creator",
   "bugs": {
     "email": "support@bizhermit.com"
@@ -18,7 +18,7 @@
     "build": "npx rimraf bin && npx license-checker --production > AUTHORS && npx tsc -p src && npx minifier ./bin"
   },
   "devDependencies": {
-    "@biz-hermit/minifier": "^0.0.0",
+    "@bizhermit/minifier": "^1.0.0",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.13",
     "@types/rimraf": "^3.0.2",

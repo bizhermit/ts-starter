@@ -4,7 +4,7 @@ import * as cp from "child_process";
 import * as rimraf from "rimraf";
 import simpleGit from "simple-git";
 
-const bizhermitPrefix = "@biz-hermit";
+const bizhermitPrefix = "@bizhermit";
 type PackageJson = {[key: string]: any};
 
 const getPackageJson = (cwd: string) => {
