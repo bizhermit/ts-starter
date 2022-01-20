@@ -180,13 +180,14 @@ export const create_cli = async (dir: string) => {
     };
     pkg.files = ["bin"];
     savePackageJson(dir, pkg);
-    npmInstall(dir, [], [
+    npmInstall(dir, [
+        `${bizhermitPrefix}/basic-utils`,
+    ], [
         "@types/node",
         "license-checker",
         "pkg",
         "typescript",
         "rimraf",
-        `${bizhermitPrefix}/basic-utils`,
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
         moveItemsCloneToDir(dir, [
