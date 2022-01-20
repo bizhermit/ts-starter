@@ -173,10 +173,13 @@ export const create_cli = async (dir: string) => {
     pkg.main = "bin/cli.js";
     pkg.bin = "bin/cli.js";
     pkg.scripts = {
-        dev: "npx tsc -w -p src",
-        start: "node .",
-        build: "npx rimraf bin && npx tsc -p src && npx license-checker --production > AUTHORS",
-        pack: "npx rimraf build && npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
+        "watch": "npx tsc -w -p src",
+        "dev": "node .",
+        "build:js": "npx rimraf bin build && npx tsc -p src && npx minifier bin && npx license-checker --production > AUTHORS",
+        "build:win": "npm run build:js && npx pkg --out-path build --targets win --compress GZip bin/cli.js",
+        "build:mac": "npm run build:js && npx pkg --out-path build --targets mac --compress GZip bin/cli.js",
+        "build:linux": "npm run build:js && npx pkg --out-path build --targets linux --compress GZip bin/cli.js",
+        "build": "npm run build:js && npx pkg --out-path build --compress GZip bin/cli.js",
     };
     pkg.files = ["bin"];
     savePackageJson(dir, pkg);
@@ -188,6 +191,7 @@ export const create_cli = async (dir: string) => {
         "pkg",
         "typescript",
         "rimraf",
+        `${bizhermitPrefix}/minifier`,
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
         moveItemsCloneToDir(dir, [
