@@ -2,6 +2,10 @@
   "name": "@bizhermit/starter",
   "version": "1.0.1",
   "description": "project creator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bizhermit/starter.git"
+  },
   "bugs": {
     "email": "support@bizhermit.com"
   },
@@ -14,8 +18,10 @@
     "bin"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rimraf bin && npx license-checker --production > AUTHORS && npx tsc -p src && npx minifier ./bin"
+    "test": "",
+    "build": "npx rimraf bin && npx license-checker --production > AUTHORS && npx tsc -p src && npx minifier ./bin",
+    "prepublish": "npm run build && git pull && git push",
+    "postpublish": "git tag && git push origin tags/v%npm_package_version%"
   },
   "devDependencies": {
     "@bizhermit/minifier": "^1.0.0",
@@ -33,6 +39,7 @@
   },
   "keywords": [
     "bizhermit",
-    "starter"
+    "starter",
+    "typescript"
   ]
 }
