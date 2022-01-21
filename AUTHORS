@@ -1,5 +1,6 @@
-├─ @bizhermit/starter@1.0.1
+├─ @bizhermit/starter@1.0.2
 │  ├─ licenses: MIT
+│  ├─ repository: https://github.com/bizhermit/starter
 │  ├─ publisher: Ryoichi Senda
 │  ├─ email: rsenda@bizhermit.com
 │  ├─ url: https://bizhermit.com
