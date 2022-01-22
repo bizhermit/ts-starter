@@ -94,10 +94,12 @@ const moveItemToSrc = (dir: string, itemName: string) => {
 const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => Promise<void>) => {
     const cloneDir = path.join(dir, "_clone");
     try {
+        process.stdout.write(`clone ${url}.\n`);
         await getGit(dir).clone(url, cloneDir);
         await func(cloneDir);
+        process.stdout.write(`clone succeeded.\n`);
     } catch(err) {
-        process.stderr.write(`clone process failed.\n`);
+        process.stderr.write(`clone failed.\n`);
         process.stderr.write(String(err));
     } finally {
         rimraf.sync(cloneDir);
