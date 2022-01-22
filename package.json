@@ -7,7 +7,8 @@
     "url": "https://github.com/bizhermit/starter.git"
   },
   "bugs": {
-    "email": "support@bizhermit.com"
+    "email": "support@bizhermit.com",
+    "url": "https://github.com/bizhermit/starter/issues"
   },
   "author": "Ryoichi Senda <rsenda@bizhermit.com> (https://bizhermit.com)",
   "homepage": "https://bizhermit.com",
