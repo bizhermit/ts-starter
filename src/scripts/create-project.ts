@@ -243,7 +243,7 @@ const packageJsonScripts_desktop = (name: string) => {
 };
 const packageJsonDesktopBuild = (name: string) => {
     return {
-        appId: `com.seekones.${name}`,
+        appId: `example.${name}`,
         productName: name,
         asar: true,
         extends: null,
