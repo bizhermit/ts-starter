@@ -229,7 +229,7 @@ const create_nextApp = async (dir: string) => {
 
 const packageJsonScripts_web = {
     "clean": "npx rimraf dist main src/.next src/out",
-    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError -exclude caniuse-lite",
     "prestart": "npm run clean && npx tsc -p src-nexpress/tsconfig.json",
     "server": "npm run prestart && node main/index.js -dev",
     "start": "npm run license && npx tsc -p src/tsconfig.json && npx next build src && npx minifier main && npx minifier src/.next && node main/index.js",
@@ -237,7 +237,7 @@ const packageJsonScripts_web = {
 const packageJsonScripts_desktop = (name: string) => {
     return {
         "clean": "npx rimraf dist main src/.next src/out",
-        "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+        "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError -exclude caniuse-lite",
         "prebuild": "npm run clean && npx tsc -p src-nextron/tsconfig.json",
         "electron": "npm run prebuild && npx electron main/src-nextron/index.js",
         "build:next": "npx next build src && npx next export src",
