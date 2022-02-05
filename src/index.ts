@@ -178,7 +178,7 @@ export const create_cli = async (dir: string) => {
     pkg.bin = "bin/cli.js";
     pkg.scripts = {
         "dev": "node bin/cli",
-        "license": "npx license -o CREDIT --returnError",
+        "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
         "build": "npm run license && npx rimraf bin && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier bin",
         "pack": "npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
         "pack:win": "npm run pack -- --targets win",
@@ -187,7 +187,7 @@ export const create_cli = async (dir: string) => {
         "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
         "postpublish": "git tag && git push origin tags/v%npm_package_version%",
     };
-    pkg.files = ["bin"];
+    pkg.files = ["bin", "CREDIT"];
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         `${bizhermitPrefix}/basic-utils`,
