@@ -119,7 +119,7 @@ export const create_homepage = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
-        build: "npx rimraf build && npx react-scripts build && npx license-checker --production > build/AUTHORS && npx cpx LICENSE build",
+        build: "npx rimraf build && npx react-scripts build && npx license -o build/CREDIT --returnError && npx cpx LICENSE build",
         test: "npx react-scripts test",
         eject: "npx react-scripts eject",
     };
@@ -148,12 +148,12 @@ export const create_homepage = async (dir: string) => {
         `${bizhermitPrefix}/react-sdk`,
         `${bizhermitPrefix}/basic-utils`,
     ], [
+        `${bizhermitPrefix}/license`,
         "@types/node",
         "@types/react",
         "@types/react-dom",
         "@types/styled-components",
         "cpx",
-        "license-checker",
         "node-sass",
         "react-scripts",
         "rimraf",
@@ -178,7 +178,7 @@ export const create_cli = async (dir: string) => {
     pkg.scripts = {
         "watch": "npx tsc -w -p src",
         "dev": "node .",
-        "build:js": "npx rimraf bin build && npx tsc -p src && npx minifier bin && npx license-checker --production > AUTHORS",
+        "build:js": "npx rimraf bin build && npx tsc -p src && npx minifier bin && npx license -o CREDIT --returnError",
         "build:win": "npm run build:js && npx pkg --out-path build --targets win --compress GZip bin/cli.js",
         "build:mac": "npm run build:js && npx pkg --out-path build --targets mac --compress GZip bin/cli.js",
         "build:linux": "npm run build:js && npx pkg --out-path build --targets linux --compress GZip bin/cli.js",
@@ -189,8 +189,8 @@ export const create_cli = async (dir: string) => {
     npmInstall(dir, [
         `${bizhermitPrefix}/basic-utils`,
     ], [
+        `${bizhermitPrefix}/license`,
         "@types/node",
-        "license-checker",
         "pkg",
         "typescript",
         "rimraf",
@@ -233,11 +233,11 @@ const packageJsonScripts_desktop = (name: string) => {
     return {
         "clean:next": "npx rimraf main src/.next src/out",
         electron: "npm run clean:next && npx tsc -p src-nextron && npx electron main/src-nextron/index.js",
-        "pack:win": "npm run clean:next && npx rimraf build && npx license-checker --production > AUTHORS && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
+        "pack:win": "npm run clean:next && npx rimraf build && npx license -o CREDIT --returnError && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
         pack: "npm run pack:win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
         confirm: "npm run confirm:win",
-        "build:win": "npm run clean:next && npx rimraf build && npx license-checker --production > AUTHORS && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
+        "build:win": "npm run clean:next && npx rimraf build && npx license -o CREDIT --returnError && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
         build: "npm run build:win",
     };
 };
@@ -255,8 +255,8 @@ const packageJsonDesktopBuild = (name: string) => {
             from: "LICENSE",
             to: "LICENSE"
         }, {
-            from: "AUTHORS",
-            to: "AUTHORS"
+            from: "CREDIT",
+            to: "CREDIT"
         }, {
             from: "src/i18n.json",
             to: "resources/i18n.json"
@@ -300,8 +300,8 @@ export const create_web = async (dir: string) => {
         `${bizhermitPrefix}/react-sdk`,
         `${bizhermitPrefix}/basic-utils`,
     ], [
+        `${bizhermitPrefix}/license`,
         "@types/node",
-        "license-checker",
         "rimraf",
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
@@ -331,10 +331,10 @@ export const create_desktop = async (dir: string) => {
         `${bizhermitPrefix}/basic-utils`,
     ], [
         `${bizhermitPrefix}/minifier`,
+        `${bizhermitPrefix}/license`,
         "@types/node",
         "electron",
         "electron-builder",
-        "license-checker",
         "rimraf",
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
@@ -365,10 +365,10 @@ export const create_web_desktop = async (dir: string) => {
         `${bizhermitPrefix}/basic-utils`,
     ], [
         `${bizhermitPrefix}/minifier`,
+        `${bizhermitPrefix}/license`,
         "@types/node",
         "electron",
         "electron-builder",
-        "license-checker",
         "rimraf",
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
