@@ -119,7 +119,8 @@ export const create_homepage = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
-        build: "npx rimraf build && npx react-scripts build && npx license -o build/CREDIT --returnError && npx cpx LICENSE build",
+        license: "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+        build: "npm run license && npx rimraf build && npx react-scripts build && npx cpx LICENSE build && npx cpx CREDIT build",
         test: "npx react-scripts test",
         eject: "npx react-scripts eject",
     };
@@ -173,28 +174,30 @@ export const create_homepage = async (dir: string) => {
 
 export const create_cli = async (dir: string) => {
     const pkg = getPackageJson(dir);
-    pkg.main = "bin/cli.js";
+    pkg.main = "bin/index";
     pkg.bin = "bin/cli.js";
     pkg.scripts = {
-        "watch": "npx tsc -w -p src",
-        "dev": "node .",
-        "build:js": "npx rimraf bin build && npx tsc -p src && npx minifier bin && npx license -o CREDIT --returnError",
-        "build:win": "npm run build:js && npx pkg --out-path build --targets win --compress GZip bin/cli.js",
-        "build:mac": "npm run build:js && npx pkg --out-path build --targets mac --compress GZip bin/cli.js",
-        "build:linux": "npm run build:js && npx pkg --out-path build --targets linux --compress GZip bin/cli.js",
-        "build": "npm run build:js && npx pkg --out-path build --compress GZip bin/cli.js",
+        "dev": "node bin/cli",
+        "license": "npx license -o CREDIT --returnError",
+        "build": "npm run license && npx rimraf bin && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier bin",
+        "pack": "npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
+        "pack:win": "npm run pack -- --targets win",
+        "pack:mac": "npm run pack --targets mac",
+        "pack:linux": "npm run pack --targets linux",
+        "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
+        "postpublish": "git tag && git push origin tags/v%npm_package_version%",
     };
     pkg.files = ["bin"];
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         `${bizhermitPrefix}/basic-utils`,
     ], [
+        `${bizhermitPrefix}/minifier`,
         `${bizhermitPrefix}/license`,
         "@types/node",
         "pkg",
-        "typescript",
         "rimraf",
-        `${bizhermitPrefix}/minifier`,
+        "typescript",
     ]);
     await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
         moveItemsCloneToDir(dir, [
@@ -225,20 +228,24 @@ const create_nextApp = async (dir: string) => {
 };
 
 const packageJsonScripts_web = {
-    "clean:next": "npx rimraf main src/.next src/out",
-    server: "npm run clean:next && npx tsc -p src-nexpress && node main/index.js -dev",
-    start: "npm run clean:next && npx tsc -p src-nexpress && npx tsc -p src && npx next build src && npx minifier main && npx minifier src/.next && node main/index.js",
+    "clean": "npx rimraf dist main src/.next src/out",
+    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+    "prestart": "npm run clean && npx tsc -p src-nexpress/tsconfig.json",
+    "server": "npm run prestart && node main/index.js -dev",
+    "start": "npm run license && npx tsc -p src/tsconfig.json && npx next build src && npx minifier main && npx minifier src/.next && node main/index.js",
 };
 const packageJsonScripts_desktop = (name: string) => {
     return {
-        "clean:next": "npx rimraf main src/.next src/out",
-        electron: "npm run clean:next && npx tsc -p src-nextron && npx electron main/src-nextron/index.js",
-        "pack:win": "npm run clean:next && npx rimraf build && npx license -o CREDIT --returnError && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win --dir",
-        pack: "npm run pack:win",
+        "clean": "npx rimraf dist main src/.next src/out",
+        "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+        "prebuild": "npm run clean && npx tsc -p src-nextron/tsconfig.json",
+        "electron": "npm run prebuild && npx electron main/src-nextron/index.js",
+        "build:next": "npx next build src && npx next export src",
+        "pack:win": "npm run prebuild && npx rimraf build && npm run build:next && npx minifier ./main && electron-builder --win --dir",
+        "pack": "npm run pack:win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
-        confirm: "npm run confirm:win",
-        "build:win": "npm run clean:next && npx rimraf build && npx license -o CREDIT --returnError && npx next build src && npx next export src && npx tsc -p src-nextron && npx minifier ./main && electron-builder --win",
-        build: "npm run build:win",
+        "confirm": "npm run confirm:win",
+        "build": "npm run license && npx rimraf build && npm run build:next && npx tsc -p src-nextron/tsconfig.json && npx minifier ./main && electron-builder --win",
     };
 };
 const packageJsonDesktopBuild = (name: string) => {
