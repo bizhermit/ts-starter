@@ -1,7 +1,7 @@
 {
   "name": "@bizhermit/starter",
   "version": "1.0.4",
-  "description": "project creator",
+  "description": "typescript project starter",
   "repository": {
     "type": "git",
     "url": "https://github.com/bizhermit/starter.git"
@@ -13,20 +13,20 @@
   "author": "Senda Ryoichi <rsenda@bizhermit.com> (https://bizhermit.com)",
   "homepage": "https://bizhermit.com",
   "license": "MIT",
-  "main": "bin/cli.js",
+  "main": "bin/index",
   "bin": "bin/cli.js",
   "files": [
     "bin"
   ],
   "scripts": {
-    "try": "node . ./test",
-    "build": "npx rimraf bin LICENSE-ADD && npx license -o LICENSE-ADD --returnError && npx tsc -p src/tsconfig.json && npx minifier bin",
+    "dev": "npx rimraf test && node bin/cli ./test",
+    "build": "npx rimraf bin CREDIT && npx license -o CREDIT --returnError && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier bin",
     "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
-    "postpublish": "git tag && git push origin tags/v%npm_package_version%"
+    "postpublish": "git tag && git push origin tags/v%npm_package_version%"    
   },
   "devDependencies": {
-    "@bizhermit/license": "^1.0.8",
-    "@bizhermit/minifier": "^1.0.0",
+    "@bizhermit/license": "^1.0.9",
+    "@bizhermit/minifier": "^1.0.4",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.13",
     "@types/rimraf": "^3.0.2",

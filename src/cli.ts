@@ -1,10 +1,10 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from "./scripts/create-project";
+import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from ".";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import inputLine from "./scripts/input-line";
+import * as readline from "readline";
 
 const sepStr = `\n::::::::::::::::::::::::::::::\n`;
 const pkg = require("../package.json") as {[key: string]: any};
@@ -31,14 +31,36 @@ const changeDir = () => {
         fse.mkdirSync(dir, { recursive: true });
     }
     cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
-}
+};
+
 const succeededProcess = () => {
     process.stdout.write(`\n${pkg.name} succeeded.\n`);
     if (process.argv[2] != null && process.cwd() !== dir) {
         process.stdout.write(`\nstart with change directory`);
         process.stdout.write(`\n  cd ${process.argv[2]}\n`);
     }
-}
+};
+
+const inputLine = (props: { message: string; }) => {
+    return new Promise<string>((resolve, reject) => {
+        try {
+            const rli = readline.createInterface(process.stdin, process.stdout);
+            rli.setPrompt(`${props.message}`);
+            rli.on("line", (line) => {
+                try {
+                    rli.close();
+                    resolve(line);
+                } catch(err) {
+                    reject(err);
+                }
+            });
+            rli.prompt();
+        } catch(err) {
+            reject(err);
+        }
+    });
+};
+
 inputLine({ message: `please input (default c) > `}).then(async (mode) =>{
     try {
         switch (mode) {

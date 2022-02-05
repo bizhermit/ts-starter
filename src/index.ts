@@ -5,7 +5,7 @@ import * as rimraf from "rimraf";
 import simpleGit from "simple-git";
 
 const bizhermitPrefix = "@bizhermit";
-type PackageJson = {[key: string]: any};
+type PackageJson = { [key: string]: any };
 
 const getPackageJson = (cwd: string) => {
     let pkg: PackageJson = {};
@@ -30,7 +30,7 @@ const getPackageJson = (cwd: string) => {
     return pkg;
 };
 const savePackageJson = (cwd: string, pkg: PackageJson) => {
-    const expPkg: {[key: string]: any}  = {};
+    const expPkg: { [key: string]: any } = {};
     const keys = [
         "name",
         "version",
@@ -98,7 +98,7 @@ const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => 
         await getGit(dir).clone(url, cloneDir);
         await func(cloneDir);
         process.stdout.write(`clone succeeded.\n`);
-    } catch(err) {
+    } catch (err) {
         process.stderr.write(`clone failed.\n`);
         process.stderr.write(String(err));
     } finally {
@@ -350,7 +350,7 @@ export const create_desktop = async (dir: string) => {
 export const create_web_desktop = async (dir: string) => {
     create_nextApp(dir);
     const pkg = getPackageJson(dir);
-    pkg.scripts = {...packageJsonScripts_web, ...packageJsonScripts_desktop(path.basename(dir))};
+    pkg.scripts = { ...packageJsonScripts_web, ...packageJsonScripts_desktop(path.basename(dir)) };
     pkg.build = packageJsonDesktopBuild(path.basename(dir));
     pkg.browser = {
         fs: false,
