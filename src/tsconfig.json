@@ -10,7 +10,7 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "outDir": "../bin",
-    "declaration": false
+    "declaration": true
   },
   "include": ["**/*.ts"]
 }
