@@ -71,31 +71,31 @@ inputLine({ message: `please input (default c) > `}).then(async (projectType) =>
     try {
         switch (projectType) {
             case "hp":
-                process.stdout.write(`\ncreate homepage...\n`);
+                process.stdout.write(`\ncreate homepage...\n\n`);
                 changeDir();
                 await create_homepage(dir);
                 succeededProcess();
                 break;
             case "cli":
-                process.stdout.write(`\ncreate command line interface application...\n`);
+                process.stdout.write(`\ncreate command line interface application...\n\n`);
                 changeDir();
                 await create_cli(dir);
                 succeededProcess();
                 break;
             case "web":
-                process.stdout.write(`\ncreate web application...\n`);
+                process.stdout.write(`\ncreate web application...\n\n`);
                 changeDir();
                 await create_web(dir);
                 succeededProcess();
                 break;
             case "dt":
-                process.stdout.write(`\ncreate desktop application...\n`);
+                process.stdout.write(`\ncreate desktop application...\n\n`);
                 changeDir();
                 await create_desktop(dir);
                 succeededProcess();
                 break;
             case "wd":
-                process.stdout.write(`\ncreate web and desktop application...\n`);
+                process.stdout.write(`\ncreate web and desktop application...\n\n`);
                 changeDir();
                 await create_web_desktop(dir);
                 succeededProcess();
