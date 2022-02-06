@@ -4,7 +4,6 @@ import path from "path";
 import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from ".";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import * as readline from "readline";
 
 const sepStr = `\n::::::::::::::::::::::::::::::\n`;
 const pkg = require("../package.json") as {[key: string]: any};
@@ -15,6 +14,18 @@ process.stdout.write(`\n${pkg.name} v${pkg.version}\n`);
 const dir = path.join(process.cwd(), process.argv[2] || "./");
 process.stdout.write(`  dirname: ${dir}\n`);
 
+const getArgV = (key: string) => {
+    const index = process.argv.findIndex(v => v === key);
+    if (index < 0) return null;
+    const val = process.argv[index + 1];
+    if (val.startsWith("-")) return null;
+    return val;
+};
+
+const argProjectType = getArgV("-m");
+const skipInteractive = argProjectType != null && argProjectType.length > 0;
+
+if (!skipInteractive) {
 process.stdout.write(`
 select project type
 - [c]  : cancel to start
@@ -24,6 +35,7 @@ select project type
 - [dt] : desktop application (electron + next + etc.)
 - [wd] : web and desktop application (express + electron + next + etc.)
 `);
+}
 
 const changeDir = () => {
     if (!fse.existsSync(dir)) {
@@ -43,27 +55,21 @@ const succeededProcess = () => {
 
 const inputLine = (props: { message: string; }) => {
     return new Promise<string>((resolve, reject) => {
-        try {
-            const rli = readline.createInterface(process.stdin, process.stdout);
-            rli.setPrompt(`${props.message}`);
-            rli.on("line", (line) => {
-                try {
-                    rli.close();
-                    resolve(line);
-                } catch(err) {
-                    reject(err);
-                }
-            });
-            rli.prompt();
-        } catch(err) {
-            reject(err);
+        if (skipInteractive) {
+            resolve(argProjectType);
+            return;
         }
+        process.stdout.write(props.message);
+        process.stdin.resume().on("data", (data) => {
+            process.stdin.pause();
+            resolve(data.toString().trim());
+        });
     });
 };
 
-inputLine({ message: `please input (default c) > `}).then(async (mode) =>{
+inputLine({ message: `please input (default c) > `}).then(async (projectType) =>{
     try {
-        switch (mode) {
+        switch (projectType) {
             case "hp":
                 process.stdout.write(`\ncreate homepage...\n`);
                 changeDir();

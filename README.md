@@ -6,7 +6,7 @@ Typescriptプロジェクトを手軽に始めるためのツールです。
 
 @bizhermit/starterをnpxで実行します。
 ```bash
-> npx @bizhermit/starter [dirname]
+> npx @bizhermit/starter [dirname] <options>
 ```
 - dirname : ひな型を展開するディレクトリの相対パス（初期値はカレントディレクトリ）
 
@@ -23,6 +23,10 @@ select project type
 - [wd] : web and desktop application (express + electron + next + etc.)
 please input (default c) >
 ```
+
+### Options
+
+* `-m [projectType]` select mode. if set, you don't necessary to conversation.
 
 # プロジェクトの種類
 
