@@ -16,11 +16,12 @@ Typescriptプロジェクトを手軽に始めるためのツールです。
 ```bash
 select project type
 - [c]  : cancel to start
-- [hp] : homepage (react + etc.)
 - [cli]: command line interface application 
-- [web]: web application (express + next + etc.)
-- [dt] : desktop application (electron + next + etc.)
-- [wd] : web and desktop application (express + electron + next + etc.)
+- [mod]: module
+- [s-web] : static web application (react + etc.)
+- [web]: dynamic web application (@bizhermit/nexpress + next + etc.)
+- [dt] : desktop application (@bizhermit/nextron + next + etc.)
+- [wd] : dynamic web and desktop application (@bizhermit/nexpress + @bizhermit/nextron + next + etc.)
 please input (default c) >
 ```
 
@@ -30,25 +31,25 @@ please input (default c) >
 
 # プロジェクトの種類
 
-## \[hp] Homepage
-
-レンタルサーバー等で公開するためのホームページのひな型を作成します。
-
 ## \[cli] Command line interface application
 
 コマンドラインインターフェース（CLI）のアプリケーションのひな型を作成します。
 
+## \[mod] Module
+
+モジュールのひな型を作成します。
+
+## \[s-web] Static web application
+
+[react](https://www.npmjs.com/package/react)を使用した静的Webアプリケーションのひな型を作成します。
+
 ## \[web] Web application
 
-Webアプリケーションのひな型を作成します。
-
-構成は[Next.js](https://nextjs.org/)をベースに[Express](https://expressjs.com/)を使用します。
+[@bizhermit/nexpress](https://www.npmjs.com/package/@bizhermit/nexpress)を使用した動的Webアプリケーションのひな型を作成します。
 
 ## \[dt] Desktop application
 
-デスクトップアプリケーションのひな型を作成します。
-
-構成は[Next.js](https://nextjs.org/)をベースに[Electron](https://www.electronjs.org/)を使用します。
+[@bizhermit/nextron](https://www.npmjs.com/package/@bizhermit/nextron)を使用したデスクトップアプリケーションのひな型を作成します。
 
 ## \[wd] Web and Desktop application
 

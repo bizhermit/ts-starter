@@ -1,7 +1,7 @@
 .vscode
 package-lock.json
 node_modules
-test
+/test
 /bin
 /dist
 /template/**/node_modules

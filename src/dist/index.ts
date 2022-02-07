@@ -2,7 +2,6 @@ import path from "path";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import * as rimraf from "rimraf";
-import simpleGit from "simple-git";
 
 const bizhermitPrefix = "@bizhermit";
 type PackageJson = { [key: string]: any };
@@ -80,10 +79,6 @@ const npmInstall = (cwd: string, args: Array<string> = [], devArgs: Array<string
     cp.spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd });;
 };
 
-const getGit = (dir: string) => {
-    return simpleGit({ baseDir: dir, binary: "git" });;
-};
-
 const moveItemToSrc = (dir: string, itemName: string) => {
     try {
         fse.moveSync(path.join(dir, itemName), path.join(dir, "src", itemName));
@@ -99,31 +94,8 @@ const copyFromTemplate = async (dir: string, tempName: string, options?: { remov
         options.remove?.forEach(v => rimraf.sync(path.join(dir, v)));
     }
 };
-const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => Promise<void>) => {
-    const cloneDir = path.join(dir, "_clone");
-    try {
-        process.stdout.write(`clone ${url}.\n`);
-        await getGit(dir).clone(url, cloneDir);
-        await func(cloneDir);
-        process.stdout.write(`clone succeeded.\n`);
-    } catch (err) {
-        process.stderr.write(`clone failed.\n`);
-        process.stderr.write(String(err));
-    } finally {
-        rimraf.sync(cloneDir);
-    }
-};
-const moveItemsCloneToDir = (dir: string, itemNames: Array<string>, overwrite?: boolean) => {
-    for (const itemName of itemNames) {
-        try {
-            fse.moveSync(path.join(dir, "_clone", itemName), path.join(dir, itemName), { overwrite: overwrite ?? true });
-        } catch {
-            process.stderr.write(`file or dir move failed: ${itemName}\n`);
-        }
-    }
-}
 
-export const create_homepage = async (dir: string) => {
+export const create_staticWeb = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
         start: "npx react-scripts start",
@@ -168,16 +140,7 @@ export const create_homepage = async (dir: string) => {
         "rimraf",
         "typescript",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-homepage.git", async () => {
-        moveItemsCloneToDir(dir, [
-            "src",
-            "public",
-            ".gitignore",
-            "LICENSE",
-            "README.md",
-            "tsconfig.json",
-        ]);
-    });
+    await copyFromTemplate(dir, "static-web");
 };
 
 export const create_cli = async (dir: string) => {
@@ -312,15 +275,6 @@ const packageJsonDesktopBuild = (name: string) => {
         }
     };
 };
-
-const moveItemsWhenNextApp = [
-    "src/pages",
-    "src/public",
-    "src/styles",
-    "src/i18n.json",
-    "src/index.d.ts",
-    "LICENSE",
-];
 
 export const create_web = async (dir: string) => {
     create_nextApp(dir);
