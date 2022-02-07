@@ -91,6 +91,11 @@ const moveItemToSrc = (dir: string, itemName: string) => {
         process.stderr.write(`file or dir move failed: ${itemName}\n`);
     }
 };
+const copyFromTemplate = async (dir: string, tempName: string) => {
+    const tempPath = path.join(__dirname, "../template", tempName);
+    await fse.copy(tempPath, dir);
+    await fse.copyFile(path.join(__dirname, "../template/LICENSE"), path.join(dir, "LICENSE"));
+};
 const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => Promise<void>) => {
     const cloneDir = path.join(dir, "_clone");
     try {
@@ -199,14 +204,7 @@ export const create_cli = async (dir: string) => {
         "rimraf",
         "typescript",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
-        moveItemsCloneToDir(dir, [
-            "src",
-            "README.md",
-            "LICENSE",
-            ".gitignore",
-        ]);
-    });
+    await copyFromTemplate(dir, "cli");
 };
 
 export const create_module = async (dir: string) => {
