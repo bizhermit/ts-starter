@@ -14,7 +14,7 @@
   "homepage": "https://bizhermit.com",
   "license": "MIT",
   "main": "dist/index",
-  "bin": "bin/cli",
+  "bin": "bin/cli.js",
   "files": [
     "bin",
     "dist",

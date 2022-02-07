@@ -146,7 +146,7 @@ export const create_staticWeb = async (dir: string) => {
 export const create_cli = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.main = "dist/index";
-    pkg.bin = "bin/cli";
+    pkg.bin = "bin/cli.js";
     pkg.scripts = {
         "dev": "node bin/cli",
         "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
