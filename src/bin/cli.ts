@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from ".";
+import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 
