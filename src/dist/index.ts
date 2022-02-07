@@ -91,10 +91,13 @@ const moveItemToSrc = (dir: string, itemName: string) => {
         process.stderr.write(`file or dir move failed: ${itemName}\n`);
     }
 };
-const copyFromTemplate = async (dir: string, tempName: string) => {
+const copyFromTemplate = async (dir: string, tempName: string, options?: { remove?: Array<string>; }) => {
     const tempPath = path.join(__dirname, "../template", tempName);
     await fse.copy(tempPath, dir);
     await fse.copyFile(path.join(__dirname, "../template/LICENSE"), path.join(dir, "LICENSE"));
+    if (options) {
+        options.remove?.forEach(v => rimraf.sync(path.join(dir, v)));
+    }
 };
 const cloneFiles = async (dir: string, url: string, func: (cloneDir: string) => Promise<void>) => {
     const cloneDir = path.join(dir, "_clone");
@@ -334,14 +337,7 @@ export const create_web = async (dir: string) => {
         "@types/node",
         "rimraf",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
-        moveItemsCloneToDir(dir, [
-            ...moveItemsWhenNextApp,
-            "src-nexpress",
-            ".gitignore",
-        ]);
-        fse.moveSync(path.join(cloneDir, "README.web.md"), path.join(dir, "README.md"), { overwrite: true });
-    });
+    await copyFromTemplate(dir, "next-app", { remove: ["src-nextron", "README.md", "README.desktop.md"] });
 };
 
 export const create_desktop = async (dir: string) => {
@@ -367,14 +363,7 @@ export const create_desktop = async (dir: string) => {
         "electron-builder",
         "rimraf",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
-        moveItemsCloneToDir(dir, [
-            ...moveItemsWhenNextApp,
-            "src-nextron",
-            ".gitignore",
-        ]);
-        fse.moveSync(path.join(cloneDir, "README.desktop.md"), path.join(dir, "README.md"), { overwrite: true });
-    });
+    await copyFromTemplate(dir, "next-app", { remove: ["src-nexpress", "README.md", "README.web.md"] });
 };
 
 export const create_web_desktop = async (dir: string) => {
@@ -401,13 +390,5 @@ export const create_web_desktop = async (dir: string) => {
         "electron-builder",
         "rimraf",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-next-app.git", async (cloneDir) => {
-        moveItemsCloneToDir(dir, [
-            ...moveItemsWhenNextApp,
-            "src-nexpress",
-            "src-nextron",
-            ".gitignore",
-        ]);
-        fse.moveSync(path.join(cloneDir, "README.md"), path.join(dir, "README.md"), { overwrite: true });
-    });
+    await copyFromTemplate(dir, "next-app", { remove: ["README.web.md", "README.desktop.md"] });
 };
