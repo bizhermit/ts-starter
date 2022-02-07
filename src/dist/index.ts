@@ -162,6 +162,7 @@ export const create_cli = async (dir: string) => {
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         `${bizhermitPrefix}/basic-utils`,
+        `${bizhermitPrefix}/cli-sdk`,
     ], [
         `${bizhermitPrefix}/minifier`,
         `${bizhermitPrefix}/license`,
