@@ -1,0 +1,9 @@
+.vscode
+package-lock.json
+node_modules
+/build
+/main
+/src/.next
+/src/out
+/resources/config.json
+*.tsbuildinfo
