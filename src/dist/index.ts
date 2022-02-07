@@ -174,12 +174,12 @@ export const create_homepage = async (dir: string) => {
 
 export const create_cli = async (dir: string) => {
     const pkg = getPackageJson(dir);
-    pkg.main = "bin/index";
-    pkg.bin = "bin/cli.js";
+    pkg.main = "dist/index";
+    pkg.bin = "bin/cli";
     pkg.scripts = {
         "dev": "node bin/cli",
         "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
-        "build": "npm run license && npx rimraf bin && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier bin",
+        "build": "npm run license && npx rimraf bin dist && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier bin && npx minifier dist",
         "pack": "npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
         "pack:win": "npm run pack -- --targets win",
         "pack:mac": "npm run pack --targets mac",
@@ -187,7 +187,7 @@ export const create_cli = async (dir: string) => {
         "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
         "postpublish": "git tag && git push origin tags/v%npm_package_version%",
     };
-    pkg.files = ["bin", "CREDIT"];
+    pkg.files = ["bin", "dist", "CREDIT"];
     savePackageJson(dir, pkg);
     npmInstall(dir, [
         `${bizhermitPrefix}/basic-utils`,
@@ -196,6 +196,41 @@ export const create_cli = async (dir: string) => {
         `${bizhermitPrefix}/license`,
         "@types/node",
         "pkg",
+        "rimraf",
+        "typescript",
+    ]);
+    await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
+        moveItemsCloneToDir(dir, [
+            "src",
+            "README.md",
+            "LICENSE",
+            ".gitignore",
+        ]);
+    });
+};
+
+export const create_module = async (dir: string) => {
+    const pkg = getPackageJson(dir);
+    pkg.main = "dist/index";
+    pkg.scripts = {
+        "dev": "node test",
+        "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+        "build": "npm run license && npx rimraf dist && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier dist",
+        "pack": "npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
+        "pack:win": "npm run pack -- --targets win",
+        "pack:mac": "npm run pack --targets mac",
+        "pack:linux": "npm run pack --targets linux",
+        "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
+        "postpublish": "git tag && git push origin tags/v%npm_package_version%",
+    };
+    pkg.files = ["dist", "CREDIT"];
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [
+        `${bizhermitPrefix}/basic-utils`,
+    ], [
+        `${bizhermitPrefix}/minifier`,
+        `${bizhermitPrefix}/license`,
+        "@types/node",
         "rimraf",
         "typescript",
     ]);
@@ -241,11 +276,12 @@ const packageJsonScripts_desktop = (name: string) => {
         "prebuild": "npm run clean && npx tsc -p src-nextron/tsconfig.json",
         "electron": "npm run prebuild && npx electron main/src-nextron/index.js",
         "build:next": "npx next build src && npx next export src",
-        "pack:win": "npm run prebuild && npx rimraf build && npm run build:next && npx minifier ./main && electron-builder --win --dir",
-        "pack": "npm run pack:win",
+        "pack": "npm run prebuild && npx rimraf build && npm run build:next && npx minifier ./main && electron-builder --dir",
+        "pack:win": "npm run pack -- --win",
         "confirm:win": `npm run pack:win && .\\build\\win-unpacked\\${name}.exe`,
         "confirm": "npm run confirm:win",
-        "build": "npm run license && npx rimraf build && npm run build:next && npx tsc -p src-nextron/tsconfig.json && npx minifier ./main && electron-builder --win",
+        "build": "npm run license && npx rimraf build && npm run build:next && npx tsc -p src-nextron/tsconfig.json && npx minifier ./main && electron-builder",
+        "build:win": "npm run build -- --win",
     };
 };
 const packageJsonDesktopBuild = (name: string) => {

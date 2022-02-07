@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_cli, create_desktop, create_homepage, create_web, create_web_desktop } from "../dist";
+import { create_cli, create_desktop, create_homepage, create_module, create_web, create_web_desktop } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 
@@ -31,6 +31,7 @@ select project type
 - [c]  : cancel to start
 - [hp] : homepage (react + etc.)
 - [cli]: command line interface application 
+- [mod]: module
 - [web]: web application (express + next + etc.)
 - [dt] : desktop application (electron + next + etc.)
 - [wd] : web and desktop application (express + electron + next + etc.)
@@ -80,6 +81,12 @@ inputLine({ message: `please input (default c) > `}).then(async (projectType) =>
                 process.stdout.write(`\ncreate command line interface application...\n\n`);
                 changeDir();
                 await create_cli(dir);
+                succeededProcess();
+                break;
+            case "mod":
+                process.stdout.write(`\ncreate module...\n\n`);
+                changeDir();
+                await create_module(dir);
                 succeededProcess();
                 break;
             case "web":
