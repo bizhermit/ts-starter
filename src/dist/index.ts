@@ -214,10 +214,6 @@ export const create_module = async (dir: string) => {
         "dev": "node test",
         "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
         "build": "npm run license && npx rimraf dist && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts && npx minifier dist",
-        "pack": "npm run build && npx pkg --out-path build --compress GZip bin/cli.js",
-        "pack:win": "npm run pack -- --targets win",
-        "pack:mac": "npm run pack --targets mac",
-        "pack:linux": "npm run pack --targets linux",
         "prepare": "npm run build && git add -A && git diff --quiet --exit-code --cached || git commit -m \"build v%npm_package_version%\" && git push origin",
         "postpublish": "git tag && git push origin tags/v%npm_package_version%",
     };
@@ -232,14 +228,7 @@ export const create_module = async (dir: string) => {
         "rimraf",
         "typescript",
     ]);
-    await cloneFiles(dir, "https://github.com/bizhermit/clone-cli-app.git", async () => {
-        moveItemsCloneToDir(dir, [
-            "src",
-            "README.md",
-            "LICENSE",
-            ".gitignore",
-        ]);
-    });
+    await copyFromTemplate(dir, "module");
 };
 
 const rewriteTsconfig = (path: string) => {
