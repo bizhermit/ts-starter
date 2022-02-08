@@ -1,19 +1,22 @@
-# Project Starter
+# Typescript project starter
 
-Typescriptプロジェクトを手軽に始めるためのツールです。
+You can begin a Typescript project easily.
 
-# 使い方
-
-@bizhermit/starterをnpxで実行します。
+No install
 ```bash
-> npx @bizhermit/starter [dirname] <options>
+npx @bizhermit/starter [dirname] <options>
 ```
-- dirname : ひな型を展開するディレクトリの相対パス（初期値はカレントディレクトリ）
 
-※注意）dirnameの場所にはファイルやフォルダが一切存在しないようにしてください。
-
-プロジェクトの種類を選びます。（各詳細は後述）
+Install
 ```bash
+npm -g @bizhermit/starter
+npx starter [dirname] <options>
+```
+
+`dirname` develop directory path. default is current working directory.
+
+```bash
+# start
 select project type
 - [c]  : cancel to start
 - [cli]: command line interface application 
@@ -29,30 +32,12 @@ please input (default c) >
 
 * `-m [projectType]` select mode. if set, you don't necessary to conversation.
 
-# プロジェクトの種類
 
-## \[cli] Command line interface application
+## Project type
 
-コマンドラインインターフェース（CLI）のアプリケーションのひな型を作成します。
-
-## \[mod] Module
-
-モジュールのひな型を作成します。
-
-## \[s-web] Static web application
-
-[react](https://www.npmjs.com/package/react)を使用した静的Webアプリケーションのひな型を作成します。
-
-## \[web] Web application
-
-[@bizhermit/nexpress](https://www.npmjs.com/package/@bizhermit/nexpress)を使用した動的Webアプリケーションのひな型を作成します。
-
-## \[dt] Desktop application
-
-[@bizhermit/nextron](https://www.npmjs.com/package/@bizhermit/nextron)を使用したデスクトップアプリケーションのひな型を作成します。
-
-## \[wd] Web and Desktop application
-
-Webアプリケーションおよびデスクトップアプリケーションのひな型を作成します。
-
-構成はWebアプリケーションおよびデスクトップアプリケーションと同様です。
+* `cli` command line interface application
+* `mod` npm module
+* `s-web` static web application
+* `web` dynamic web application
+* `dt` desktop application
+* `wd` dynamic web and desktop application
