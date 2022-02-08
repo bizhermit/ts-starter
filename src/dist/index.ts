@@ -88,7 +88,7 @@ const moveItemToSrc = (dir: string, itemName: string) => {
 };
 const copyFromTemplate = async (dir: string, tempName: string, options?: { remove?: Array<string>; }) => {
     const tempPath = path.join(__dirname, "../template", tempName);
-    await fse.copy(tempPath, dir);
+    await fse.copy(tempPath, dir, { overwrite: true, recursive: true });
     await fse.copyFile(path.join(__dirname, "../template/LICENSE"), path.join(dir, "LICENSE"));
     if (options) {
         options.remove?.forEach(v => rimraf.sync(path.join(dir, v)));
