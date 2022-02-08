@@ -95,6 +95,12 @@ const copyFromTemplate = async (dir: string, tempName: string, options?: { remov
     }
 };
 
+const rename = async (dir: string, oldName: string, newName: string) => {
+    const oldPath = path.join(dir, oldName);
+    await fse.copyFile(oldPath, path.join(dir, newName));
+    await fse.rm(oldPath);
+};
+
 export const create_staticWeb = async (dir: string) => {
     const pkg = getPackageJson(dir);
     pkg.scripts = {
@@ -293,6 +299,7 @@ export const create_web = async (dir: string) => {
         "rimraf",
     ]);
     await copyFromTemplate(dir, "next-app", { remove: ["src-nextron", "README.md", "README.desktop.md"] });
+    await rename(dir, "README.web.md", "README.md");
 };
 
 export const create_desktop = async (dir: string) => {
@@ -319,6 +326,7 @@ export const create_desktop = async (dir: string) => {
         "rimraf",
     ]);
     await copyFromTemplate(dir, "next-app", { remove: ["src-nexpress", "README.md", "README.web.md"] });
+    await rename(dir, "README.desktop.md", "README.md");
 };
 
 export const create_web_desktop = async (dir: string) => {
