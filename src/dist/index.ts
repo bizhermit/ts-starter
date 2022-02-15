@@ -294,6 +294,7 @@ export const create_web = async (dir: string) => {
         `${bizhermitPrefix}/react-sdk`,
         `${bizhermitPrefix}/basic-utils`,
     ], [
+        `${bizhermitPrefix}/minifier`,
         `${bizhermitPrefix}/license`,
         "@types/node",
         "rimraf",
