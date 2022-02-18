@@ -90,6 +90,8 @@ const copyFromTemplate = async (dir: string, tempName: string, options?: { remov
     const tempPath = path.join(__dirname, "../template", tempName);
     await fse.copy(tempPath, dir, { overwrite: true, recursive: true });
     await fse.copyFile(path.join(__dirname, "../template/LICENSE"), path.join(dir, "LICENSE"));
+    await fse.copyFile(path.join(dir, "gitignore"), path.join(dir, ".gitignore"));
+    rimraf.sync(path.join(dir, "gitignore"));
     if (options) {
         options.remove?.forEach(v => rimraf.sync(path.join(dir, v)));
     }
