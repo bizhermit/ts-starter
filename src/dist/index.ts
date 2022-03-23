@@ -255,7 +255,7 @@ const packageJsonDesktopBuild = (name: string) => {
         extraMetadata: {
             main: "main/src-nextron/index.js"
         },
-        files: ["main", "src/out"],
+        files: ["main", "src/out", "src/public"],
         extraFiles: [{
             from: "LICENSE",
             to: "LICENSE"
