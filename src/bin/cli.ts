@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_cli, create_desktop, create_staticWeb, create_module, create_web, create_web_desktop } from "../dist";
+import { create_cli, create_desktop, create_staticWeb, create_module, create_web, create_web_desktop, create_mobile } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl } from "@bizhermit/cli-sdk";
@@ -28,6 +28,7 @@ select project type
 - [web]: dynamic web application (@bizhermit/nexpress + next + etc.)
 - [dt] : desktop application (@bizhermit/nextron + next + etc.)
 - [wd] : dynamic web and desktop application (@bizhermit/nexpress + @bizhermit/nextron + next + etc.)
+- [mob]: mobile application (react-native + etc.)
 `);
 }
 
@@ -88,6 +89,13 @@ const main = async (projectType: string) => {
                 await create_web_desktop(dir);
                 succeededProcess();
                 break;
+            case "mob":
+                process.stdout.write(`\ncreate mobile application...\n\n`);
+                changeDir();
+                await create_mobile(dir);
+                succeededProcess();
+                break;
+            case "all":
             default:
                 process.stdout.write(`\ncancel\n`);
                 break;

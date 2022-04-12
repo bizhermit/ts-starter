@@ -6,7 +6,7 @@ import * as rimraf from "rimraf";
 const bizhermitPrefix = "@bizhermit";
 type PackageJson = { [key: string]: any };
 
-const getPackageJson = (cwd: string) => {
+const getPackageJson = (cwd: string, options?: { clearScripts?: boolean; }) => {
     let pkg: PackageJson = {};
     try {
         pkg = require(path.join(cwd, "package.json"));
@@ -19,7 +19,7 @@ const getPackageJson = (cwd: string) => {
     pkg.name = pkg.name || path.basename(cwd);
     pkg.version = "0.0.0";
     pkg.description = "";
-    pkg.scripts = {};
+    if (options?.clearScripts) pkg.scripts = {};
     pkg.repository = pkg.repository ?? { type: "git", ulr: "" };
     pkg.bugs = pkg.bugs || "";
     pkg.author = pkg.author || "";
@@ -357,4 +357,30 @@ export const create_web_desktop = async (dir: string) => {
         "rimraf",
     ]);
     await copyFromTemplate(dir, "next-app", { remove: ["README.web.md", "README.desktop.md"] });
+};
+
+const create_reactNativeApp = async (dir: string) => {
+    const appName = path.basename(dir);
+    cp.spawnSync("npx", ["react-native", "init", appName, "--template", "react-native-template-typescript"], { shell: true, stdio: "inherit", cwd: dir });
+    const items = await fse.readdir(path.join(dir, appName));
+    const removeAppNameDir = items.indexOf(appName) < 0;
+    items.sort((item1) => {
+        if (item1 === appName) return 1;
+        return 0;
+    }).forEach((item) => {
+        fse.moveSync(path.join(dir, appName, item), path.join(dir, item), { overwrite: true });
+    });
+    if (removeAppNameDir) await fse.remove(path.join(dir, appName));
+};
+
+export const create_mobile = async (dir: string) => {
+    await create_reactNativeApp(dir);
+    const pkg = getPackageJson(dir);
+    savePackageJson(dir, pkg);
+    npmInstall(dir, [
+    ], [
+        "@types/node",
+        "@types/react",
+        "rimraf",
+    ]);
 };
