@@ -5,7 +5,7 @@ import useMessageBox from "@bizhermit/react-sdk/dist/hooks/message-box";
 import { useLayout } from "@bizhermit/react-sdk/dist/layouts/style";
 import { NextPage } from "next";
 import Link from "next/link";
-import { VFC } from "react";
+import { FC } from "react";
 
 const SandboxPage: NextPage = () => {
     return <SandboxComponent />;
@@ -13,7 +13,7 @@ const SandboxPage: NextPage = () => {
 
 export default SandboxPage;
 
-const SandboxComponent: VFC = () => {
+const SandboxComponent: FC = () => {
     const layout = useLayout();
     const msgbox = useMessageBox();
     return (
