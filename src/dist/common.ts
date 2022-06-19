@@ -1,6 +1,6 @@
 import cli from "@bizhermit/cli-sdk";
 import { spawnSync } from "child_process";
-import { existsSync, readFile, writeFile } from "fs-extra";
+import { copy, copyFile, existsSync, readFile, writeFile } from "fs-extra";
 import path from "path";
 
 const initializePackageContent = (pkg: {[key: string]: any}, values: Array<{ propertyName: string; initValue: any ;}>) => {
@@ -50,6 +50,7 @@ export const getPackageJson = async (wdir: string, options?: { clearScripts?: bo
         initValue: "MIT",
     }]);
     if (options?.clearScripts) pkg.scripts = {};
+    return pkg;
 };
 
 export const savePackageJson = async (wdir: string, pkg: {[key: string]: any}) => {
@@ -84,7 +85,7 @@ export const savePackageJson = async (wdir: string, pkg: {[key: string]: any}) =
     await writeFile(path.join(wdir, "package.json"), JSON.stringify(expPkg, null, 2));
 };
 
-export const installNpm = async (wdir: string, args: Array<string> = [], devArgs: Array<string> = []) => {
+export const installLibs = async (wdir: string, args: Array<string> = [], devArgs: Array<string> = []) => {
     cli.wl(`npm install...`);
     if (args.length > 0) {
         cli.wl(` install dependencies`);
@@ -100,4 +101,10 @@ export const installNpm = async (wdir: string, args: Array<string> = [], devArgs
         spawnSync("npm", ["i", "--save-dev", ...devArgs], { shell: true, stdio: "inherit", cwd: wdir });
     }
     spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd: wdir });
+};
+
+export const generateTemplate = async (wdir: string, templateName: string) => {
+    await copy(path.join(__dirname, "../template", templateName), wdir, { overwrite: true, recursive: true });
+    await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
+    await copyFile(path.join(__dirname, "../template/.gitignore"), path.join(wdir, ".gitignore"));
 };
