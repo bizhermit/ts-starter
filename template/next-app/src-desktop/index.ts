@@ -87,14 +87,14 @@ app.on("ready", async () => {
     g._session.layoutColor = (nativeTheme.shouldUseDarkColors ? "dark" : "light");
     g._session.layoutDesign = "flat";
 
-    g.nextron = {};
+    g.electron = {};
     const setListener = (name: string, type: "handle" | "on", func: (event: IpcMainEvent | IpcMainInvokeEvent, ...args: Array<any>) => any) => {
         if (type === "handle") {
-            g.nextron[name] = (...args: Array<any>) => func({} as any, ...args);
+            g.electron[name] = (...args: Array<any>) => func({} as any, ...args);
             ipcMain.handle(name, func);
         }
         if (type === "on") {
-            g.nextron[name] = (...args: Array<any>) => {
+            g.electron[name] = (...args: Array<any>) => {
                 const event = {} as any;
                 func(event, ...args);
                 return event.returnValue;

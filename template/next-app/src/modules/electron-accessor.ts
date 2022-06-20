@@ -44,6 +44,6 @@ export type ElectronAccessor = {
 };
 
 const electronAccessor = () => {
-    return (global as any).nextron as ElectronAccessor;
+    return (global as any).electron as ElectronAccessor;
 };
 export default electronAccessor;
