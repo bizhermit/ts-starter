@@ -67,7 +67,7 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         pkg.scripts = {
             ...pkg.scripts,
             "desktop": "npm run clean && npx tsc -p src-desktop/tsconfig.json && npx electron main/src-desktop/index.js",
-            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx next build src && npx next export src && electron-builder --dir",
+            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx next build src && npx next export src && electron-builder --dir",
             "pack:win": "npm run _pack -- --win",
         };
         pkg.build = {
@@ -109,8 +109,10 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         };
         deps.push("electron-is-dev");
         deps.push("electron-next");
+        deps.push("fs-extra");
         devDeps.push("electron");
         devDeps.push("electron-builder");
+        devDeps.push("@types/fs-extra");
     }
     await savePackageJson(wdir, pkg);
     installLibs(wdir, deps, devDeps);
