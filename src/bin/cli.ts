@@ -1,12 +1,13 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_desktop, create_staticWeb, create_web, create_web_desktop, create_mobile } from "../dist";
+import { create_staticWeb, create_mobile } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl } from "@bizhermit/cli-sdk";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
+import createNextApp from "../dist/create-next-app";
 
 const sepStr = `\n::::::::::::::::::::::::::::::\n`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -76,19 +77,19 @@ const main = async (projectType: string) => {
             case "web":
                 process.stdout.write(`\ncreate dynamic web application...\n\n`);
                 changeDir();
-                await create_web(dir);
+                await createNextApp(dir, { web: true });
                 succeededProcess();
                 break;
             case "dt":
                 process.stdout.write(`\ncreate desktop application...\n\n`);
                 changeDir();
-                await create_desktop(dir);
+                await createNextApp(dir, { desktop: true });
                 succeededProcess();
                 break;
             case "wd":
                 process.stdout.write(`\ncreate dynamic web and desktop application...\n\n`);
                 changeDir();
-                await create_web_desktop(dir);
+                await createNextApp(dir, { web: true, desktop: true });
                 succeededProcess();
                 break;
             case "mob":
