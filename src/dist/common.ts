@@ -113,5 +113,4 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
 export const generateTemplate = async (wdir: string, templateName: string) => {
     await copy(path.join(__dirname, "../template", templateName), wdir, { overwrite: true, recursive: true });
     await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
-    // await copyFile(path.join(__dirname, "../template/.gitignore"), path.join(wdir, ".gitignore"));
 };
