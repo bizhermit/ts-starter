@@ -1,12 +1,13 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
+import electronAccessor from "../electron-accessor";
 
-const electron = (global as any).electron as { fetch: any };
+const electron = electronAccessor();
 let basePath: string;
 
 const impl = async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
-    if (basePath == null) basePath = (document.getElementById("basePath") as HTMLInputElement)?.value ?? "";
     const isHttp = url.startsWith("http");
     if (electron == null || isHttp) {
+        if (basePath == null) basePath = (document.getElementById("basePath") as HTMLInputElement)?.value ?? "";
         const fetchUrl = isHttp ? url : `${global.origin}${`${basePath}/api/${url}`.replace(/\/\//g, "/")}`;
         if (options?.method === "GET") {
             const res = await fetch(fetchUrl, options);

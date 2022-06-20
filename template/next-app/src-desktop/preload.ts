@@ -8,7 +8,7 @@ process.once("loaded", () => {
     $global.ipcRenderer = ipcRenderer;
 });
 
-contextBridge.exposeInMainWorld("nextron", {
+contextBridge.exposeInMainWorld("electron", {
     test: () => ipcRenderer.sendSync("test"),
     fetch: (path: string, params: { [key: string]: any }, options?: RequestInit) => ipcRenderer.invoke("fetch", path, params, options),
     language: (locale: string) => ipcRenderer.sendSync("language", locale),
