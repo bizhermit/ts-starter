@@ -53,9 +53,9 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
     if (options?.web) {
         pkg.scripts = {
             ...pkg.scripts,
-            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/index.js -dev",
+            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/src-server/index.js -dev",
             "build": "npm run license-check && npm run clean && npx tsc -p src-server/tsconfig.json && npx next build src",
-            "start": "node main/index.js",
+            "start": "node main/src-server/index.js",
         };
         deps.push("express");
         deps.push("express-session");

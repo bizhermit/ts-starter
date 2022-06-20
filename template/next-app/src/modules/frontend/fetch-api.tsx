@@ -4,7 +4,7 @@ const electron = (global as any).electron as { fetch: any };
 let basePath: string;
 
 const impl = async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
-    if (!basePath) basePath = (document.getElementById("basePath") as HTMLInputElement)?.value ?? "";
+    if (basePath == null) basePath = (document.getElementById("basePath") as HTMLInputElement)?.value ?? "";
     const isHttp = url.startsWith("http");
     if (electron == null || isHttp) {
         const fetchUrl = isHttp ? url : `${global.origin}${`${basePath}/api/${url}`.replace(/\/\//g, "/")}`;

@@ -1,4 +1,5 @@
 import Document, { Html, Head, Main, NextScript, DocumentContext, DocumentInitialProps } from "next/document";
+import nextConfig from "../../next.config";
 
 class AppDocument extends Document {
     static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
@@ -6,12 +7,12 @@ class AppDocument extends Document {
         return initialProps;
     }
 
-    render(): JSX.Element {
+    render() {
         return (
             <Html>
                 <Head />
                 <body>
-                    <input type="hidden" id="basePath" value={(global as any)._basePath} />
+                    <input type="hidden" id="basePath" value={nextConfig.basePath ?? ""} />
                     <Main />
                     <NextScript />
                 </body>

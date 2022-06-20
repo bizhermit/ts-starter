@@ -9,12 +9,15 @@ import fetchApi from "../modules/frontend/fetch-api";
 
 const SigninComponent: FC<{ fto?: FitToOuter }> = ({ fto }) => {
     const msg = useMessage();
-    const [inputs, setInputs] = useState<Struct>({});
+    const [inputs, _setInputs] = useState<Struct>({});
 
     const signin = async (unlock?: VoidFunc) => {
         try {
             const res = await fetchApi("/signin", { inputs });
             msg.append(res.messages);
+            if (!res.hasError()) {
+                console.log(res.data);
+            }
         } catch (e) {
             msg.error(e);
         }

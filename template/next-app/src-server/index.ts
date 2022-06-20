@@ -5,8 +5,8 @@ import expressSession from "express-session";
 import helmet from "helmet";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
+import nextConfig from "../next.config";
 
-const $global = global as { [key: string]: any };
 const isDev = process.argv.find(arg => arg === "-dev") != null;
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
 const log = {
@@ -24,14 +24,12 @@ const log = {
 
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
-const appRoot = path.join(__dirname, "../");
+const appRoot = path.join(__dirname, "../../");
 
 const nextApp = next({
     dev: isDev,
     dir: path.join(appRoot, "src"),
-    conf: isDev ? (require(path.join(appRoot, "next.config.js")) ?? {}) : undefined,
 });
-$global._basePath = nextApp.options?.conf?.basePath ?? "";
 
 nextApp.prepare().then(async () => {
     const server = express();
@@ -65,7 +63,7 @@ nextApp.prepare().then(async () => {
     server.use(express.static(path.join(appRoot, "src/public")));
 
     const handler = nextApp.getRequestHandler();
-    server.all("/api/*", (req, res) => {
+    server.all(`${nextConfig.basePath ?? ""}/api/*`, (req, res) => {
         log.info("api call:", req.url);
         return handler(req, res);
     });
@@ -73,7 +71,7 @@ nextApp.prepare().then(async () => {
         return handler(req, res);
     });
 
-    const port = isDev ? 8000 : 3000;
+    const port = isDev ? 8000 : 80;
     log.info("begin listen", String(port));
     server.listen(port, () => {
         log.info("began listen", String(port));
