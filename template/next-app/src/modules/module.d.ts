@@ -1,7 +1,12 @@
+type MessageType = "info" | "warn" | "err";
 type Message = {
-    type: "info" | "warn" | "err";
+    type: MessageType;
     title?: string;
     message: string;
+};
+type ArgMessageProps = {
+    message: string;
+    title?: string;
 };
 type FetchApiResponse<T = {[key: string]: any}> = {
     data: T;
