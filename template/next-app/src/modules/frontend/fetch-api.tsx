@@ -1,9 +1,10 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 
 const electron = (global as any).electron as { fetch: any };
-const basePath = (document.getElementById("basePath") as HTMLInputElement).value ?? "";
+let basePath: string;
 
-const impl = async <T = {[key: string]: any}>(url: string, params?: {[key: string]: any}, options?: RequestInit) => {
+const impl = async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
+    if (!basePath) basePath = (document.getElementById("basePath") as HTMLInputElement)?.value ?? "";
     const isHttp = url.startsWith("http");
     if (electron == null || isHttp) {
         const fetchUrl = isHttp ? url : `${global.origin}${`${basePath}/api/${url}`.replace(/\/\//g, "/")}`;
@@ -12,7 +13,7 @@ const impl = async <T = {[key: string]: any}>(url: string, params?: {[key: strin
             if (!res.ok) throw new Error(`fetchData failed: ${fetchUrl}`);
             return await res.json() as T;
         }
-        const opts: RequestInit = {...options};
+        const opts: RequestInit = { ...options };
         if (StringUtils.isEmpty(opts.method)) opts.method = "POST";
         opts.headers = { "Content-Type": "application/json", ...opts.headers };
         if (opts.body == null) opts.body = JSON.stringify(params ?? {});
@@ -23,7 +24,7 @@ const impl = async <T = {[key: string]: any}>(url: string, params?: {[key: strin
     return await electron.fetch(url, params ?? {}, options) as T;
 };
 
-const fetchApi = async <T = {[key: string]: any}>(url: string, params?: {[key: string]: any}, options?: RequestInit) => {
+const fetchApi = async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
     const ret = await impl<{ data: T; messages: Array<Message>; }>(url, params, options);
     const messages = Array.isArray(ret.messages) ? ret.messages : [];
     return {

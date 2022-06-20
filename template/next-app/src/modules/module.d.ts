@@ -8,7 +8,7 @@ type ArgMessageProps = {
     message: string;
     title?: string;
 };
-type FetchApiResponse<T = {[key: string]: any}> = {
+type FetchApiResponse<T = Struct> = {
     data: T;
     messages: Array<Message>;
     hasInformation: () => boolean;

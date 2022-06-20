@@ -3,14 +3,13 @@ export type Config<T = { [key: string]: ConfigValue }> = {
     appDirname: string;
     isDev: boolean;
     layout?: {
-      color?: string;
-      design?: string;
+        color?: string;
+        design?: string;
     };
 } & T;
 
 export type ElectronAccessor = {
-    fetch: (path: string, params: { [key: string]: any }) => Promise<any>;
-    language: (locale: string) => { [key: string]: any };
+    fetch: <T = Struct>(path: string, params: Struct) => Promise<T>;
     setSize: (params: { width?: number; height?: number; animate?: boolean; }) => boolean;
     getSize: () => { height: number; width: number; };
     setAlwaysOnTop: (alwaysOnTop: boolean) => boolean;
@@ -38,7 +37,7 @@ export type ElectronAccessor = {
     getLayoutDesign: () => string;
     saveConfig: (config: { [key: string]: ConfigValue }) => Promise<void>;
     getConfig: <T = { [key: string]: ConfigValue }>(key?: string) => Config<T>;
-    getSession: (key?: string) => any;
+    getSession: <T = string>(key?: string) => T;
     setSession: (key: string, value: any) => void;
     clearSession: (key: string) => void;
 };

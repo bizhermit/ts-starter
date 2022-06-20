@@ -7,6 +7,7 @@ import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 import { existsSync, mkdir, readFile, writeFile } from "fs-extra";
 
+const $global = global as { [key: string]: any };
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
 const log = {
     debug: (...contents: Array<string>) => {
@@ -56,8 +57,7 @@ app.on("ready", async () => {
         });
         log.info("app boot");
     }
-    const g = global as any;
-    g._session = {};
+    $global._session = {};
     const appDirname = isDev ? appRoot : path.dirname(process.argv[0]);
 
     const configDir = path.join(appDirname, "resources");
@@ -65,9 +65,9 @@ app.on("ready", async () => {
         await mkdir(configDir, { recursive: true });
     }
     const configFileName = path.join(configDir, "config.json");
-    let config: {[ key: string ]: any} = { appDirname, isDev, layout: { color: undefined, design: undefined } };
+    let config: { [key: string]: any } = { appDirname, isDev, layout: { color: undefined, design: undefined } };
     const saveConfig = async () => {
-        const c = {...config} as any;
+        const c = { ...config };
         delete c.appDirname;
         delete c.isDev;
         return await writeFile(configFileName, JSON.stringify(c, null, 2), { encoding: "utf-8" });
@@ -84,17 +84,17 @@ app.on("ready", async () => {
     }
     config = await getConfigFile();
 
-    g._session.layoutColor = (nativeTheme.shouldUseDarkColors ? "dark" : "light");
-    g._session.layoutDesign = "flat";
+    $global._session.layoutColor = (nativeTheme.shouldUseDarkColors ? "dark" : "light");
+    $global._session.layoutDesign = "flat";
 
-    g.electron = {};
+    $global.electron = {};
     const setListener = (name: string, type: "handle" | "on", func: (event: IpcMainEvent | IpcMainInvokeEvent, ...args: Array<any>) => any) => {
         if (type === "handle") {
-            g.electron[name] = (...args: Array<any>) => func({} as any, ...args);
+            $global.electron[name] = (...args: Array<any>) => func({} as any, ...args);
             ipcMain.handle(name, func);
         }
         if (type === "on") {
-            g.electron[name] = (...args: Array<any>) => {
+            $global.electron[name] = (...args: Array<any>) => {
                 const event = {} as any;
                 func(event, ...args);
                 return event.returnValue;
@@ -102,12 +102,12 @@ app.on("ready", async () => {
             ipcMain.on(name, func);
         }
     };
-    
+
     if (isDev) {
         setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any }, options?: RequestInit) => {
             log.info(apiPath, JSON.stringify(params), JSON.stringify(options));
             const url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
-            const opts: RequestInit = {...options};
+            const opts: RequestInit = { ...options };
             if (options?.method !== "GET") {
                 if (StringUtils.isEmpty(opts.method)) opts.method = "POST";
                 opts.headers = { "Content-Type": "application/json", ...opts.headers };
@@ -155,16 +155,16 @@ app.on("ready", async () => {
                             listener();
                         }, 5);
                     };
-                    g._session.regenerate = (callback?: () => void) => {
-                        Object.keys(g._session).forEach((key) => {
+                    $global._session.regenerate = (callback?: () => void) => {
+                        Object.keys($global._session).forEach((key) => {
                             if (key === "regenerate") return;
-                            delete g._session[key];
+                            delete $global._session[key];
                         });
                         callback?.();
                     };
                     const req = {
                         body: params,
-                        session: g._session,
+                        session: $global._session,
                         query: {} as { [key: string]: string | Array<string> },
                         cookies: {} as { [key: string]: string },
                         method: options?.method,
@@ -203,7 +203,7 @@ app.on("ready", async () => {
             });
         });
     }
-        
+
     setListener("setSize", "on", (event, params: { width?: number; height?: number; animate?: boolean; }) => {
         try {
             const size = mainWindow.getSize();
@@ -308,21 +308,21 @@ app.on("ready", async () => {
     });
     setListener("setLayoutColor", "handle", async (_e, color: "light" | "dark") => {
         if (config.layout == null) config.layout = {};
-        g._session.layoutColor = config.layout.color = nativeTheme.themeSource = color || (nativeTheme.shouldUseDarkColors ? "dark" : "light");
+        $global._session.layoutColor = config.layout.color = nativeTheme.themeSource = color || (nativeTheme.shouldUseDarkColors ? "dark" : "light");
         await saveConfig();
         return config.layout.color;
     });
     setListener("getLayoutColor", "on", (event) => {
-        event.returnValue = g._session.layoutColor;
+        event.returnValue = $global._session.layoutColor;
     });
     setListener("setLayoutDesign", "handle", async (_e, design: string) => {
         if (config.layout == null) config.layout = {};
-        g._session.layoutDesign = config.layout.design = design || "";
+        $global._session.layoutDesign = config.layout.design = design || "";
         await saveConfig();
         return config.layout.design;
     });
     setListener("getLayoutDesign", "on", (event) => {
-        event.returnValue = g._session.layoutDesign;
+        event.returnValue = $global._session.layoutDesign;
     });
     setListener("saveConfig", "handle", async (_e, newConfig: { [key: string]: any }) => {
         config = { ...config, ...newConfig };
@@ -333,19 +333,16 @@ app.on("ready", async () => {
         else event.returnValue = config[key];
     });
     setListener("getSession", "on", (event, key: string) => {
-        if (key == null) event.returnValue = g._session;
-        else event.returnValue = g._session[key];
+        if (key == null) event.returnValue = $global._session;
+        else event.returnValue = $global._session[key];
     });
     setListener("setSession", "on", (event, key: string, value: any) => {
-        if (key != null) g._session[key] = value;
+        if (key != null) $global._session[key] = value;
         event.returnValue = value;
     });
     setListener("clearSession", "on", (event, key: string) => {
-        if (key != null) delete g._session[key];
+        if (key != null) delete $global._session[key];
         event.returnValue = null;
-    });
-    setListener("getLanguage", "on", (event, locale?: string) => {
-        event.returnValue = g._language[locale ?? "ja"] ?? g._language;
     });
 
     mainWindow.loadURL(loadUrl);

@@ -7,7 +7,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
         const { inputs } = ctx.getParams();
         console.log(inputs);
         ctx.done({ hoge: 1 });
-    } catch(e) {
+    } catch (e) {
         ctx.error(e);
     }
 };

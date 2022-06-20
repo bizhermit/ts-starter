@@ -10,11 +10,11 @@ class ApiContext extends MessageContext {
         }
     }
 
-    public getRequest<T = {[key: string]: any}>(): T {
+    public getRequest<T = Struct>(): T {
         return this.req as T;
     }
 
-    public getResponse<T = {[key: string]: any}>(): T {
+    public getResponse<T = Struct>(): T {
         return this.res as T;
     }
 
@@ -22,14 +22,14 @@ class ApiContext extends MessageContext {
         return this.req.method || "";
     }
 
-    public getParams<T = {[key: string]: any}>(): T {
+    public getParams<T = Struct>(): T {
         return this.req.body as T;
     }
 
     public getQuery(key: string): string | string[] {
         return this.req.query?.[key];
     }
-    
+
     public getCookie(key: string): string {
         return this.req.cookies?.[key];
     }
@@ -68,7 +68,7 @@ class ApiContext extends MessageContext {
     public regenerateSession(keepParams?: boolean) {
         return new Promise<this>((resolve, reject) => {
             try {
-                const buf: {[key: string]: any} = {};
+                const buf: Struct = {};
                 if (keepParams === true) {
                     Object.keys(this.req.session).forEach((key) => {
                         buf[key] = this.req.session[key];
@@ -95,7 +95,7 @@ class ApiContext extends MessageContext {
         });
     }
 
-    protected setData(data: {[key: string]: any}) {
+    protected setData(data: Struct) {
         this.res.json({ data: data ?? {}, messages: this.getMessages() });
         return this;
     }
@@ -104,11 +104,11 @@ class ApiContext extends MessageContext {
         this.res.status(code);
     }
 
-    public done(data: {[key: string]: any} = {}, message?: string, title?: string) {
+    public done(data: Struct = {}, message?: string, title?: string) {
         this.doneAs(200, data, message, title);
     }
 
-    public doneAs(code?: number, data: {[key: string]: any} = {}, message?: string, title?: string) {
+    public doneAs(code?: number, data: Struct = {}, message?: string, title?: string) {
         if (StringUtils.isNotEmpty(message)) this.addInformation({ message, title });
         this.setData(data).setStatus(code ?? 200);
     }

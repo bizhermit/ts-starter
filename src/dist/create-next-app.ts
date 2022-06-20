@@ -14,7 +14,6 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
     rimraf.sync(path.join(wdir, "styles"));
     await move(path.join(wdir, ".eslintrc.json"), path.join(wdir, "src", ".eslintrc.json"));
     await move(path.join(wdir, "next-env.d.ts"), path.join(wdir, "src", "next-env.d.ts"));
-    await move(path.join(wdir, "next.config.js"), path.join(wdir, "src", "next.config.js"));
     await move(path.join(wdir, "tsconfig.json"), path.join(wdir, "src", "tsconfig.json"));
 
     const gitignorePath = path.join(wdir, ".gitignore");
@@ -68,8 +67,8 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         pkg.scripts = {
             ...pkg.scripts,
             "desktop": "npm run clean && npx tsc -p src-desktop/tsconfig.json && npx electron main/src-desktop/index.js",
-            "pack": "npm run license-check && npm run clean && npx rimraf build && npx next build src && npx next export src && electron-builder --dir",
-            "pack:win": "npm run pack -- --win",
+            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx next build src && npx next export src && electron-builder --dir",
+            "pack:win": "npm run _pack -- --win",
         };
         pkg.build = {
             "appId": `example.${appName}`,

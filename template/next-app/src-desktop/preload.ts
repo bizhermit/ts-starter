@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { contextBridge, ipcRenderer, IpcRenderer } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 
-declare global {
-    namespace NodeJS {
-        interface Global {
-            ipcRenderer: IpcRenderer;
-        }
-    }
-}
+const $global = global as { [key: string]: any };
 
 process.once("loaded", () => {
-    (global as any).ipcRenderer = ipcRenderer;
+    $global.ipcRenderer = ipcRenderer;
 });
 
 contextBridge.exposeInMainWorld("nextron", {
@@ -52,5 +46,5 @@ contextBridge.exposeInMainWorld("nextron", {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-    (global as any)._session = (global as any)._session ?? (global as any)?.ipcRenderer?.sendSync("getSession") ?? {};
+    $global._session = $global._session ?? $global?.ipcRenderer?.sendSync("getSession") ?? {};
 });

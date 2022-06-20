@@ -2,19 +2,21 @@ import Caption from "@bizhermit/react-sdk/dist/containers/caption";
 import FlexBox from "@bizhermit/react-sdk/dist/containers/flexbox";
 import Button from "@bizhermit/react-sdk/dist/controls/button";
 import TextBox from "@bizhermit/react-sdk/dist/controls/textbox";
+import useMessage from "@bizhermit/react-sdk/dist/hooks/message";
 import { FitToOuter } from "@bizhermit/react-sdk/dist/utils/classname-utils";
 import { FC, useState } from "react";
 import fetchApi from "../modules/frontend/fetch-api";
 
 const SigninComponent: FC<{ fto?: FitToOuter }> = ({ fto }) => {
+    const msg = useMessage();
     const [inputs, setInputs] = useState<Struct>({});
 
     const signin = async (unlock?: VoidFunc) => {
         try {
             const res = await fetchApi("/signin", { inputs });
-            console.log(res);
-        } catch(e) {
-            setInputs({});
+            msg.append(res.messages);
+        } catch (e) {
+            msg.error(e);
         }
         unlock?.();
     };
