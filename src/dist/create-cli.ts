@@ -7,7 +7,7 @@ const createCli = async (wdir: string) => {
     pkg.scripts = {
         "clean": "npx rimraf bin dist",
         "build": "npm run clean && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts",
-        "try": "node bin/cli",
+        "debug": "node bin/cli",
         "license-check": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
         "minify": "npx minifier bin && npx minifier dist",
         "test": "npx jest --roots test --json --outputFile=test/results.json",
