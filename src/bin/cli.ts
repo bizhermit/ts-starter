@@ -1,11 +1,12 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_desktop, create_staticWeb, create_module, create_web, create_web_desktop, create_mobile } from "../dist";
+import { create_desktop, create_staticWeb, create_web, create_web_desktop, create_mobile } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl } from "@bizhermit/cli-sdk";
 import createCli from "../dist/create-cli";
+import createModule from "../dist/create-module";
 
 const sepStr = `\n::::::::::::::::::::::::::::::\n`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -62,7 +63,7 @@ const main = async (projectType: string) => {
             case "mod":
                 process.stdout.write(`\ncreate module...\n\n`);
                 changeDir();
-                await create_module(dir);
+                await createModule(dir);
                 succeededProcess();
                 break;
             case "hp":
