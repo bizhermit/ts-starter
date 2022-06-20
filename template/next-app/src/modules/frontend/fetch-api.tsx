@@ -1,11 +1,12 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 
 const nextron = (global as any).nextron as { fetch: any };
+const basePath = (document.getElementById("basePath") as HTMLInputElement).value ?? "";
 
 const impl = async <T = {[key: string]: any}>(url: string, params?: {[key: string]: any}, options?: RequestInit) => {
     const isHttp = url.startsWith("http");
     if (nextron == null || isHttp) {
-        const fetchUrl = isHttp ? url : `${global.origin}${`/api/${url}`.replace(/\/\//g, "/")}`;
+        const fetchUrl = isHttp ? url : `${global.origin}${`${basePath}/api/${url}`.replace(/\/\//g, "/")}`;
         if (options?.method === "GET") {
             const res = await fetch(fetchUrl, options);
             if (!res.ok) throw new Error(`fetchData failed: ${fetchUrl}`);

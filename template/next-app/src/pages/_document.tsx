@@ -7,7 +7,6 @@ class AppDocument extends Document {
     }
 
     render(): JSX.Element {
-        console.log(global);
         return (
             <Html>
                 <Head />
