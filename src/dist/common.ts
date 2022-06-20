@@ -22,7 +22,7 @@ export const getPackageJson = async (wdir: string, options?: { clearScripts?: bo
         propertyName: "name",
         initValue: path.basename(wdir),
     }, {
-        propertyName: "value",
+        propertyName: "version",
         initValue: "0.0.0-alpha.0",
     }, {
         propertyName: "description",
@@ -41,13 +41,19 @@ export const getPackageJson = async (wdir: string, options?: { clearScripts?: bo
         initValue: "",
     }, {
         propertyName: "contributors",
-        initValue: "",
+        initValue: [],
     }, {
         propertyName: "private",
         initValue: true,
     }, {
         propertyName: "license",
         initValue: "MIT",
+    }, {
+        propertyName: "dependencies",
+        initValue: {},
+    }, {
+        propertyName: "devDependencies",
+        initValue: {},
     }]);
     if (options?.clearScripts) pkg.scripts = {};
     return pkg;
@@ -85,7 +91,7 @@ export const savePackageJson = async (wdir: string, pkg: {[key: string]: any}) =
     await writeFile(path.join(wdir, "package.json"), JSON.stringify(expPkg, null, 2));
 };
 
-export const installLibs = async (wdir: string, args: Array<string> = [], devArgs: Array<string> = []) => {
+export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Array<string> = []) => {
     cli.wl(`npm install...`);
     if (args.length > 0) {
         cli.wl(` install dependencies`);
@@ -95,6 +101,7 @@ export const installLibs = async (wdir: string, args: Array<string> = [], devArg
         spawnSync("npm", ["i", "--legacy-peer-deps", ...args], { shell: true, stdio: "inherit", cwd: wdir });
     }
     if (devArgs.length > 0) {
+        cli.wl(` install devDependencies`);
         for (const arg of devArgs) {
             cli.wl(`  - ${arg}`);
         }
@@ -106,5 +113,5 @@ export const installLibs = async (wdir: string, args: Array<string> = [], devArg
 export const generateTemplate = async (wdir: string, templateName: string) => {
     await copy(path.join(__dirname, "../template", templateName), wdir, { overwrite: true, recursive: true });
     await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
-    await copyFile(path.join(__dirname, "../template/.gitignore"), path.join(wdir, ".gitignore"));
+    // await copyFile(path.join(__dirname, "../template/.gitignore"), path.join(wdir, ".gitignore"));
 };
