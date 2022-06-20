@@ -6,6 +6,7 @@ import prepareNext from "electron-next";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 import { existsSync, mkdir, readFile, writeFile } from "fs-extra";
+import nextConfig from "../next.config";
 
 const $global = global as { [key: string]: any };
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
@@ -45,7 +46,7 @@ app.on("ready", async () => {
 
     let loadUrl = "";
     if (isDev) {
-        loadUrl = `http://localhost:${port}/`;
+        loadUrl = `http://localhost:${port}${nextConfig.basePath ?? ""}/`;
         mainWindow.webContents.openDevTools();
         log.info("app listen start", loadUrl);
     } else {
