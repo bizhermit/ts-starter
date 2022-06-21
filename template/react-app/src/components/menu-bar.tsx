@@ -89,7 +89,7 @@ const HeaderComponent: FC = () => {
   const titleCtx = useContext(TitleContext);
   return (
     <>
-    <MenuBarTitle><Anchor href="/">BizHermit</Anchor></MenuBarTitle>
+    <MenuBarTitle><Anchor href="/">__appName__</Anchor></MenuBarTitle>
     <MenuBarSubTitle>{titleCtx.title}</MenuBarSubTitle>
     </>
   );

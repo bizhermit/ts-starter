@@ -60,5 +60,6 @@ const createReactApp = async (wdir: string) => {
     }
     await replaceAppName(path.join(wdir, "public", "index.html"));
     await replaceAppName(path.join(wdir, "src/components/pages", "index.tsx"));
+    await replaceAppName(path.join(wdir, "src/components", "menu-bar.tsx"));
 };
 export default createReactApp;
