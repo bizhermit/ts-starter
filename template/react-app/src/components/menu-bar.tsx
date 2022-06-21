@@ -1,7 +1,7 @@
 import MenuContainer from "@bizhermit/react-sdk/dist/containers/menu-container";
 import { MenuItemProps } from "@bizhermit/react-sdk/dist/controls/menu-list";
 import { useLayout } from "@bizhermit/react-sdk/dist/layouts/style";
-import { createContext, FC, useContext, useMemo, useState, VFC } from "react";
+import { createContext, FC, ReactNode, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import Anchor from "./basic/anchor";
 
@@ -22,7 +22,7 @@ padding: 2px 10px 0px 10px;
 
 export const TitleContext = createContext<{ title: string; setTitle: (title?: string) => void }>({ title: "", setTitle: () => {} });
 
-const MenuBar: FC = ({ children }) => {
+const MenuBar: FC<{ children: ReactNode }> = ({ children }) => {
   const layout = useLayout();
   const [title, setTitle] = useState("");
 
@@ -30,19 +30,37 @@ const MenuBar: FC = ({ children }) => {
     label: "style",
     iconImage: "gear",
     childItems: [{
-      label: "light color",
+      label: "Color",
+      caption: true,
+    }, {
+      label: "System",
+      clicked: () => {
+        layout.setColor("system");
+        return false;
+      },
+    }, {
+      label: "Light",
       clicked: () => {
         layout.setColor("light");
         return false;
       },
     }, {
-      label: "dark color",
+      label: "Dark",
       clicked: () => {
         layout.setColor("dark");
         return false;
       },
     }, {
-      label: "material design",
+      label: "Design",
+      caption: true,
+    }, {
+      label: "Flat",
+      clicked: () => {
+        layout.setDesign("flat");
+        return false;
+      },
+    }, {
+      label: "Material",
       clicked: () => {
         layout.setDesign("material");
         return false;
@@ -67,7 +85,7 @@ const MenuBar: FC = ({ children }) => {
 
 export default MenuBar;
 
-const HeaderComponent: VFC = () => {
+const HeaderComponent: FC = () => {
   const titleCtx = useContext(TitleContext);
   return (
     <>

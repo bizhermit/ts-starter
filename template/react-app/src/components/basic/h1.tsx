@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import styled from "styled-components";
 
 const StyledH1 = styled.h1`
@@ -19,7 +19,7 @@ padding: 0px 10px;
 }
 `;
 
-const H1: FC = ({ children }) => {
+const H1: FC<{ children: ReactNode }> = ({ children }) => {
   return <StyledH1>{children}</StyledH1>;
 };
 

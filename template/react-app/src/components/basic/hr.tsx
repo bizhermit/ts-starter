@@ -1,17 +1,28 @@
-import { VFC } from "react";
+import { FC } from "react";
 import styled from "styled-components";
 
-const StyledHr = styled.hr`
+const StyledHHr = styled.hr`
 position: relative;
-width: 100%;
 padding: 0px;
+width: 100%;
 height: 0px;
 border: none;
 border-bottom: 1px solid #888;
 `;
 
-const HR: VFC = () => {
-  return <StyledHr />;
+export const HHR: FC = () => {
+  return <StyledHHr />;
 };
 
-export default HR;
+const StyledVHr = styled.hr`
+position: relative;
+padding: 0px;
+width: 0px;
+height: 100%;
+border: none;
+border-right: 1px solid #888;
+`;
+
+export const VHR: FC = () => {
+  return <StyledVHr />;
+};

@@ -1,7 +1,8 @@
-import { FC, useMemo } from "react";
+import React, { FC, ReactNode, useMemo } from "react";
 import { Link } from "react-router-dom";
 
 type Props = {
+  children: ReactNode;
   href: string
   self?: boolean;
   disabled?: boolean;

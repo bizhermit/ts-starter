@@ -7,13 +7,13 @@ import MenuBar from "./components/menu-bar";
 import IndexPage from "./components/pages";
 import SummaryPage from "./components/pages/summary";
 import FlexBox from "@bizhermit/react-sdk/dist/containers/flexbox";
-import { LayoutProvider, scrollbarClassName } from "@bizhermit/react-sdk/dist/layouts/style";
+import { LayoutProvider } from "@bizhermit/react-sdk/dist/layouts/style";
 
 const Pages = () => 
-<LayoutProvider design="neumorphism">
+<LayoutProvider color="system" design="neumorphism">
 <BrowserRouter basename="/">
 <MenuBar>
-<FlexBox fitToOuter="fill" style={{ padding: 5 }} className={scrollbarClassName}>
+<FlexBox fitToOuter="fill" style={{ padding: 5 }} scroll>
 <Routes>
   {/* add page component */}
   <Route path="/" element={<IndexPage />} />
