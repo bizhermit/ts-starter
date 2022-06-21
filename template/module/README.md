@@ -1,17 +1,22 @@
-# 使い方
+# Developer usage
 
-## tsファイル監視
-
-VSCodeのビルドタスクを利用してください。
-
-## 実行（確認）
+## build
 
 ```bash
-> npm run dev
+npm run build
+```
+## watch
+
+Use VSCode task (Ctrl + Shift + B).
+
+## debug
+
+```bash
+npm run debug
 ```
 
-## ビルド
+## release
 
 ```bash
-> npm run build
+npm run release
 ```

@@ -10,6 +10,7 @@ node_modules
 /template/*/dist
 /template/*/bin
 /template/*/build
+/template/_next-app
 /template/next-app/main
 /template/next-app/src/out
 /template/next-app/src/.next

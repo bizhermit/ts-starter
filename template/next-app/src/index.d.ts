@@ -1,2 +1,2 @@
-type Struct = {[key: string]: any};
+type Struct = { [key: string]: any };
 type VoidFunc = () => void;

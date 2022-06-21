@@ -1,6 +1,5 @@
 import { LayoutProvider } from "@bizhermit/react-sdk/dist/layouts/style";
 import type { AppProps, AppContext } from "next/app";
-import electronAccessor from "../modules/electron-accessor";
 import { StyleColor, StyleDesign } from "@bizhermit/react-sdk/dist/layouts/css-var";
 import "../styles/base.css";
 
@@ -26,11 +25,6 @@ AppRoot.getInitialProps = async (_ctx: AppContext) => {
             design: "flat",
         },
     };
-    const electron = electronAccessor();
-    if (electron) {
-        initProps.layout.color = electron.getLayoutColor() ?? initProps.layout.color;
-        initProps.layout.design = electron.getLayoutDesign() ?? initProps.layout.design;
-    }
     return { initProps };
 }
 
