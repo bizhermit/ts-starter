@@ -18,26 +18,28 @@ npx starter [dirname] <options>
 ```bash
 # start
 select project type
-- [c]  : cancel to start
-- [cli]: command line interface application 
+- [c]  : cancel
 - [mod]: module
-- [s-web] : static web application (react + etc.)
-- [web]: dynamic web application (@bizhermit/nexpress + next + etc.)
-- [dt] : desktop application (@bizhermit/nextron + next + etc.)
-- [wd] : dynamic web and desktop application (@bizhermit/nexpress + @bizhermit/nextron + next + etc.)
+- [cli]: command line interface application
+- [spa]: web application (react)
+- [web]: web application (next.js + express)
+- [dsk]: desktop application (next.js + electron)
+- [app]: web and desktop application (next.js + express / electron)
+- [mob]: mobile application (react-native)
 please input (default c) >
 ```
 
 ### Options
 
-* `-m [projectType]` select mode. if set, you don't necessary to conversation.
-
+* `-t [projectType]` If you don't want to conversation, choose a project type.
 
 ## Project type
 
-* `cli` command line interface application
-* `mod` npm module
-* `s-web` static web application
-* `web` dynamic web application
-* `dt` desktop application
-* `wd` dynamic web and desktop application
+- `mod`: module
+- `cli`: command line interface application
+- `spa`: web application (react)
+- `web`: web application (next.js + express)
+- `dsk`: desktop application (next.js + electron)
+- `app`: web and desktop application (next.js + express / electron)
+- `mob`: mobile application (react-native)
+- 
