@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_staticWeb } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-sdk";
@@ -9,6 +8,7 @@ import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
 import createReactNative from "../dist/create-react-native";
+import createReactApp from "../dist/create-react-app";
 
 const sepStr = `::::::::::::::::::::::::::::::`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -19,20 +19,20 @@ wl(`\n${pkg.name} v${pkg.version}`);
 const dir = path.join(process.cwd(), getArg() || "./");
 wl(`  dirname: ${dir}`);
 
-const argProjectType = getKeyArg("-m");
+const argProjectType = getKeyArg("-t", "-type");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
 
 if (!skipInteractive) {
 wl(`
 select project type
-- [c]  : cancel to start
-- [cli]: command line interface application 
+- [c]  : cancel
 - [mod]: module
-- [s-web] : static web application (react + etc.)
-- [web]: dynamic web application (@bizhermit/nexpress + next + etc.)
-- [dt] : desktop application (@bizhermit/nextron + next + etc.)
-- [wd] : dynamic web and desktop application (@bizhermit/nexpress + @bizhermit/nextron + next + etc.)
-- [mob]: mobile application (react-native + etc.)`);
+- [cli]: command line interface application
+- [spa]: web application (react)
+- [web]: web application (next.js + express)
+- [dsk]: desktop application (next.js + electron)
+- [app]: web and desktop application (next.js + express / electron)
+- [mob]: mobile application (react-native)`);
 }
 
 const changeDir = () => {
@@ -56,50 +56,55 @@ const main = async (projectType: string) => {
     wl(" ");
     try {
         switch (projectType) {
+            case "mod":
+            case "module":
+                wl(`create module...`);
+                changeDir();
+                await createModule(dir);
+                succeededProcess(projectType);
+                break;
             case "cli":
                 wl(`create command line interface application...`);
                 changeDir();
                 await createCli(dir);
                 succeededProcess(projectType);
                 break;
-            case "mod":
-                wl(`create module...`);
+            case "spa":
+            case "react":
+                wl(`create web application (react)...`);
                 changeDir();
-                await createModule(dir);
-                succeededProcess(projectType);
-                break;
-            case "hp":
-            case "s-web":
-                wl(`create static web (homepage)...`);
-                changeDir();
-                await create_staticWeb(dir);
+                await createReactApp(dir);
                 succeededProcess(projectType);
                 break;
             case "web":
-                wl(`create dynamic web application...`);
+            case "nexpress":
+                wl(`create web application (next.js + express)...`);
                 changeDir();
                 await createNextApp(dir, { server: true });
                 succeededProcess(projectType);
                 break;
-            case "dt":
-                wl(`create desktop application...`);
+            case "dsk":
+            case "desktop":
+            case "nextron":
+                wl(`create desktop application (next.js + electron)...`);
                 changeDir();
                 await createNextApp(dir, { desktop: true });
                 succeededProcess(projectType);
                 break;
-            case "wd":
-                wl(`create dynamic web and desktop application...`);
+            case "app":
+            case "all":
+                wl(`create web and desktop application (next.js + express / electron)...`);
                 changeDir();
                 await createNextApp(dir, { server: true, desktop: true });
                 succeededProcess(projectType);
                 break;
             case "mob":
-                wl(`create mobile application...`);
+            case "mobile":
+                wl(`create mobile application (react-native)...`);
                 changeDir();
                 await createReactNative(dir);
                 succeededProcess(projectType);
                 break;
-            case "all":
             default:
                 wl(`cancel`);
                 break;

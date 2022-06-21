@@ -124,7 +124,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
         let targetFile = (await readFile(filePath)).toString();
         targetFile = targetFile.replace(/__appName__/g, appName);
         await writeFile(filePath, targetFile);
-    }
+    };
     await replaceAppName(path.join(wdir, "next.config.js"));
     if (options?.server) {
         await replaceAppName(path.join(wdir, "src-server", "index.ts"));
