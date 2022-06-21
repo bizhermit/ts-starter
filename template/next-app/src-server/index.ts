@@ -5,7 +5,6 @@ import expressSession from "express-session";
 import helmet from "helmet";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
-import nextConfig from "../next.config";
 
 const isDev = process.argv.find(arg => arg === "-dev") != null;
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
@@ -24,7 +23,7 @@ const log = {
 
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
-const appRoot = path.join(__dirname, "../../");
+const appRoot = path.join(__dirname, "../");
 
 const nextApp = next({
     dev: isDev,
@@ -63,7 +62,7 @@ nextApp.prepare().then(async () => {
     server.use(express.static(path.join(appRoot, "src/public")));
 
     const handler = nextApp.getRequestHandler();
-    server.all(`${nextConfig.basePath ?? ""}/api/*`, (req, res) => {
+    server.all(`${process.env.APP_BASE_PATH ?? ""}/api/*`, (req, res) => {
         log.info("api call:", req.url);
         return handler(req, res);
     });
@@ -71,7 +70,7 @@ nextApp.prepare().then(async () => {
         return handler(req, res);
     });
 
-    const port = isDev ? 8000 : 80;
+    const port = Number(process.env.APP_PORT ?? (isDev ? 8000 : 3000));
     log.info("begin listen", String(port));
     server.listen(port, () => {
         log.info("began listen", String(port));

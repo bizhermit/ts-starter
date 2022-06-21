@@ -39,6 +39,7 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
     ];
     const devDeps = [
         "@bizhermit/license",
+        "@bizhermit/minifier",
         "@types/node",
         "rimraf",
     ];
@@ -53,9 +54,9 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
     if (options?.web) {
         pkg.scripts = {
             ...pkg.scripts,
-            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/src-server/index.js -dev",
-            "build": "npm run license-check && npm run clean && npx tsc -p src-server/tsconfig.json && npx next build src",
-            "start": "node main/src-server/index.js",
+            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/index.js -dev",
+            "build": "npm run license-check && npm run clean && npx tsc -p src-server/tsconfig.json && npx minifier main && npx next build src",
+            "start": "node main/index.js",
         };
         deps.push("express");
         deps.push("express-session");
@@ -67,7 +68,7 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         pkg.scripts = {
             ...pkg.scripts,
             "desktop": "npm run clean && npx tsc -p src-desktop/tsconfig.json && npx electron main/src-desktop/index.js",
-            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx next build src && npx next export src && electron-builder --dir",
+            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx minifier main && npx next build src && npx next export src && electron-builder --dir",
             "pack:win": "npm run _pack -- --win",
         };
         pkg.build = {
@@ -119,17 +120,17 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
 
     await generateTemplate(wdir, "next-app");
 
+    const replaceAppName = async (filePath: string) => {
+        let targetFile = (await readFile(filePath)).toString();
+        targetFile = targetFile.replace(/__appName__/g, appName);
+        await writeFile(filePath, targetFile);
+    }
+    await replaceAppName(path.join(wdir, "next.config.js"));
     if (options?.web) {
-        const indexFilePath = path.join(wdir, "src-server", "index.ts");
-        let indexFile = (await readFile(indexFilePath)).toString();
-        indexFile = indexFile.replace(/__appName__/g, appName);
-        await writeFile(indexFilePath, indexFile);
+        await replaceAppName(path.join(wdir, "src-server", "index.ts"));
     }
     if (options?.desktop) {
-        const indexFilePath = path.join(wdir, "src-desktop", "index.ts");
-        let indexFile = (await readFile(indexFilePath)).toString();
-        indexFile = indexFile.replace(/__appName__/g, appName);
-        await writeFile(indexFilePath, indexFile);
+        await replaceAppName(path.join(wdir, "src-desktop", "index.ts"));
     }
     if (!options?.web) {
         rimraf.sync(path.join(wdir, "src-server"));

@@ -28,7 +28,7 @@ log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 const appRoot = path.join(__dirname, "../../");
 
 app.on("ready", async () => {
-    const port = 8000;
+    const port = Number(nextConfig.env?.APP_PORT ?? 8000);
     await prepareNext(path.join(appRoot, "src"), port);
 
     const mainWindow = new BrowserWindow({
@@ -43,10 +43,9 @@ app.on("ready", async () => {
         },
     });
 
-
     let loadUrl = "";
     if (isDev) {
-        loadUrl = `http://localhost:${port}${nextConfig.basePath ?? ""}/`;
+        loadUrl = `http://localhost:${port}${nextConfig.env?.APP_BASE_PATH ?? ""}/`;
         mainWindow.webContents.openDevTools();
         log.info("app listen start", loadUrl);
     } else {
