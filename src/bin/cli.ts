@@ -1,13 +1,14 @@
 #! /usr/bin/env node
 
 import path from "path";
-import { create_staticWeb, create_mobile } from "../dist";
+import { create_staticWeb } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-sdk";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
+import createReactNative from "../dist/create-react-native";
 
 const sepStr = `::::::::::::::::::::::::::::::`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -95,7 +96,7 @@ const main = async (projectType: string) => {
             case "mob":
                 wl(`create mobile application...`);
                 changeDir();
-                await create_mobile(dir);
+                await createReactNative(dir);
                 succeededProcess(projectType);
                 break;
             case "all":
