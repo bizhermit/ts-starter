@@ -1,3 +1,5 @@
+import { StyleColor, StyleDesign } from "@bizhermit/react-sdk/dist/layouts/css-var";
+
 export type ConfigValue = string | number | boolean | Array<ConfigValue> | { [key: string]: ConfigValue };
 export type Config<T = { [key: string]: ConfigValue }> = {
     appDirname: string;
@@ -31,10 +33,10 @@ export type ElectronAccessor = {
     hasFocus: () => boolean;
     notification: (title: string, options: NotificationOptions) => Promise<void>;
     setPosition: (params: { position: { x: number; y: number; } | "center" | "left-top" | "right-bottom"; animate?: boolean; }) => { x: number; y: number; };
-    setLayoutColor: (color: "light" | "dark") => Promise<string>;
-    getLayoutColor: () => string;
-    setLayoutDesign: (design: string) => Promise<string>;
-    getLayoutDesign: () => string;
+    setLayoutColor: (color: StyleColor) => Promise<StyleColor>;
+    getLayoutColor: () => StyleColor;
+    setLayoutDesign: (design: keyof typeof StyleDesign) => Promise<keyof typeof StyleDesign>;
+    getLayoutDesign: () => keyof typeof StyleDesign;
     saveConfig: (config: { [key: string]: ConfigValue }) => Promise<void>;
     getConfig: <T = { [key: string]: ConfigValue }>(key?: string) => Config<T>;
     getSession: <T = string>(key?: string) => T;

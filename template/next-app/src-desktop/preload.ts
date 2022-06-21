@@ -11,7 +11,6 @@ process.once("loaded", () => {
 contextBridge.exposeInMainWorld("electron", {
     test: () => ipcRenderer.sendSync("test"),
     fetch: (path: string, params: { [key: string]: any }, options?: RequestInit) => ipcRenderer.invoke("fetch", path, params, options),
-    language: (locale: string) => ipcRenderer.sendSync("language", locale),
     setSize: (params: { width?: number; height?: number; animate?: boolean; }) => ipcRenderer.sendSync("setSize", params),
     getSize: () => ipcRenderer.sendSync("getSize"),
     setAlwaysOnTop: (alwaysOnTop: boolean) => ipcRenderer.sendSync("setAlwaysOnTop", alwaysOnTop),
@@ -42,7 +41,6 @@ contextBridge.exposeInMainWorld("electron", {
     getSession: (key?: string) => ipcRenderer.sendSync("getSession", key),
     setSession: (key: string, value: any) => ipcRenderer.sendSync("setSession", key, value),
     clearSession: (key: string) => ipcRenderer.sendSync("clearSession", key),
-    getLanguage: (locale?: string) => ipcRenderer.sendSync("getLanguage", locale),
 });
 
 window.addEventListener("DOMContentLoaded", () => {

@@ -84,8 +84,8 @@ app.on("ready", async () => {
     }
     config = await getConfigFile();
 
-    $global._session.layoutColor = (nativeTheme.shouldUseDarkColors ? "dark" : "light");
-    $global._session.layoutDesign = "flat";
+    $global._session.layoutColor = config.layout?.color;
+    $global._session.layoutDesign = config.layout?.design;
 
     $global.electron = {};
     const setListener = (name: string, type: "handle" | "on", func: (event: IpcMainEvent | IpcMainInvokeEvent, ...args: Array<any>) => any) => {
@@ -306,9 +306,11 @@ app.on("ready", async () => {
     setListener("notification", "on", (_e, title: string, options: NotificationOptions) => {
         return new Notification(title, options);
     });
-    setListener("setLayoutColor", "handle", async (_e, color: "light" | "dark") => {
+    setListener("setLayoutColor", "handle", async (_e, color: "light" | "dark" | "system") => {
         if (config.layout == null) config.layout = {};
-        $global._session.layoutColor = config.layout.color = nativeTheme.themeSource = color || (nativeTheme.shouldUseDarkColors ? "dark" : "light");
+        if (color === "system") nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? "dark" : "light";
+        else nativeTheme.themeSource = color;
+        $global._session.layoutColor = config.layout.color = nativeTheme.themeSource = color;
         await saveConfig();
         return config.layout.color;
     });

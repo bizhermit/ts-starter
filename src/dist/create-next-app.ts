@@ -4,7 +4,7 @@ import path from "path";
 import rimraf from "rimraf";
 import { generateTemplate, getPackageJson, installLibs, savePackageJson } from "./common";
 
-const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: boolean; }) => {
+const createNextApp = async (wdir: string, options?: { server?: boolean; desktop?: boolean; }) => {
     const appName = path.basename(wdir);
 
     spawnSync("npx", ["create-next-app", "--ts", "."], { shell: true, stdio: "inherit", cwd: wdir });
@@ -51,12 +51,12 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         "license-check": "npx rimraf CREDIT && npx license -o CREDIT --returnError -exclude caniuse-lite",
         "test": "npx next lint src",
     };
-    if (options?.web) {
+    if (options?.server) {
         pkg.scripts = {
             ...pkg.scripts,
-            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/index.js -dev",
+            "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/src-server/index.js -dev",
             "build": "npm run license-check && npm run clean && npx tsc -p src-server/tsconfig.json && npx minifier main && npx next build src",
-            "start": "node main/index.js",
+            "start": "node main/src-server/index.js",
         };
         deps.push("express");
         deps.push("express-session");
@@ -68,7 +68,7 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         pkg.scripts = {
             ...pkg.scripts,
             "desktop": "npm run clean && npx tsc -p src-desktop/tsconfig.json && npx electron main/src-desktop/index.js",
-            "_pack": "npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx minifier main && npx next build src && npx next export src && electron-builder --dir",
+            "_pack": `npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx minifier main ${!options?.server ? "" : "&& set APP_BASE_PATH= "}&& npx next build src && npx next export src && electron-builder --dir`,
             "pack:win": "npm run _pack -- --win",
         };
         pkg.build = {
@@ -126,17 +126,22 @@ const createNextApp = async (wdir: string, options?: { web?: boolean; desktop?: 
         await writeFile(filePath, targetFile);
     }
     await replaceAppName(path.join(wdir, "next.config.js"));
-    if (options?.web) {
+    if (options?.server) {
         await replaceAppName(path.join(wdir, "src-server", "index.ts"));
     }
     if (options?.desktop) {
         await replaceAppName(path.join(wdir, "src-desktop", "index.ts"));
     }
-    if (!options?.web) {
+    if (!options?.server) {
+        await generateTemplate(wdir, "next-app-desktop");
         rimraf.sync(path.join(wdir, "src-server"));
     }
     if (!options?.desktop) {
+        await generateTemplate(wdir, "next-app-server");
         rimraf.sync(path.join(wdir, "src-desktop"));
+        rimraf.sync(path.join(wdir, "src/modules/electron-accessor.ts"));
+        rimraf.sync(path.join(wdir, "src/modules/frontend/use-electron.ts"));
+
     }
 };
 export default createNextApp;

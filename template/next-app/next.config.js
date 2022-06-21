@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const basePath = "/__appName__";
+const basePath = process.env.APP_BASE_PATH?.trim() ?? "/test";
 const nextConfig = {
   reactStrictMode: true,
   basePath,

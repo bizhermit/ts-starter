@@ -4,25 +4,25 @@ import path from "path";
 import { create_staticWeb, create_mobile } from "../dist";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import { getArg, getKeyArg, rl } from "@bizhermit/cli-sdk";
+import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-sdk";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
 
-const sepStr = `\n::::::::::::::::::::::::::::::\n`;
+const sepStr = `::::::::::::::::::::::::::::::`;
 const pkg = require("../package.json") as { [key: string]: any };
 
-process.stdout.write(sepStr);
-process.stdout.write(`\n${pkg.name} v${pkg.version}\n`);
+wl(sepStr)
+wl(`\n${pkg.name} v${pkg.version}`);
 
 const dir = path.join(process.cwd(), getArg() || "./");
-process.stdout.write(`  dirname: ${dir}\n`);
+wl(`  dirname: ${dir}`);
 
 const argProjectType = getKeyArg("-m");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
 
 if (!skipInteractive) {
-    process.stdout.write(`
+wl(`
 select project type
 - [c]  : cancel to start
 - [cli]: command line interface application 
@@ -31,90 +31,90 @@ select project type
 - [web]: dynamic web application (@bizhermit/nexpress + next + etc.)
 - [dt] : desktop application (@bizhermit/nextron + next + etc.)
 - [wd] : dynamic web and desktop application (@bizhermit/nexpress + @bizhermit/nextron + next + etc.)
-- [mob]: mobile application (react-native + etc.)
-`);
+- [mob]: mobile application (react-native + etc.)`);
 }
 
 const changeDir = () => {
     if (!fse.existsSync(dir)) {
-        process.stdout.write(`create dir : ${dir}\n`);
+        wl(`create dir : ${dir}`);
         fse.mkdirSync(dir, { recursive: true });
     }
     cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
 
-const succeededProcess = () => {
-    process.stdout.write(`\n${pkg.name} succeeded.\n`);
+const succeededProcess = (projectType: string) => {
+    wl(`\nset up succeeded: ${projectType}`);
     const cdDir = getArg();
     if (cdDir != null && process.cwd() !== dir) {
-        process.stdout.write(`\nstart with change directory`);
-        process.stdout.write(`\n  cd ${cdDir}\n`);
+        wl(`start with change directory`);
+        wl(`  cd ${cdDir}`);
     }
 };
 
 const main = async (projectType: string) => {
+    wl(" ");
     try {
         switch (projectType) {
             case "cli":
-                process.stdout.write(`\ncreate command line interface application...\n\n`);
+                wl(`create command line interface application...`);
                 changeDir();
                 await createCli(dir);
-                succeededProcess();
+                succeededProcess(projectType);
                 break;
             case "mod":
-                process.stdout.write(`\ncreate module...\n\n`);
+                wl(`create module...`);
                 changeDir();
                 await createModule(dir);
-                succeededProcess();
+                succeededProcess(projectType);
                 break;
             case "hp":
             case "s-web":
-                process.stdout.write(`\ncreate static web (homepage)...\n\n`);
+                wl(`create static web (homepage)...`);
                 changeDir();
                 await create_staticWeb(dir);
-                succeededProcess();
+                succeededProcess(projectType);
                 break;
             case "web":
-                process.stdout.write(`\ncreate dynamic web application...\n\n`);
+                wl(`create dynamic web application...`);
                 changeDir();
-                await createNextApp(dir, { web: true });
-                succeededProcess();
+                await createNextApp(dir, { server: true });
+                succeededProcess(projectType);
                 break;
             case "dt":
-                process.stdout.write(`\ncreate desktop application...\n\n`);
+                wl(`create desktop application...`);
                 changeDir();
                 await createNextApp(dir, { desktop: true });
-                succeededProcess();
+                succeededProcess(projectType);
                 break;
             case "wd":
-                process.stdout.write(`\ncreate dynamic web and desktop application...\n\n`);
+                wl(`create dynamic web and desktop application...`);
                 changeDir();
-                await createNextApp(dir, { web: true, desktop: true });
-                succeededProcess();
+                await createNextApp(dir, { server: true, desktop: true });
+                succeededProcess(projectType);
                 break;
             case "mob":
-                process.stdout.write(`\ncreate mobile application...\n\n`);
+                wl(`create mobile application...`);
                 changeDir();
                 await create_mobile(dir);
-                succeededProcess();
+                succeededProcess(projectType);
                 break;
             case "all":
             default:
-                process.stdout.write(`\ncancel\n`);
+                wl(`cancel`);
                 break;
         }
     } catch (err) {
         process.stderr.write(String(err));
-        process.stdout.write(`\n${pkg.name} failed.\n`);
+        wl(`\nset up failed: ${projectType}`);
     }
-    process.stdout.write(`${sepStr}\n`);
+    wl(`\n${sepStr}`);
 };
 if (skipInteractive) {
     main(argProjectType)
 } else {
     rl(`please input (default c) > `).then(main).catch((err) => {
         process.stderr.write(err);
-        process.stdout.write(`\n${pkg.name} failed.\n`);
-        process.stdout.write(`${sepStr}\n`);
+        wl(`${pkg.name} failed.`);
+        wl(`\n${sepStr}`);
     });
 }
