@@ -2,6 +2,7 @@ import cli from "@bizhermit/cli-sdk";
 import { spawnSync } from "child_process";
 import { copy, copyFile, existsSync, readFile, writeFile } from "fs-extra";
 import path from "path";
+import rimraf from "rimraf";
 
 const initializePackageContent = (pkg: {[key: string]: any}, values: Array<{ propertyName: string; initValue: any ;}>) => {
     values.forEach(v => {
@@ -113,4 +114,8 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
 export const generateTemplate = async (wdir: string, templateName: string) => {
     await copy(path.join(__dirname, "../template", templateName), wdir, { overwrite: true, recursive: true });
     await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
+};
+
+export const removeGit = (wdir: string) => {
+    rimraf.sync(path.join(wdir, ".git"));
 };

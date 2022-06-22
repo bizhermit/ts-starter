@@ -2,7 +2,7 @@ import { spawnSync } from "child_process";
 import { mkdir, move, readFile, writeFile } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
-import { generateTemplate, getPackageJson, installLibs, savePackageJson } from "./common";
+import { generateTemplate, getPackageJson, installLibs, removeGit, savePackageJson } from "./common";
 
 const createNextApp = async (wdir: string, options?: { server?: boolean; desktop?: boolean; }) => {
     const appName = path.basename(wdir);
@@ -141,7 +141,8 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
         rimraf.sync(path.join(wdir, "src-desktop"));
         rimraf.sync(path.join(wdir, "src/modules/electron-accessor.ts"));
         rimraf.sync(path.join(wdir, "src/modules/frontend/use-electron.ts"));
-
     }
+
+    removeGit(wdir);
 };
 export default createNextApp;
