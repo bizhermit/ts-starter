@@ -142,6 +142,10 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
         rimraf.sync(path.join(wdir, "src/modules/electron-accessor.ts"));
         rimraf.sync(path.join(wdir, "src/modules/frontend/use-electron.ts"));
     }
+    await mkdir(path.join(wdir, "src/core/components"), { recursive: true });
+    await mkdir(path.join(wdir, "src/modules/frontend"), { recursive: true });
+    await mkdir(path.join(wdir, "src/modules/backend"), { recursive: true });
+    await mkdir(path.join(wdir, "src/styles"), { recursive: true });
 
     removeGit(wdir);
 };

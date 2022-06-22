@@ -72,9 +72,8 @@ nextApp.prepare().then(async () => {
     });
 
     const port = Number(nextConfig.env?.APP_PORT ?? (isDev ? 8000 : 3000));
-    log.info("begin listen", String(port));
     server.listen(port, () => {
-        log.info("began listen", String(port));
+        log.info(`http://localhost:${port}${nextConfig.env?.APP_BASE_PATH ?? ""}`);
     });
 }).catch((err: any) => {
     log.error(err);

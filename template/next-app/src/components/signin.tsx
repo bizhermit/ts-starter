@@ -5,7 +5,7 @@ import TextBox from "@bizhermit/react-sdk/dist/controls/textbox";
 import useMessage from "@bizhermit/react-sdk/dist/hooks/message";
 import { FitToOuter } from "@bizhermit/react-sdk/dist/utils/classname-utils";
 import { FC, useState } from "react";
-import fetchApi from "../modules/frontend/fetch-api";
+import fetchApi from "../core/modules/frontend/fetch-api";
 
 const SigninComponent: FC<{ fto?: FitToOuter }> = ({ fto }) => {
     const msg = useMessage();
