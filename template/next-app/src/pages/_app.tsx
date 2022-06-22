@@ -1,8 +1,8 @@
 import { LayoutProvider } from "@bizhermit/react-sdk/dist/layouts/style";
 import type { AppProps, AppContext } from "next/app";
-import electronAccessor from "../modules/electron-accessor";
+import electronAccessor from "../core/modules/electron-accessor";
 import { StyleColor, StyleDesign } from "@bizhermit/react-sdk/dist/layouts/css-var";
-import "../styles/base.css";
+import "../core/styles/base.css";
 
 type AppRootInitProps = {
     layout: {

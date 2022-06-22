@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import ApiContext from "../../modules/backend/api-context";
+import ApiContext from "../../core/modules/backend/api-context";
 
 const handler = (req: NextApiRequest, res: NextApiResponse) => {
     const ctx = new ApiContext(req, res);
