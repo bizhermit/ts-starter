@@ -42,4 +42,3 @@ please input (default c) >
 - `dsk`: desktop application (next.js + electron)
 - `app`: web and desktop application (next.js + express / electron)
 - `mob`: mobile application (react-native)
-- 
