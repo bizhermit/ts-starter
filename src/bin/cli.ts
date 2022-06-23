@@ -58,27 +58,27 @@ const main = async (projectType: string) => {
         switch (projectType) {
             case "mod":
             case "module":
-                wl(`create module...`);
+                wl(`create module`);
                 changeDir();
                 await createModule(dir);
                 succeededProcess(projectType);
                 break;
             case "cli":
-                wl(`create command line interface application...`);
+                wl(`create command line interface application`);
                 changeDir();
                 await createCli(dir);
                 succeededProcess(projectType);
                 break;
             case "spa":
             case "react":
-                wl(`create web application (react)...`);
+                wl(`create web application (react)`);
                 changeDir();
                 await createReactApp(dir);
                 succeededProcess(projectType);
                 break;
             case "web":
             case "nexpress":
-                wl(`create web application (next.js + express)...`);
+                wl(`create web application (next.js + express)`);
                 changeDir();
                 await createNextApp(dir, { server: true });
                 succeededProcess(projectType);
@@ -86,21 +86,21 @@ const main = async (projectType: string) => {
             case "dsk":
             case "desktop":
             case "nextron":
-                wl(`create desktop application (next.js + electron)...`);
+                wl(`create desktop application (next.js + electron)`);
                 changeDir();
                 await createNextApp(dir, { desktop: true });
                 succeededProcess(projectType);
                 break;
             case "app":
             case "all":
-                wl(`create web and desktop application (next.js + express / electron)...`);
+                wl(`create web and desktop application (next.js + express / electron)`);
                 changeDir();
                 await createNextApp(dir, { server: true, desktop: true });
                 succeededProcess(projectType);
                 break;
             case "mob":
             case "mobile":
-                wl(`create mobile application (react-native)...`);
+                wl(`create mobile application (react-native)`);
                 changeDir();
                 await createReactNative(dir);
                 succeededProcess(projectType);
