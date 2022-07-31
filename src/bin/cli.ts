@@ -3,7 +3,7 @@
 import path from "path";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-sdk";
+import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-utils";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";

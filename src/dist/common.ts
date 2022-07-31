@@ -1,4 +1,4 @@
-import cli from "@bizhermit/cli-sdk";
+import cli from "@bizhermit/cli-utils";
 import { spawnSync } from "child_process";
 import { copy, copyFile, existsSync, readFile, writeFile } from "fs-extra";
 import path from "path";
