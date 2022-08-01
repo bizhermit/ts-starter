@@ -4,9 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clear": "npx rimraf test",
+    "debug": "node bin/cli ./test",
+    "d:mod": "npm run debug -- -t mod",
+    "d:cli": "npm run debug -- -t cli",
+    "d:spa": "npm run debug -- -t spa",
+    "d:web": "npm run debug -- -t web",
+    "d:dsk": "npm run debug -- -t dsk",
+    "d:app": "npm run debug -- -t app",
+    "d:mob": "npm run debug -- -t mob",
+    "d:cancel": "npm run debug -- -t c"
   },
   "author": "",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "fs-extra": "^10.1.0",
+    "rimraf": "^3.0.2"
+  }
 }

@@ -18,13 +18,11 @@
   "homepage": "https://bizhermit.com",
   "license": "MIT",
   "bin": "bin/cli.js",
-  "types": "index.d.ts",
   "files": [
     "bin",
     "dist",
     "template",
-    "CREDIT",
-    "index.d.ts"
+    "CREDIT"
   ],
   "dependencies": {
     "@bizhermit/cli-utils": "^1.0.0-rc.0",
