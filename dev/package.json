@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clear": "npx rimraf test",
-    "debug": "node bin/cli ./test",
+    "clean": "npx rimraf test",
+    "debug": "npm run clean && node bin/cli ./test",
     "d:mod": "npm run debug -- -t mod",
     "d:cli": "npm run debug -- -t cli",
     "d:spa": "npm run debug -- -t spa",
