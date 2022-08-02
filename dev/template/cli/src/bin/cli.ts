@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import cli from "@bizhermit/cli-sdk";
+import cli from "@bizhermit/cli-utils";
 import { getNumberTextAsync, getNumberTextSync } from "../dist";
 
 (async () => {

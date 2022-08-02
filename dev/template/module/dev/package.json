@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "debug:js": "node js-debug",
+    "debug:ts": "node ts-debug"
+  }
+}

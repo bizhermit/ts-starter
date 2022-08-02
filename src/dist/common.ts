@@ -29,14 +29,11 @@ export const getPackageJson = async (wdir: string, options?: { clearScripts?: bo
     propertyName: "description",
     initValue: "",
   }, {
-    propertyName: "scripts",
-    initValue: {},
-  }, {
     propertyName: "repository",
-    initValue: { type: "git", ulr: "" },
+    initValue: { type: "git", url: "" },
   }, {
     propertyName: "bugs",
-    initValue: "",
+    initValue: { url: "" },
   }, {
     propertyName: "author",
     initValue: "",
@@ -49,6 +46,9 @@ export const getPackageJson = async (wdir: string, options?: { clearScripts?: bo
   }, {
     propertyName: "license",
     initValue: "MIT",
+  }, {
+    propertyName: "scripts",
+    initValue: {},
   }, {
     propertyName: "dependencies",
     initValue: {},

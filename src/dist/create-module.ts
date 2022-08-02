@@ -4,21 +4,17 @@ const createModule = async (wdir: string) => {
   const pkg = await getPackageJson(wdir);
   pkg.main = "dist/index";
   pkg.scripts = {
-    "clean": "npx rimraf dist",
-    "build": "npm run clean && npx tsc -p src/tsconfig.json",
-    "debug": "node debug",
-    "license-check": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
-    "minify": "npx minifier dist",
-    "test": "npx jest --roots test --json --outputFile=test/results.json",
-    "release": "npm run license-check && npm run build && npm run minify && npm run test",
+    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
+    "build": "npm run license && npx rimraf package && npx tsc -p src/tsconfig.json && npx minifier package && npx npm-package-utils pack"
   };
   pkg.files = ["dist", "CREDIT"];
   await savePackageJson(wdir, pkg);
   installLibs(wdir, [
     "@bizhermit/basic-utils",
   ], [
-    "@bizhermit/minifier",
     "@bizhermit/license",
+    "@bizhermit/minifier",
+    "@bizhermit/npm-package-utils",
     "@types/node",
     "jest",
     "rimraf",
