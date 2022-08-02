@@ -36,91 +36,91 @@ select project type
 }
 
 const changeDir = () => {
-    if (!fse.existsSync(dir)) {
-        wl(`create dir : ${dir}`);
-        fse.mkdirSync(dir, { recursive: true });
-    }
-    cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
+  if (!fse.existsSync(dir)) {
+    wl(`create dir : ${dir}`);
+    fse.mkdirSync(dir, { recursive: true });
+  }
+  cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
 
 const succeededProcess = (projectType: string) => {
-    wl(`\nset up succeeded: ${projectType}`);
-    const cdDir = getArg();
-    if (cdDir != null && process.cwd() !== dir) {
-        wl(`start with change directory`);
-        wl(`  cd ${cdDir}`);
-    }
+  wl(`\nset up succeeded: ${projectType}`);
+  const cdDir = getArg();
+  if (cdDir != null && process.cwd() !== dir) {
+    wl(`start with change directory`);
+    wl(`  cd ${cdDir}`);
+  }
 };
 
 const main = async (projectType: string) => {
-    wl(" ");
-    try {
-        switch (projectType) {
-            case "mod":
-            case "module":
-                wl(`create module`);
-                changeDir();
-                await createModule(dir);
-                succeededProcess(projectType);
-                break;
-            case "cli":
-                wl(`create command line interface application`);
-                changeDir();
-                await createCli(dir);
-                succeededProcess(projectType);
-                break;
-            case "spa":
-            case "react":
-                wl(`create web application (react)`);
-                changeDir();
-                await createReactApp(dir);
-                succeededProcess(projectType);
-                break;
-            case "web":
-            case "nexpress":
-                wl(`create web application (next.js + express)`);
-                changeDir();
-                await createNextApp(dir, { server: true });
-                succeededProcess(projectType);
-                break;
-            case "dsk":
-            case "desktop":
-            case "nextron":
-                wl(`create desktop application (next.js + electron)`);
-                changeDir();
-                await createNextApp(dir, { desktop: true });
-                succeededProcess(projectType);
-                break;
-            case "app":
-            case "all":
-                wl(`create web and desktop application (next.js + express / electron)`);
-                changeDir();
-                await createNextApp(dir, { server: true, desktop: true });
-                succeededProcess(projectType);
-                break;
-            case "mob":
-            case "mobile":
-                wl(`create mobile application (react-native)`);
-                changeDir();
-                await createReactNative(dir);
-                succeededProcess(projectType);
-                break;
-            default:
-                wl(`cancel`);
-                break;
-        }
-    } catch (err) {
-        process.stderr.write(String(err));
-        wl(`\nset up failed: ${projectType}`);
+  wl(" ");
+  try {
+    switch (projectType) {
+      case "mod":
+      case "module":
+        wl(`create module`);
+        changeDir();
+        await createModule(dir);
+        succeededProcess(projectType);
+        break;
+      case "cli":
+        wl(`create command line interface application`);
+        changeDir();
+        await createCli(dir);
+        succeededProcess(projectType);
+        break;
+      case "spa":
+      case "react":
+        wl(`create web application (react)`);
+        changeDir();
+        await createReactApp(dir);
+        succeededProcess(projectType);
+        break;
+      case "web":
+      case "nexpress":
+        wl(`create web application (next.js + express)`);
+        changeDir();
+        await createNextApp(dir, { server: true });
+        succeededProcess(projectType);
+        break;
+      case "dsk":
+      case "desktop":
+      case "nextron":
+        wl(`create desktop application (next.js + electron)`);
+        changeDir();
+        await createNextApp(dir, { desktop: true });
+        succeededProcess(projectType);
+        break;
+      case "app":
+      case "all":
+        wl(`create web and desktop application (next.js + express / electron)`);
+        changeDir();
+        await createNextApp(dir, { server: true, desktop: true });
+        succeededProcess(projectType);
+        break;
+      case "mob":
+      case "mobile":
+        wl(`create mobile application (react-native)`);
+        changeDir();
+        await createReactNative(dir);
+        succeededProcess(projectType);
+        break;
+      default:
+        wl(`cancel`);
+        break;
     }
-    wl(`\n${sepStr}`);
+  } catch (err) {
+    process.stderr.write(String(err));
+    wl(`\nset up failed: ${projectType}`);
+  }
+  wl(`\n${sepStr}`);
 };
 if (skipInteractive) {
-    main(argProjectType)
+  main(argProjectType)
 } else {
-    rl(`please input (default c) > `).then(main).catch((err) => {
-        process.stderr.write(err);
-        wl(`${pkg.name} failed.`);
-        wl(`\n${sepStr}`);
-    });
+  rl(`please input (default c) > `).then(main).catch((err) => {
+    process.stderr.write(err);
+    wl(`${pkg.name} failed.`);
+    wl(`\n${sepStr}`);
+  });
 }
