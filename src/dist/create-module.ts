@@ -1,10 +1,11 @@
 import path from "path";
-import { generateTemplate, getPackageJson, installLibs, npmPackageInit, savePackageJson } from "./common";
+import { generateTemplate, getPackageJson, installLibs, npmPackageInit, replaceAppName, savePackageJson } from "./common";
 
 const createModule = async (wdir: string) => {
   const pkg = await getPackageJson(wdir);
   pkg.main = "dist/index";
   pkg.scripts = {
+    "dev": "echo change directory to dev",
     "clean": "npx rimraf package",
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
     "test": "npx jest --roots test --json --outputFile=test/results.json",
@@ -26,6 +27,11 @@ const createModule = async (wdir: string) => {
   installLibs(path.join(wdir, "src"), [
     "@bizhermit/basic-utils",
   ], [
+    "@types/node",
+    "typescript",
+  ]);
+  await replaceAppName(path.join(wdir, "README.md"), pkg.name);
+  installLibs(path.join(wdir, "stg"), [], [
     "@types/node",
     "typescript",
   ]);

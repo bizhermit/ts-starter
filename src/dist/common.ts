@@ -123,3 +123,9 @@ export const removeGit = (wdir: string) => {
 export const npmPackageInit = (wdir: string) => {
   spawnSync("npx", ["npm-package-utils", "init"], { shell: true, stdio: "inherit", cwd: wdir });
 };
+
+export const replaceAppName = async (filePath: string, appName: string) => {
+  let targetFile = (await readFile(filePath)).toString();
+  targetFile = targetFile.replace(/__appName__/g, appName);
+  await writeFile(filePath, targetFile);
+};
