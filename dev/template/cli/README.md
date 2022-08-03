@@ -1,28 +1,22 @@
-# Developer usage
+# __appName__
 
-## build
+### Build
 
 ```bash
 npm run build
 ```
-## watch
 
-Use VSCode task (Ctrl + Shift + B).
-
-## debug
+### Build executable file
 
 ```bash
-npm run debug
-```
+npm run build:exe
 
-## release
+# for linux
+npm run build:linux
 
-```bash
-npm run release
-```
+# for windows
+npm run build:win
 
-## generate eexecutable file
-
-```bash
-npm run pack
+# for mac
+npm run build:mac
 ```

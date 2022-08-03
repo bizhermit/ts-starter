@@ -3,9 +3,7 @@ import { generateTemplate, getPackageJson, installLibs, npmPackageInit, replaceA
 
 const createModule = async (wdir: string) => {
   const pkg = await getPackageJson(wdir);
-  pkg.main = "dist/index";
   pkg.scripts = {
-    "dev": "echo change directory to dev",
     "clean": "npx rimraf package",
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
     "test": "npx jest --roots test --json --outputFile=test/results.json",

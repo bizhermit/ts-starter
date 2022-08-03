@@ -1,4 +1,5 @@
 .vscode
 node_modules
-/dev/dist
+/stg/dist
+/stg/ts-index.js
 /test/results.json

@@ -1,36 +1,43 @@
-import { generateTemplate, getPackageJson, installLibs, savePackageJson } from "./common";
+import path from "path";
+import { generateTemplate, getPackageJson, installLibs, npmPackageInit, replaceAppName, savePackageJson } from "./common";
 
 const createCli = async (wdir: string) => {
   const pkg = await getPackageJson(wdir);
-  pkg.main = "dist/index";
-  pkg.bin = "bin/cli.js";
   pkg.scripts = {
-    "clean": "npx rimraf bin dist",
-    "build": "npm run clean && npx tsc -p src/tsconfig.json && npx rimraf bin/cli.d.ts",
-    "debug": "node bin/cli",
-    "license-check": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
-    "minify": "npx minifier bin && npx minifier dist",
+    "clean": "npx rimraf package",
+    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
     "test": "npx jest --roots test --json --outputFile=test/results.json",
-    "release": "npm run license-check && npm run build && npm run minify && npm run test",
-    "pack": "npx rimraf build && npm run release && npx pkg --out-path build --compress GZip bin/cli.js",
-    "pack:win": "npm run pack -- --targets win",
-    "pack:mac": "npm run pack -- --targets mac",
-    "pack:linux": "npm run pack -- --targets linux"
+    "prebuild": "npm run license && npm run clean",
+    "build": "npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package",
+    "postbuild": "npx npm-package-utils pack && npm run test",
+    "build:exe": "npx rimraf build && npm run build && npx pkg --out-path build --compress GZip package/bin/cli.js",
+    "build:linux": "npm run build:exe -- --targets linux",
+    "build:win": "npm run build:exe -- --targets win",
+    "build:mac": "npm run build:exe -- --targets mac",
   };
-  pkg.files = ["bin", "dist", "CREDIT"];
   await savePackageJson(wdir, pkg);
-  installLibs(wdir, [
-    "@bizhermit/basic-utils",
-    "@bizhermit/cli-utils"
-  ], [
-    "@bizhermit/minifier",
+  installLibs(wdir, [], [
     "@bizhermit/license",
-    "@types/node",
+    "@bizhermit/minifier",
+    "@bizhermit/npm-package-utils",
     "jest",
     "pkg",
     "rimraf",
-    "typescript"
+    "typescript",
   ]);
   await generateTemplate(wdir, "cli");
+  npmPackageInit(wdir);
+  installLibs(path.join(wdir, "src"), [
+    "@bizhermit/basic-utils",
+    "@bizhermit/cli-utils"
+  ], [
+    "@types/node",
+    "typescript"
+  ]);
+  await replaceAppName(path.join(wdir, "README.md"), pkg.name);
+  installLibs(path.join(wdir, "stg"), [], [
+    "@types/node",
+    "typescript",
+  ]);
 };
 export default createCli;
