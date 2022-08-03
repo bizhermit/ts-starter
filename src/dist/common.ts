@@ -11,9 +11,9 @@ const initializePackageContent = (pkg: { [key: string]: any }, values: Array<{ p
   return pkg;
 };
 
-export const getPackageJson = async (wdir: string, options?: { clearScripts?: boolean }) => {
+export const getPackageJson = async (wdir: string, options?: { clearScripts?: boolean; allowNotFoundNpmPackage?: boolean; }) => {
   const pkgPath = path.join(wdir, "package.json");
-  if (!existsSync(pkgPath)) {
+  if (!existsSync(pkgPath) && options?.allowNotFoundNpmPackage !== true) {
     cli.wl(`not found package.json. begin create`);
     await writeFile(pkgPath, "{}");
   }
@@ -118,4 +118,8 @@ export const generateTemplate = async (wdir: string, templateName: string) => {
 
 export const removeGit = (wdir: string) => {
   rimraf.sync(path.join(wdir, ".git"));
+};
+
+export const npmPackageInit = (wdir: string) => {
+  spawnSync("npx", ["npm-package-utils", "init"], { shell: true, stdio: "inherit", cwd: wdir });
 };
