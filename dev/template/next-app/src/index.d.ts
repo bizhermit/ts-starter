@@ -1,15 +1,11 @@
-type Struct = { [key: string]: any };
+type Struct<T = any> = { [key: string]: T };
 type VoidFunc = () => void;
-type MessageType = "info" | "warn" | "err";
 type Message = {
+  title?: string;
+  body: string | Array<string>;
   type: MessageType;
-  title?: string;
-  message: string;
 };
-type ArgMessageProps = {
-  message: string;
-  title?: string;
-};
+type MessageType = "info" | "error" | "warning" | "default" | "primary" | "secondary" | "deprecated";
 type FetchApiResponse<T = Struct> = {
   data: T;
   messages: Array<Message>;

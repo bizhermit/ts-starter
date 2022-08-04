@@ -26,8 +26,8 @@ const fetchApi = async <T = Struct>(url: string, params?: Struct, options?: Requ
     data: ret.data,
     messages,
     hasInformation: () => messages.some(item => item.type === "info"),
-    hasWarning: () => messages.some(item => item.type === "warn"),
-    hasError: () => messages.some(item => item.type === "err"),
+    hasWarning: () => messages.some(item => item.type === "warning"),
+    hasError: () => messages.some(item => item.type === "error"),
   } as FetchApiResponse<T>;
 };
 export default fetchApi;

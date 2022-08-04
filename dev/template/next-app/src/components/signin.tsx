@@ -7,7 +7,7 @@ import { FitToOuter } from "@bizhermit/react-addon/dist/styles/css-var";
 import { FC, useState } from "react";
 import fetchApi from "../core/modules/frontend/fetch-api";
 
-const SigninComponent: FC<{ fto?: FitToOuter }> = ({ fto }) => {
+const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
   const msg = useMessage();
   const [inputs, _setInputs] = useState<Struct>({});
 
@@ -25,7 +25,7 @@ const SigninComponent: FC<{ fto?: FitToOuter }> = ({ fto }) => {
   };
 
   return (
-    <FlexBox $fto={fto} $center $middle>
+    <FlexBox $fto={$fto} $center $middle>
       <FlexBox $center $middle>
         <Caption $label="User" $width={120}>
           <TextBox $bind={inputs} $name="user" style={{ width: 200 }} />

@@ -1,4 +1,5 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
+import type { Message, MessageType } from "@bizhermit/react-addon/dist/message/message-provider";
 
 const equal = (val1?: string, val2?: string) => {
   return (val1 ?? "") === (val2 ?? "");
@@ -21,40 +22,50 @@ class MessageContext {
     return this;
   }
 
-  public addMessage(props: Message, absolute?: boolean) {
-    if (props == null) return this;
-    if (StringUtils.isEmpty(props.message)) return this;
+  public addMessage(message: Message, absolute?: boolean) {
+    if (message == null) return this;
+    if (message.body == null || message.body === "" || message.body.length === 0 || message.body[0] === "") return this;
     if (absolute !== true) {
-      if (this.messages.find(item => {
-        if (item.type !== props.type) return false;
-        if (!equal(item.message, props.message)) return false;
-        if (!equal(item.title, props.title)) return false;
-        return true;
+      if (this.messages.find(msg => {
+        if (msg.type !== message.type) return false;
+        if (!equal(msg.title, message.title)) return false;
+        if (typeof msg.body === "string") {
+          msg.body = [ msg.body ];
+        }
+        if (typeof message.body === "string") {
+          msg.body?.push(message.body);
+          return true;
+        }
+        if (Array.isArray(message.body)) {
+          msg.body?.push(...message.body);
+          return true;
+        }
+        return false;
       })) {
         return this;
       }
     }
     this.messages.push({
-      type: props.type,
-      title: props.title ?? "",
-      message: props.message,
+      type: message.type,
+      title: message.title ?? "",
+      body: message.body,
     });
     return this;
   }
 
-  public addInformation(message: string | ArgMessageProps, absolute?: boolean) {
+  public addInformation(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "info", ...(typeof message === "string" ? { message } : message) }, absolute);
+    return this.addMessage({ type: "info", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
   }
 
-  public addWarning(message: string | ArgMessageProps, absolute?: boolean) {
+  public addWarning(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "warn", ...(typeof message === "string" ? { message } : message) }, absolute);
+    return this.addMessage({ type: "warning", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
   }
 
-  public addError(message: string | ArgMessageProps, absolute?: boolean) {
+  public addError(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "err", ...(typeof message === "string" ? { message } : message) }, absolute);
+    return this.addMessage({ type: "error", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
   }
 
   public hasMessage(type?: MessageType) {
@@ -67,11 +78,11 @@ class MessageContext {
   }
 
   public hasWarning() {
-    return this.hasMessage("warn");
+    return this.hasMessage("warning");
   }
 
   public hasError() {
-    return this.hasMessage("err");
+    return this.hasMessage("error");
   }
 
   public getMessageCount(type?: MessageType) {
@@ -84,11 +95,11 @@ class MessageContext {
   }
 
   public getWarningCount() {
-    return this.getMessageCount("warn");
+    return this.getMessageCount("warning");
   }
 
   public getErrorCount() {
-    return this.getMessageCount("err");
+    return this.getMessageCount("error");
   }
 
 };
