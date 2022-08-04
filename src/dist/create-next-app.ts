@@ -7,7 +7,7 @@ import { generateTemplate, getPackageJson, installLibs, removeGit, savePackageJs
 const createNextApp = async (wdir: string, options?: { server?: boolean; desktop?: boolean; }) => {
   const appName = path.basename(wdir);
 
-  spawnSync("npx", ["create-next-app", "--ts", "."], { shell: true, stdio: "inherit", cwd: wdir });
+  spawnSync("npx", ["create-next-app", ".", "--ts", "--use-npm"], { shell: true, stdio: "inherit", cwd: wdir });
   await mkdir(path.join(wdir, "src"));
   rimraf.sync(path.join(wdir, "pages"));
   rimraf.sync(path.join(wdir, "public"));
@@ -48,15 +48,16 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   pkg.version = "0.0.0-alpha.0";
   pkg.scripts = {
     "clean": "npx rimraf main src/.next src/out",
-    "license-check": "npx rimraf CREDIT && npx license -o CREDIT --returnError -exclude caniuse-lite",
+    "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError -exclude caniuse-lite",
     "test": "npx next lint src",
   };
   if (options?.server) {
     pkg.scripts = {
       ...pkg.scripts,
       "server": "npm run clean && npx tsc -p src-server/tsconfig.json && node main/src-server/index.js -dev",
-      "build": "npm run license-check && npm run clean && npx tsc -p src-server/tsconfig.json && npx minifier main && npx next build src",
+      "build": "npm run license && npm run clean && npx tsc -p src-server/tsconfig.json && npx minifier main && npx next build src",
       "start": "node main/src-server/index.js",
+      "export": "npm run build && npx next export"
     };
     deps.push("express");
     deps.push("express-session");
@@ -68,8 +69,11 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
     pkg.scripts = {
       ...pkg.scripts,
       "desktop": "npm run clean && npx tsc -p src-desktop/tsconfig.json && npx electron main/src-desktop/index.js",
-      "_pack": `npm run license-check && npm run clean && npx rimraf build && npx tsc -p src-desktop/tsconfig.json && npx minifier main ${!options?.server ? "" : "&& set APP_BASE_PATH= "}&& npx next build src && npx next export src && electron-builder --dir`,
-      "pack:win": "npm run _pack -- --win",
+      "prepack": "npm run license && npm run clean && npx rimraf build",
+      "pack": `npx tsc -p src-desktop/tsconfig.json && npx minifier main ${!options?.server ? "" : "&& set APP_BASE_PATH= "}&& npx next build src && npx next export src && electron-builder --dir`,
+      "pack:linux": "npm run pack -- --linux",
+      "pack:win": "npm run pack -- --win",
+      "pack:mac": "npm run pack -- --mac",
     };
     pkg.build = {
       "appId": `example.${appName}`,
@@ -148,7 +152,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   await mkdir(path.join(wdir, "src/core/components"), { recursive: true });
   await mkdir(path.join(wdir, "src/modules/frontend"), { recursive: true });
   await mkdir(path.join(wdir, "src/modules/backend"), { recursive: true });
-  await mkdir(path.join(wdir, "src/styles"), { recursive: true });
+  await mkdir(path.join(wdir, "src/hooks"), { recursive: true });
 
   removeGit(wdir);
 };
