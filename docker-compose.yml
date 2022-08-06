@@ -1,0 +1,9 @@
+version: '3'
+services:
+  node:
+    image: node-dev
+    tty: true
+    volumes:
+      - type: bind
+        source: ./
+        target: /workspace
