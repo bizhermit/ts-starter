@@ -19,8 +19,8 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "./",
-    "outDir": ".desktop"
+    "outDir": ".main"
   },
-  "exclude": ["node_modules", "server"],
+  "exclude": ["node_modules", "next", "desktop"],
   "include": ["**/*.ts"]
 }

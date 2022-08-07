@@ -5,16 +5,35 @@ import express from "express";
 import expressSession from "express-session";
 import helmet from "helmet";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
+import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 
 const isDev = process.argv.includes("--dev");
 dotenv.config({
   debug: isDev,
 });
 
+const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
+const log = {
+  debug: (...contents: Array<string>) => {
+    if (!isDev) return;
+    process.stdout.write(logFormat(...contents));
+  },
+  info: (...contents: Array<string>) => {
+    process.stdout.write(logFormat(...contents));
+  },
+  error: (...contents: Array<string>) => {
+    process.stderr.write(logFormat(...contents));
+  },
+};
+
+log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
+
+const appRoot = path.join(__dirname, "../next");
 const nextApp = next({
   dev: isDev,
-  dir: path.join(__dirname, "../../next"),
+  dir: appRoot,
 });
+log.debug("app root: ", appRoot);
 
 nextApp.prepare().then(async () => {
   const server = express();
@@ -45,9 +64,12 @@ nextApp.prepare().then(async () => {
   }));
   server.disable("x-powered-by");
 
+  server.use(express.static(path.join(appRoot, "next/public")));
+
   const handler = nextApp.getRequestHandler();
   const basePath = process.env.API_BASE_PATH || "";
   server.all(`${basePath}/api/*`, (req, res) => {
+    log.debug("api call:", req.url);
     return handler(req, res);
   });
   server.all("*", (req, res) => {
@@ -56,9 +78,9 @@ nextApp.prepare().then(async () => {
 
   const port = Number(process.env.API_PORT || 8000);
   server.listen(port, () => {
-    process.stdout.write(`server: http://localhost:${port}${basePath}\n`);
+    log.debug(`http://localhost:${port}${basePath}`);
   });
 }).catch((err: any) => {
-  process.stderr.write(String(err));
+  log.error(String(err));
   process.exit(1);
 });

@@ -6,7 +6,6 @@ import prepareNext from "electron-next";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 import { existsSync, mkdir, readFile, writeFile } from "fs-extra";
-import nextConfig from "../next.config";
 
 const $global = global as { [key: string]: any };
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
@@ -28,8 +27,8 @@ log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 const appRoot = path.join(__dirname, "../../");
 
 app.on("ready", async () => {
-  const port = Number(nextConfig.env?.APP_PORT ?? 8000);
-  await prepareNext(path.join(appRoot, "src"), port);
+  const port = 8008;
+  await prepareNext(path.join(appRoot, "/frontend"), port);
 
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -45,13 +44,13 @@ app.on("ready", async () => {
 
   let loadUrl = "";
   if (isDev) {
-    loadUrl = `http://localhost:${port}${nextConfig.env?.APP_BASE_PATH ?? ""}/`;
+    loadUrl = `http://localhost:${port}/`;
     mainWindow.webContents.openDevTools();
     log.info("app listen start", loadUrl);
   } else {
     mainWindow.setMenu(null);
     loadUrl = url.format({
-      pathname: path.join(appRoot, "src/out/index.html"),
+      pathname: path.join(appRoot, "next/out/index.html"),
       protocol: "file:",
       slashes: true,
     });
@@ -105,7 +104,7 @@ app.on("ready", async () => {
 
   if (isDev) {
     setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any }, options?: RequestInit) => {
-      log.info("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
+      log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
       const url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
       const opts: RequestInit = { ...options };
       if (options?.method !== "GET") {
@@ -131,7 +130,7 @@ app.on("ready", async () => {
     });
   } else {
     setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any }, options?: RequestInit) => {
-      log.info("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
+      log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
       return new Promise<any>((resolve, reject) => {
         try {
           let data: { [key: string]: any } = {};

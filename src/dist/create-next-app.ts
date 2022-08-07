@@ -27,7 +27,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
     })(),
     private: true,
     scripts: {
-      "frontend": `cpx .env frontend && cd ${frontendDirName} && npm run dev`,
+      "frontend": `cpx .env frontend --update && cd ${frontendDirName} && npm run dev`,
     }
   };
 
@@ -39,11 +39,11 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   frontendPkg.version = defaultVersion;
   frontendPkg.description = "frontend";
   frontendPkg.scripts = {
-    "clean": "npx rimraf .next out",
+    "clean": "npx rimraf .next .out",
     "dev": "npm run clean && npx next dev",
     "build": "npm run clean && npx next build",
     "start": "npm run build && npx next start",
-    "export": "npm run build && npx next export",
+    "export": "npm run build && npx next export -o .out",
     "lint": "npx next lint"
   };
   await savePackageJson(path.join(wdir, frontendDirName), frontendPkg);
@@ -67,7 +67,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   backendPkg.version = defaultVersion;
   backendPkg.description = "backend";
   backendPkg.scripts ={
-    "clean": "npx rimraf .server .desktop .next",
+    "clean": "npx rimraf .main .next",
   };
   const backendDeps: Array<string> = [
     "@bizhermit/basic-utils",
@@ -96,11 +96,11 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
     );
     backendPkg.scripts = {
       ...backendPkg.scripts,
-      "server": "npm run clean && npx tsc -p tsconfig.server.json && node .server/server/index.js --dev",
+      "server": "npm run clean && npx tsc -p tsconfig.json && node .main/server.js --dev",
     };
     rootPkg.scripts = {
       ...rootPkg.scripts,
-      "backend": `cpx .env backend && cd ${backendDirName} && npm run server`,
+      "backend": `cpx .env backend --update && cd ${backendDirName} && npm run server`,
       "server": "npm run backend & npm run frontend",
     };
   }
@@ -116,13 +116,13 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
       "@types/fs-extra",
       "electron",
       "electron-builder",
+      "rimraf",
+      "typescript",
     );
     rootPkg.scripts = {
       ...rootPkg.scripts,
-      // "desktop": "npm run backend -- desktop"
-      "desktop": "npm run clean npx tsc -p tsconfig.desktop.json && npx electron .desktop/desktop/index.js",
-      "prepack": "npm run license && npm run clean && npx rimraf build",
-      "pack": `npx tsc -p tsconfig.desktop.json && npx minifier .desktop && npx next build src && npx next export src && electron-builder --dir`,
+      "desktop": "npx rimraf .desktop backend/next/out frontend/out && npx tsc -p tsconfig.json && electron .desktop/desktop/index.js",
+      "pack": "npx rimraf .desktop backend/next/out frontend/out && npx tsc -p tsconfig.json && npx minifier .desktop && npx next build frontend && npx next export frontend && electron-builder --dir",
       "pack:linux": "npm run pack -- --linux",
       "pack:win": "npm run pack -- --win",
       "pack:mac": "npm run pack -- --mac",
@@ -135,7 +135,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
       "extraMetadata": {
         "main": ".desktop/desktop/index.js"
       },
-      "files": [".desktop", "next/out", "next/public"],
+      "files": [".desktop", "frontend/out", "frontend/public"],
       "extraFiles": [{
         "from": "LICENSE",
         "to": "LICENSE",
@@ -147,14 +147,14 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
         "output": "build",
       },
       "win": {
-        "icon": "next/public/favicon.ico",
+        "icon": "frontend/public/favicon.ico",
         "target": {
           "target": "nsis",
           "arch": ["x64"],
         },
       },
       "mac": {
-        "icon": "next/public/favicon.ico",
+        "icon": "frontend/public/favicon.ico",
         "target": "dmg"
       },
       "linux": {},
