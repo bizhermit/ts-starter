@@ -129,3 +129,7 @@ export const replaceAppName = async (filePath: string, appName: string) => {
   targetFile = targetFile.replace(/__appName__/g, appName);
   await writeFile(filePath, targetFile);
 };
+
+export const createEnv = async (wdir: string, lines: Array<string> = []) => {
+  await writeFile(path.join(wdir, ".env"), lines.join("\n"));
+};

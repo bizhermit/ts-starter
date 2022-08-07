@@ -10,20 +10,6 @@ The `./src/pages/api/signin.ts` is [http://localhost:8000/api/signin](http://loc
 
 When customizing environment variables, edit `./next.config.js`.  
 
-
-```js
-const basePath = "/myapp";
-const nextConfig = {
-  basePath,
-  env: {
-    APP_BASE_PATH: basePath,
-    NEXT_PUBLIC_APP_BASE_PATH: basePath,
-    APP_PORT: 3000,
-    ...(add more)
-  },
-};
-```
-
 lean more: [Next.js](https://nextjs.org/)  
 
 ## debug

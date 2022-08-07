@@ -1,4 +1,4 @@
-import electronAccessor from "../electron-accessor";
+import electronAccessor from "./electron-accessor";
 
 const useElectron = () => {
   return electronAccessor();

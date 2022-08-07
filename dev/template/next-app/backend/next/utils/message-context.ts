@@ -1,5 +1,4 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
-import type { Message, MessageType } from "@bizhermit/react-addon/dist/message/message-provider";
 
 const equal = (val1?: string, val2?: string) => {
   return (val1 ?? "") === (val2 ?? "");

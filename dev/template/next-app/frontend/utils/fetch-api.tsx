@@ -1,5 +1,5 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
-import electronAccessor from "../electron-accessor";
+import electronAccessor from "./electron-accessor";
 
 const electron = electronAccessor();
 const basePath = process.env.NEXT_PUBLIC_APP_BASE_PATH;

@@ -3,6 +3,6 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "node",
   "workspaceFolder": "/workspace",
-  "remoteUser": "node",
+  // "remoteUser": "node",
   "postCreateCommand": "npm i && cd /workspace/src && npm i && cd /workspace/dev && npm i"
 }
