@@ -28,7 +28,7 @@ const log = {
 
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
-const appRoot = path.join(__dirname, "../next");
+const appRoot = path.join(__dirname, "../");
 const nextApp = next({
   dev: isDev,
   dir: appRoot,

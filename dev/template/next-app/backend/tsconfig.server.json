@@ -18,12 +18,9 @@
     "strictNullChecks": false,
     "strict": true,
     "target": "esnext",
-    "outDir": "../main"
+    "rootDir": "./",
+    "outDir": ".server"
   },
   "exclude": ["node_modules"],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "../src/**/*.ts"
-  ]
+  "include": ["main.ts"]
 }

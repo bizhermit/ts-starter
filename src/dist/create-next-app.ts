@@ -1,8 +1,7 @@
 import { spawnSync } from "child_process";
-import { move } from "fs-extra";
+import { mkdir } from "fs-extra";
 import path from "path";
-import rimraf from "rimraf";
-import { createEnv, generateTemplate, getPackageJson, installLibs, savePackageJson } from "./common";
+import { createEnv, generateTemplate, getPackageJson, installLibs, replaceAppName, savePackageJson } from "./common";
 
 type NpmPakcageStruct = {[key: string]: any};
 
@@ -10,10 +9,11 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   const appName = path.basename(wdir);
   const frontendDirName = "frontend";
   const backendDirName = "backend";
+  const desktopDirName = "desktop";
   const defaultVersion = "0.0.0-alpha.0";
   const envItems: Array<string> = [
     `API_HOSTNAME=localhost`,
-    `API_PORT=8008`,
+    `API_PORT=8000`,
     `API_BASE_PATH=/${appName}`
   ];
 
@@ -27,7 +27,7 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
     })(),
     private: true,
     scripts: {
-      "frontend": `cpx .env frontend --update && cd ${frontendDirName} && npm run dev`,
+      "frontend": `cpx .env ${frontendDirName} --update && cd ${frontendDirName} && npm run dev`,
     }
   };
 
@@ -56,18 +56,13 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
 
   // backend
   spawnSync("npx", ["create-next-app", backendDirName, "--ts", "--use-npm", "-y"], { shell: true, stdio: "inherit", cwd: wdir });
-  rimraf.sync(path.join(wdir, backendDirName, "pages"));
-  rimraf.sync(path.join(wdir, backendDirName, "public"));
-  rimraf.sync(path.join(wdir, backendDirName, "styles"));
-  await move(path.join(wdir, backendDirName, "next-env.d.ts"), path.join(wdir, backendDirName, "next/next-env.d.ts"));
-  await move(path.join(wdir, backendDirName, "tsconfig.json"), path.join(wdir, backendDirName, "next/tsconfig.json"));
   const backendPkg = await getPackageJson(path.join(wdir, backendDirName), { clearScripts: true });
   delete backendPkg.license;
   backendPkg.name = `${appName}:backend`;
   backendPkg.version = defaultVersion;
   backendPkg.description = "backend";
   backendPkg.scripts ={
-    "clean": "npx rimraf .main .next",
+    "clean": "npx rimraf .server .next",
   };
   const backendDeps: Array<string> = [
     "@bizhermit/basic-utils",
@@ -91,29 +86,34 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
       "@types/express-session",
     );
     envItems.push(
-      `APP_PORT=3003`,
+      `APP_PORT=3000`,
       `APP_BASE_PATH=/${appName}`,
     );
     backendPkg.scripts = {
       ...backendPkg.scripts,
-      "server": "npm run clean && npx tsc -p tsconfig.json && node .main/server.js --dev",
+      "prebuild": "npm run clean && npx tsc -p tsconfig.server.json",
+      "server": "npm run prebuild && node .server/main.js --dev",
+      "build": "npx next build",
+      "start": "npm run build && node .server/main.js"
     };
     rootPkg.scripts = {
       ...rootPkg.scripts,
-      "backend": `cpx .env backend --update && cd ${backendDirName} && npm run server`,
+      "backend": `cpx .env ${backendDirName} --update && cd ${backendDirName} && npm run server`,
       "server": "npm run backend & npm run frontend",
+      "start": `cpx .env ${frontendDirName} --update && cd ${frontendDirName} && npm run start & cpx .env ${backendDirName} --update && cd ${backendDirName} && npm run start`
     };
   }
 
   if (options?.desktop) {
-    rootDeps.push(
-      "fs-extra",
-      "electron-is-dev",
-      "electron-next",
-    );
+    await mkdir(path.join(wdir, desktopDirName), { recursive: true });
+    const desktopPkg: NpmPakcageStruct = {
+      name: `${appName}:desktop`,
+      version: defaultVersion,
+      description: "desktop",
+      private: true,
+    };
     rootDevDeps.push(
       "@bizhermit/minifier",
-      "@types/fs-extra",
       "electron",
       "electron-builder",
       "rimraf",
@@ -121,8 +121,9 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
     );
     rootPkg.scripts = {
       ...rootPkg.scripts,
-      "desktop": "npx rimraf .desktop backend/next/out frontend/out && npx tsc -p tsconfig.json && electron .desktop/desktop/index.js",
-      "pack": "npx rimraf .desktop backend/next/out frontend/out && npx tsc -p tsconfig.json && npx minifier .desktop && npx next build frontend && npx next export frontend && electron-builder --dir",
+      "desktop": `npx rimraf .desktop && npx tsc -p ${desktopDirName}/tsconfig.json && npx electron .desktop/main.js`,
+      "prepack": `npx rimraf .desktop .build && npx tsc -p ${desktopDirName}/tsconfig.json && npx minifier .desktop && cd ${frontendDirName} && npm run export`,
+      "pack": "npx electron-builder --dir",
       "pack:linux": "npm run pack -- --linux",
       "pack:win": "npm run pack -- --win",
       "pack:mac": "npm run pack -- --mac",
@@ -133,9 +134,13 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
       "asar": true,
       "extends": null,
       "extraMetadata": {
-        "main": ".desktop/desktop/index.js"
+        "main": ".desktop/main.js"
       },
-      "files": [".desktop", "frontend/out", "frontend/public"],
+      "files": [
+        ".desktop",
+        `${frontendDirName}/.out`,
+        `${backendDirName}/.next`
+      ],
       "extraFiles": [{
         "from": "LICENSE",
         "to": "LICENSE",
@@ -144,29 +149,49 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
         "to": "CREDIT",
       }],
       "directories": {
-        "output": "build",
+        "output": ".build",
       },
       "win": {
-        "icon": "frontend/public/favicon.ico",
+        "icon": `${frontendDirName}/.out/favicon.ico`,
         "target": {
           "target": "nsis",
           "arch": ["x64"],
         },
       },
       "mac": {
-        "icon": "frontend/public/favicon.ico",
+        "icon": `${frontendDirName}/.out/favicon.ico`,
         "target": "dmg"
       },
-      "linux": {},
+      "linux": {
+        "icon": `${frontendDirName}/.out/favicon.ico`,
+        "target":[
+          "deb",
+          "rpm",
+          "snap",
+          "AppImage"
+        ],
+        "category":"Development",
+      },
       "nsis": {
         "oneClick": false,
         "allowToChangeInstallationDirectory": true,
+        "installerIcon": `${frontendDirName}/.out/favicon.ico`,
+        "installerHeaderIcon": `${frontendDirName}/.out/favicon.ico`,
       },
     };
     rootPkg.browser = {
       fs: false,
       path: false,
     };
+    await savePackageJson(path.join(wdir, desktopDirName), desktopPkg);
+    installLibs(path.join(wdir, desktopDirName), [
+      "@bizhermit/basic-utils",
+      "fs-extra",
+      "electron-is-dev",
+      "electron-next",
+    ], [
+      "@types/fs-extra"
+    ]);
   }
   await savePackageJson(path.join(wdir, backendDirName), backendPkg);
   installLibs(path.join(wdir, backendDirName), backendDeps, backendDevDeps);
@@ -177,6 +202,8 @@ const createNextApp = async (wdir: string, options?: { server?: boolean; desktop
   await generateTemplate(wdir, "next-app");
   
   await createEnv(wdir, envItems);
+  await replaceAppName(path.join(wdir, backendDirName, "main.ts"), appName);
+  await replaceAppName(path.join(wdir, desktopDirName, "main.ts"), appName);
 
   // await mkdir(path.join(wdir, clientDirName));
   // rimraf.sync(path.join(wdir, "pages"));

@@ -92,7 +92,7 @@ export const savePackageJson = async (wdir: string, pkg: { [key: string]: any })
   await writeFile(path.join(wdir, "package.json"), JSON.stringify(expPkg, null, 2));
 };
 
-export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Array<string> = []) => {
+export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Array<string> = [], options?: { audit?: boolean; }) => {
   cli.wl(`npm install...`);
   if (args.length > 0) {
     cli.wl(` install dependencies`);
@@ -108,7 +108,9 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
     }
     spawnSync("npm", ["i", "--save-dev", ...devArgs], { shell: true, stdio: "inherit", cwd: wdir });
   }
-  spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd: wdir });
+  if (options?.audit !== false) {
+    spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd: wdir });
+  }
 };
 
 export const generateTemplate = async (wdir: string, templateName: string) => {
