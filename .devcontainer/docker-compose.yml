@@ -5,5 +5,5 @@ services:
     tty: true
     volumes:
       - type: bind
-        source: ./
+        source: ../
         target: /workspace
