@@ -51,6 +51,8 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
   };
   await savePackageJson(path.join(wdir, "src/.stg"), stgPkg);
 
+  await generateTemplate(wdir, "dev-env/module");
+
   await replaceAppName(path.join(wdir, "README.md"), appName);
   await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
   await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
