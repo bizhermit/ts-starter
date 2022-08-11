@@ -1,0 +1,8 @@
+{
+  "name": "__appName__",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "node",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "node",
+  "postStartCommand": "npm i && cd /workspace/src && npm i && cd /workspace/src/.stg && npm i"
+}

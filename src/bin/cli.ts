@@ -19,8 +19,9 @@ wl(`\n${pkg.name} v${pkg.version}`);
 const dir = path.join(process.cwd(), getArg() || "./");
 wl(`  dirname: ${dir}`);
 
-const argProjectType = getKeyArg("-t", "-type");
+const argProjectType = getKeyArg("-t", "--type");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
+const appName = getKeyArg("--appName");
 
 const descriptions = {
   c  : `cancel`,
@@ -35,12 +36,12 @@ const descriptions = {
   mob: `mobile application (react-native)`,
 } as const;
 const descriptionLine = (t: keyof typeof descriptions) => {
-  return `- ${fillRight(`[${t}]`, 5)}: ${descriptions[t]}`;
+  return `- ${fillRight(`[\x1b[33m${t}\x1b[39m]`, 5)}: ${descriptions[t]}`;
 }
 
 if (!skipInteractive) {
 wl(`
-select project type
+\x1b[32mselect project type\x1b[39m
 ${descriptionLine("c")}
 ${descriptionLine("mod")}
 ${descriptionLine("cli")}
@@ -61,17 +62,17 @@ const changeDir = () => {
   cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
 
-const succeededProcess = (projectType: string) => {
-  wl(`\nset up succeeded: ${projectType}`);
+const succeededProcess = (t: keyof typeof descriptions) => {
+  wl(`\nset up \x1b[42m succeeded \x1b[49m: \x1b[33m${t}\x1b[39m`);
   const cdDir = getArg();
   if (cdDir != null && process.cwd() !== dir) {
-    wl(`start with change directory`);
+    wl(`\nstart with change directory`);
     wl(`  cd ${cdDir}`);
   }
 };
 
 const writeCreateDescription = (t: keyof typeof descriptions) => {
-  wl(`create ${descriptions[t]}`);
+  wl(`create \x1b[33m${t}\x1b[39m: ${descriptions[t]}\n`);
 };
 const main = async (projectType: string) => {
   wl(" ");
@@ -82,36 +83,38 @@ const main = async (projectType: string) => {
         writeCreateDescription("mod");
         changeDir();
         await createModule(dir);
-        succeededProcess(projectType);
+        succeededProcess("mod");
         break;
       case "cli":
         writeCreateDescription("cli");
         changeDir();
         await createCli(dir);
-        succeededProcess(projectType);
+        succeededProcess("cli");
         break;
       case "stt":
         writeCreateDescription("stt");
         changeDir();
         await createNextApp(dir, "frontend");
-        succeededProcess(projectType);
+        succeededProcess("stt");
         break;
       case "nxp":
       case "nexpress":
         writeCreateDescription("nxp");
         changeDir();
-        await createNextApp(dir, "next");
-        succeededProcess(projectType);
+        await createNextApp(dir, "nexpress");
+        succeededProcess("nxp");
         break;
       case "api":
         writeCreateDescription("api");
         changeDir();
         await createNextApp(dir, "backend");
+        succeededProcess("api");
         break;
       case "web":
         writeCreateDescription("web");
         changeDir();
         await createNextApp(dir, "f-b");
+        succeededProcess("web");
         break;
       case "dsk":
       case "desktop":
@@ -119,29 +122,30 @@ const main = async (projectType: string) => {
         writeCreateDescription("dsk");
         changeDir();
         await createNextApp(dir, "desktop");
-        succeededProcess(projectType);
+        succeededProcess("dsk");
         break;
       case "app":
       case "all":
+      case "full":
         writeCreateDescription("app");
         changeDir();
         await createNextApp(dir, "full");
-        succeededProcess(projectType);
+        succeededProcess("app");
         break;
       case "mob":
       case "mobile":
         writeCreateDescription("mob");
         changeDir();
         await createReactNative(dir);
-        succeededProcess(projectType);
+        succeededProcess("mob");
         break;
       default:
-        writeCreateDescription("c");
+        wl(`cancel`);
         break;
     }
   } catch (err) {
     process.stderr.write(String(err));
-    wl(`\nset up failed: ${projectType}`);
+    wl(`\nset up \x1b[41m failed \x1b[49m: ${projectType}`);
   }
   wl(`\n${sepStr}`);
 };
@@ -150,7 +154,7 @@ if (skipInteractive) {
 } else {
   rl(`please input (default c) > `).then(main).catch((err) => {
     process.stderr.write(err);
-    wl(`${pkg.name} failed.`);
+    wl(`${pkg.name} \x1b[41m failed \x1b[49m.`);
     wl(`\n${sepStr}`);
   });
 }

@@ -1,13 +1,11 @@
-import { spawnSync } from "child_process";
-import { mkdir } from "fs-extra";
 import path from "path";
-import { createEnv, generateTemplate, getPackageJson, installLibs, replaceAppName, savePackageJson } from "./common";
 
-type Mode = "next" | "f-b" | "frontend" | "backend" | "desktop" | "full";
-type NpmPakcageStruct = {[key: string]: any};
+type Mode = "nexpress" | "f-b" | "frontend" | "backend" | "desktop" | "full";
+type Struct = {[key: string]: any};
 
-const createNextApp = async (wdir: string, mode: Mode = "f-b") => {
+const createNextApp = async (wdir: string, mode: Mode = "full") => {
   const appName = path.basename(wdir);
+  console.log(appName, mode);
   // const frontendDirName = "frontend";
   // const backendDirName = "backend";
   // const desktopDirName = "desktop";

@@ -4,6 +4,17 @@ import { copy, copyFile, existsSync, readFile, writeFile } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
 
+export type ArgsOptions = {
+  appName?: string;
+};
+
+export const analyzeArgsOptions = (wdir: string, options?: ArgsOptions) => {
+  const appName = options?.appName || path.basename(wdir);
+  return {
+    appName: appName.replace(/ /g, "_").replace(/:/g, "-"),
+  };
+};
+
 const initializePackageContent = (pkg: { [key: string]: any }, values: Array<{ propertyName: string; initValue: any; }>) => {
   values.forEach(v => {
     pkg[v.propertyName] = pkg[v.propertyName] || v.initValue;
@@ -11,52 +22,57 @@ const initializePackageContent = (pkg: { [key: string]: any }, values: Array<{ p
   return pkg;
 };
 
-export const getPackageJson = async (wdir: string, options?: { clearScripts?: boolean; allowNotFoundNpmPackage?: boolean; }) => {
+export const getPackageJson = async (wdir: string, options?: { preventInit?: boolean; clearScripts?: boolean; allowNotFoundNpmPackage?: boolean; } & ArgsOptions) => {
   const pkgPath = path.join(wdir, "package.json");
+  const { appName } = analyzeArgsOptions(wdir, options);
   if (!existsSync(pkgPath) && options?.allowNotFoundNpmPackage !== true) {
     cli.wl(`not found package.json. begin create`);
     await writeFile(pkgPath, "{}");
   }
   const pkgFile = await readFile(pkgPath);
   const pkg = JSON.parse(pkgFile.toString()) as { [key: string]: any };
-  initializePackageContent(pkg, [{
-    propertyName: "name",
-    initValue: path.basename(wdir),
-  }, {
-    propertyName: "version",
-    initValue: "0.0.0-alpha.0",
-  }, {
-    propertyName: "description",
-    initValue: "",
-  }, {
-    propertyName: "repository",
-    initValue: { type: "git", url: "" },
-  }, {
-    propertyName: "bugs",
-    initValue: { url: "" },
-  }, {
-    propertyName: "author",
-    initValue: "",
-  }, {
-    propertyName: "contributors",
-    initValue: [],
-  }, {
-    propertyName: "private",
-    initValue: true,
-  }, {
-    propertyName: "license",
-    initValue: "MIT",
-  }, {
-    propertyName: "scripts",
-    initValue: {},
-  }, {
-    propertyName: "dependencies",
-    initValue: {},
-  }, {
-    propertyName: "devDependencies",
-    initValue: {},
-  }]);
-  if (options?.clearScripts) pkg.scripts = {};
+  if (options?.preventInit !== true) {
+    initializePackageContent(pkg, [{
+      propertyName: "name",
+      initValue: appName,
+    }, {
+      propertyName: "version",
+      initValue: "0.0.0-alpha.0",
+    }, {
+      propertyName: "description",
+      initValue: "",
+    }, {
+      propertyName: "repository",
+      initValue: { type: "git", url: "" },
+    }, {
+      propertyName: "bugs",
+      initValue: { url: "" },
+    }, {
+      propertyName: "author",
+      initValue: "",
+    }, {
+      propertyName: "contributors",
+      initValue: [],
+    }, {
+      propertyName: "private",
+      initValue: true,
+    }, {
+      propertyName: "license",
+      initValue: "MIT",
+    }, {
+      propertyName: "scripts",
+      initValue: {},
+    }, {
+      propertyName: "dependencies",
+      initValue: {},
+    }, {
+      propertyName: "devDependencies",
+      initValue: {},
+    }]);
+  }
+  if (options?.clearScripts) {
+    pkg.scripts = {};
+  }
   return pkg;
 };
 
@@ -127,9 +143,13 @@ export const npmPackageInit = (wdir: string) => {
 };
 
 export const replaceAppName = async (filePath: string, appName: string) => {
+  if (!existsSync(filePath)) {
+    return false;
+  }
   let targetFile = (await readFile(filePath)).toString();
   targetFile = targetFile.replace(/__appName__/g, appName);
   await writeFile(filePath, targetFile);
+  return true;
 };
 
 export const createEnv = async (wdir: string, lines: Array<string> = []) => {

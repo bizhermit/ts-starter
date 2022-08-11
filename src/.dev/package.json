@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "npx rimraf sample",
     "build": "npx rimraf bin dist && npx tsc -p ./tsconfig.json",
-    "debug": "npm run clean && npm run build && node bin/cli ./sample",
+    "debug": "npm run clean && node bin/cli ./sample",
     "d:mod": "npm run debug -- -t mod",
     "d:cli": "npm run debug -- -t cli",
     "d:stt": "npm run debug -- -t stt",
