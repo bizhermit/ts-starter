@@ -22,17 +22,32 @@ const createModule = async (wdir: string, options?: ArgsOptions) => {
     "typescript",
   ]);
   await generateTemplate(wdir, "module");
+
   npmPackageInit(wdir);
+  const srcPkg = await getPackageJson(path.join(wdir, "src"), { preventInit: true, ...options });
+  await savePackageJson(path.join(wdir, "src"), srcPkg);
   installLibs(path.join(wdir, "src"), [
     "@bizhermit/basic-utils",
   ], [
     "@types/node",
     "typescript",
   ]);
-  await replaceAppName(path.join(wdir, "README.md"), pkg.name);
-  installLibs(path.join(wdir, "stg"), [], [
-    "@types/node",
-    "typescript",
-  ]);
+
+  const stgPkg = await getPackageJson(path.join(wdir, "src/.stg"), { preventInit: true, ...options });
+  stgPkg.scripts = {
+    "clean": "npx rimraf bin dist",
+    "prebuild": "npm run clean",
+    "build": "npx tsc -p tsconfig.src.json && npx tsc -p tsconfig.json",
+    "cli": "node bin/cli",
+    "js": "node js-index",
+    "ts": "node ts-index"
+  };
+  await savePackageJson(path.join(wdir, "src/.stg"), stgPkg);
+
+  await generateTemplate(wdir, "dev-env/module");
+
+  await replaceAppName(path.join(wdir, "README.md"), appName);
+  await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
+  await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
 };
 export default createModule;

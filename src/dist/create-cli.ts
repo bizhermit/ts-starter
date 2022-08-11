@@ -4,7 +4,6 @@ import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, inst
 const createCli = async (wdir: string, options?: ArgsOptions) => {
   const { appName } = analyzeArgsOptions(wdir, options);
   const pkg = await getPackageJson(wdir, options);
-  pkg.name = appName;
   pkg.scripts = {
     "clean": "npx rimraf package",
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
@@ -28,9 +27,9 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "typescript",
   ]);
   await generateTemplate(wdir, "cli");
+
   npmPackageInit(wdir);
-  const srcPkg = await getPackageJson(path.join(wdir, "src"), { preventInit: true });
-  srcPkg.name = appName;
+  const srcPkg = await getPackageJson(path.join(wdir, "src"), { preventInit: true, ...options });
   await savePackageJson(path.join(wdir, "src"), srcPkg);
   installLibs(path.join(wdir, "src"), [
     "@bizhermit/basic-utils",
@@ -39,8 +38,8 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "@types/node",
     "typescript"
   ]);
-  const stgPkg = await getPackageJson(path.join(wdir, "src/.stg"), { preventInit: true });
-  stgPkg.name = appName;
+
+  const stgPkg = await getPackageJson(path.join(wdir, "src/.stg"), { preventInit: true, ...options });
   stgPkg.scripts = {
     "clean": "npx rimraf bin dist",
     "prebuild": "npm run clean",
