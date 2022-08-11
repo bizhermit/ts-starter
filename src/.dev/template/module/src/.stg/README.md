@@ -12,12 +12,6 @@ npm run build
 
 ## debug
 
-### run cli
-
-```bash
-npm run cli
-```
-
 ### run .js
 
 ```bash

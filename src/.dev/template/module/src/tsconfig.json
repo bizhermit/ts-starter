@@ -13,6 +13,6 @@
     "outDir": "../package",
     "declaration": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", ".stg"],
   "include": ["**/*.ts"]
 }

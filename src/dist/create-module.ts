@@ -33,17 +33,6 @@ const createModule = async (wdir: string, options?: ArgsOptions) => {
     "typescript",
   ]);
 
-  const stgPkg = await getPackageJson(path.join(wdir, "src/.stg"), { preventInit: true, ...options });
-  stgPkg.scripts = {
-    "clean": "npx rimraf bin dist",
-    "prebuild": "npm run clean",
-    "build": "npx tsc -p tsconfig.src.json && npx tsc -p tsconfig.json",
-    "cli": "node bin/cli",
-    "js": "node js-index",
-    "ts": "node ts-index"
-  };
-  await savePackageJson(path.join(wdir, "src/.stg"), stgPkg);
-
   await generateTemplate(wdir, "dev-env/module");
 
   await replaceAppName(path.join(wdir, "README.md"), appName);

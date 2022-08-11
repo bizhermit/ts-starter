@@ -1,5 +1,6 @@
-.vscode
+.vscode/settings.json
 node_modules
-/stg/dist
-/stg/ts-index.js
+.build
+/src/.stg/dist
+/src/.stg/ts-index.js
 /test/results.json

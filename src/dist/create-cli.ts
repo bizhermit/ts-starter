@@ -11,7 +11,7 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "prebuild": "npm run license && npm run clean",
     "build": "npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package",
     "postbuild": "npx npm-package-utils pack && npm run test",
-    "build:exe": "npx rimraf .build && npm run build && npx pkg --out-path .build --compress GZip package/bin/cli.js",
+    "build:exe": "npx rimraf .exe && npm run build && npx pkg --out-path .exe --compress GZip package/bin/cli.js",
     "build:linux": "npm run build:exe -- --targets linux",
     "build:win": "npm run build:exe -- --targets win",
     "build:mac": "npm run build:exe -- --targets mac",
@@ -26,6 +26,7 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "rimraf",
     "typescript",
   ]);
+  await generateTemplate(wdir, "module");
   await generateTemplate(wdir, "cli");
 
   npmPackageInit(wdir);
@@ -38,17 +39,6 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "@types/node",
     "typescript"
   ]);
-
-  const stgPkg = await getPackageJson(path.join(wdir, "src/.stg"), { preventInit: true, ...options });
-  stgPkg.scripts = {
-    "clean": "npx rimraf bin dist",
-    "prebuild": "npm run clean",
-    "build": "npx tsc -p tsconfig.src.json && npx tsc -p tsconfig.json",
-    "cli": "node bin/cli",
-    "js": "node js-index",
-    "ts": "node ts-index"
-  };
-  await savePackageJson(path.join(wdir, "src/.stg"), stgPkg);
 
   await generateTemplate(wdir, "dev-env/module");
 
