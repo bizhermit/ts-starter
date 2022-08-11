@@ -76,9 +76,9 @@ nextApp.prepare().then(async () => {
     return handler(req, res);
   });
 
-  const port = Number(process.env.API_PORT || 8000);
+  const port = Number(process.env.API_PORT || (isDev ? 8000 : 80));
   server.listen(port, () => {
-    log.debug(`http://localhost:${port}${basePath}`);
+    log.info(`http://localhost:${port}${basePath}`);
   });
 }).catch((err: any) => {
   log.error(String(err));

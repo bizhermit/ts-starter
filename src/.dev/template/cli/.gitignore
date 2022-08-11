@@ -1,6 +1,6 @@
 .vscode/settings.json
 node_modules
-.exe
+.dist
 /src/.stg/bin
 /src/.stg/dist
 /src/.stg/ts-index.js

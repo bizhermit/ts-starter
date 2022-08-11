@@ -129,9 +129,11 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
   }
 };
 
-export const generateTemplate = async (wdir: string, templateName: string) => {
-  await copy(path.join(__dirname, "../template", templateName), wdir, { overwrite: true, recursive: true });
-  await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
+export const generateTemplate = async (wdir: string, templateName: string, options?: { license?: boolean; destDir?: string; }) => {
+  await copy(path.join(__dirname, "../template", templateName), path.join(wdir, options?.destDir ?? ""), { overwrite: true, recursive: true });
+  if (options?.license !== false) {
+    await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
+  }
 };
 
 export const removeGit = (wdir: string) => {

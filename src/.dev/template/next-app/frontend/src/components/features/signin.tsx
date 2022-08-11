@@ -5,15 +5,16 @@ import TextBox from "@bizhermit/react-addon/dist/elements/inputs/text-box";
 import useMessage from "@bizhermit/react-addon/dist/message/message-provider";
 import { FitToOuter } from "@bizhermit/react-addon/dist/styles/css-var";
 import { FC, useState } from "react";
-import fetchApi from "../../utils/fetch-api";
+import useApi from "../../utils/fetch-api";
 
 const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
   const msg = useMessage();
   const [inputs, _setInputs] = useState<Struct>({});
+  const api = useApi();
 
   const signin = async (unlock?: VoidFunc) => {
     try {
-      const res = await fetchApi("/signin", { inputs });
+      const res = await api.post("/signin", { inputs });
       msg.append(res.messages);
       if (!res.hasError()) {
         console.log(res.data);

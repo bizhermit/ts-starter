@@ -11,7 +11,7 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
     "prebuild": "npm run license && npm run clean",
     "build": "npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package",
     "postbuild": "npx npm-package-utils pack && npm run test",
-    "build:exe": "npx rimraf .exe && npm run build && npx pkg --out-path .exe --compress GZip package/bin/cli.js",
+    "build:exe": "npx rimraf .dist && npm run build && npx pkg --out-path .dist --compress GZip package/bin/cli.js",
     "build:linux": "npm run build:exe -- --targets linux",
     "build:win": "npm run build:exe -- --targets win",
     "build:mac": "npm run build:exe -- --targets mac",
