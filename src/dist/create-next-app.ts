@@ -167,6 +167,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
       await replaceAppName(path.join(backendDir, ".devcontainer/devcontainer.json"), appName + ":backend");
       await replaceAppName(path.join(backendDir, ".devcontainer/docker-compose.yml"), appName + ":backend");
     }
+    if (mode === "all" || mode === "desktop") {
+      await generateTemplate(wdir, "next-app/backend-desktop", { destDir: relativeDir });
+    }
 
     const pkg = await getPackageJson(backendDir, { appName, clearScripts: true });
     pkg.scripts = {
