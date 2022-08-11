@@ -2,9 +2,9 @@ import { spawnSync } from "child_process";
 import { move, readdir, rename } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
-import { getPackageJson, savePackageJson } from "./common";
+import { ArgsOptions, getPackageJson, savePackageJson } from "./common";
 
-const createReactNative = async (wdir: string) => {
+const createReactNative = async (wdir: string, options?: ArgsOptions) => {
   const appName = path.basename(wdir);
   spawnSync("npx", ["react-native", "init", appName, "--template", "react-native-template-typescript"], { shell: true, stdio: "inherit", cwd: wdir });
   const renamedAppDirname = `__${appName}`;

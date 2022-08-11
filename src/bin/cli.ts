@@ -21,7 +21,9 @@ wl(`  dirname: ${dir}`);
 
 const argProjectType = getKeyArg("-t", "--type");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
+
 const appName = getKeyArg("--appName");
+if (appName) wl(`  appName: ${appName}`);
 
 const descriptions = {
   c  : `cancel`,
@@ -76,44 +78,47 @@ const writeCreateDescription = (t: keyof typeof descriptions) => {
 };
 const main = async (projectType: string) => {
   wl(" ");
+  const opts = {
+    appName
+  };
   try {
     switch (projectType) {
       case "mod":
       case "module":
         writeCreateDescription("mod");
         changeDir();
-        await createModule(dir);
+        await createModule(dir, opts);
         succeededProcess("mod");
         break;
       case "cli":
         writeCreateDescription("cli");
         changeDir();
-        await createCli(dir);
+        await createCli(dir, opts);
         succeededProcess("cli");
         break;
       case "stt":
         writeCreateDescription("stt");
         changeDir();
-        await createNextApp(dir, "frontend");
+        await createNextApp(dir, "frontend", opts);
         succeededProcess("stt");
         break;
       case "nxp":
       case "nexpress":
         writeCreateDescription("nxp");
         changeDir();
-        await createNextApp(dir, "nexpress");
+        await createNextApp(dir, "nexpress", opts);
         succeededProcess("nxp");
         break;
       case "api":
         writeCreateDescription("api");
         changeDir();
-        await createNextApp(dir, "backend");
+        await createNextApp(dir, "backend", opts);
         succeededProcess("api");
         break;
       case "web":
         writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, "f-b");
+        await createNextApp(dir, "f-b", opts);
         succeededProcess("web");
         break;
       case "dsk":
@@ -121,7 +126,7 @@ const main = async (projectType: string) => {
       case "nextron":
         writeCreateDescription("dsk");
         changeDir();
-        await createNextApp(dir, "desktop");
+        await createNextApp(dir, "desktop", opts);
         succeededProcess("dsk");
         break;
       case "app":
@@ -129,14 +134,14 @@ const main = async (projectType: string) => {
       case "full":
         writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, "full");
+        await createNextApp(dir, "full", opts);
         succeededProcess("app");
         break;
       case "mob":
       case "mobile":
         writeCreateDescription("mob");
         changeDir();
-        await createReactNative(dir);
+        await createReactNative(dir, opts);
         succeededProcess("mob");
         break;
       default:

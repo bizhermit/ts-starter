@@ -1,8 +1,9 @@
 import path from "path";
-import { generateTemplate, getPackageJson, installLibs, npmPackageInit, replaceAppName, savePackageJson } from "./common";
+import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, installLibs, npmPackageInit, replaceAppName, savePackageJson } from "./common";
 
-const createModule = async (wdir: string) => {
-  const pkg = await getPackageJson(wdir);
+const createModule = async (wdir: string, options?: ArgsOptions) => {
+  const { appName } = analyzeArgsOptions(wdir, options);
+  const pkg = await getPackageJson(wdir, options);
   pkg.scripts = {
     "clean": "npx rimraf package",
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",

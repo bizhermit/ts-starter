@@ -1,9 +1,10 @@
 import path from "path";
+import { ArgsOptions } from "./common";
 
 type Mode = "nexpress" | "f-b" | "frontend" | "backend" | "desktop" | "full";
 type Struct = {[key: string]: any};
 
-const createNextApp = async (wdir: string, mode: Mode = "full") => {
+const createNextApp = async (wdir: string, mode: Mode = "full", options?: ArgsOptions) => {
   const appName = path.basename(wdir);
   console.log(appName, mode);
   // const frontendDirName = "frontend";
