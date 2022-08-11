@@ -134,7 +134,7 @@ const main = async (projectType: string) => {
       case "full":
         writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, "full", opts);
+        await createNextApp(dir, "all", opts);
         succeededProcess("app");
         break;
       case "mob":

@@ -1,12 +1,116 @@
+import { spawnSync } from "child_process";
+import { existsSync, move, readFile, readFileSync, writeFile } from "fs-extra";
 import path from "path";
-import { ArgsOptions } from "./common";
+import { analyzeArgsOptions, ArgsOptions } from "./common";
 
-type Mode = "nexpress" | "f-b" | "frontend" | "backend" | "desktop" | "full";
+type Mode = "nexpress" | "f-b" | "frontend" | "backend" | "desktop" | "all";
 type Struct = {[key: string]: any};
 
-const createNextApp = async (wdir: string, mode: Mode = "full", options?: ArgsOptions) => {
-  const appName = path.basename(wdir);
-  console.log(appName, mode);
+const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOptions) => {
+  const { appName } = analyzeArgsOptions(wdir, options);
+
+  const createNextAppCli = async (targetDir: string, options?: { preventMoveToSrc?: boolean; position?: "frontend" | "backend" | "alone" }) => {
+    spawnSync("npx", ["create-next-app", targetDir, "--ts", "--use-npm"], { shell: true, stdio: "inherit", cwd: wdir });
+    const configFilePath = path.join(targetDir, "next.config.js");
+    let configFile = (await readFile(configFilePath)).toString();
+    const configLines = configFile.split(/\n|\r\n/g);
+    const endStructIndex = configLines.findIndex(line => line.match(/^}(;|\s)*$/)) ?? 1;
+    if (!configLines[endStructIndex - 1].match(/,$/)) {
+      configLines[endStructIndex - 1] = configLines[endStructIndex - 1] + ",";
+    }
+    let configAddLines: Array<string> = [];
+    let envLines: Array<string> = [];
+    switch (options?.position ?? "alone") {
+      case "frontend":
+        configAddLines = [
+          `  basePath: process.env.BASE_PATH || undefined,`,
+          `  env: {`,
+          `    basePath: process.env.BASE_PATH || undefined,`,
+          `    public: {`,
+          `      apiHost: process.env.API_HOST || "localhost",`,
+          `      apiPort: process.env.API_PORT || 8000,`,
+          `      apiBasePath: process.env.API_BASE_PATH || undefined,`,
+          `    }`,
+          `  }`
+        ];
+        envLines = [
+          "HOST=",
+          "PORT=",
+          `BASE_PATH=/${appName}`,
+          "",
+          "API_HOST=",
+          "API_PORT=",
+          `API_BASE_PATH=/${appName}`,
+        ];
+        break;
+      case "backend":
+        configAddLines = [
+          `  basePath: process.env.BASE_PATH || undefined,`,
+          `  env: {`,
+          `    basePath: process.env.BASE_PATH || undefined,`,
+          `  }`
+        ];
+        envLines = [
+          "HOST=",
+          "PORT=",
+          `BASE_PATH=/${appName}`,
+        ];
+        break;
+      default:
+        configAddLines = [
+          `  basePath: process.env.BASE_PATH || undefined,`,
+          `  env: {`,
+          `    basePath: process.env.BASE_PATH || undefined,`,
+          `    public: {`,
+          `      apiHost: process.env.HOST || "localhost",`,
+          `      apiPort: process.env.PORT || 8000,`,
+          `      apiBasePath: process.env.BASE_PATH || undefined,`,
+          `    }`,
+          `  }`
+        ];
+        envLines = [
+          "HOST=",
+          "PORT=",
+          `BASE_PATH=/${appName}`,
+        ];
+        break;
+    }
+    configAddLines.forEach((line, idx) => {
+      configLines.splice(endStructIndex + idx, 0, line);
+    });
+    configFile = configLines.join("\n");
+    const envFile = envLines.join("\n");
+    const commitFiles = async () => {
+      await writeFile(configFilePath, configFile);
+      await writeFile(path.join(targetDir, ".env.ex"), envFile);
+    }
+    if (options?.preventMoveToSrc) {
+      await commitFiles();
+      return;
+    }
+    const moveToSrc = async (fileName: string) => {
+      const srcFilePath = path.join(targetDir, fileName);
+      if (!existsSync(srcFilePath)) return;
+      await move(srcFilePath, path.join(targetDir, "src", fileName), { overwrite: true });
+    };
+    await moveToSrc("next-env.d.ts");
+    await moveToSrc("pages");
+    await moveToSrc("public");
+    await moveToSrc("styles");
+    await moveToSrc("styles");
+    await commitFiles();
+  };
+
+  if (mode !== "backend") {
+    await createNextAppCli(path.join(wdir, "frontend"), { position: "frontend" });
+  }
+  if (mode !== "backend" && mode !== "nexpress") {
+    await createNextAppCli(path.join(wdir, "backend"), { position: "backend" });
+  }
+
+  
+
+
   // const frontendDirName = "frontend";
   // const backendDirName = "backend";
   // const desktopDirName = "desktop";
