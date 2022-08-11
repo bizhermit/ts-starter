@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "clean": "npx rimraf sample",
-    "debug": "npm run clean && node bin/cli ./sample",
+    "build": "npx rimraf bin dist && npx tsc -p ./tsconfig.json",
+    "debug": "npm run clean && npm run build && node bin/cli ./sample",
     "d:mod": "npm run debug -- -t mod",
     "d:cli": "npm run debug -- -t cli",
-    "d:spa": "npm run debug -- -t spa",
+    "d:stt": "npm run debug -- -t stt",
+    "d:nxp": "npm run debug -- -t nxp",
+    "d:api": "npm run debug -- -t api",
     "d:web": "npm run debug -- -t web",
     "d:dsk": "npm run debug -- -t dsk",
     "d:app": "npm run debug -- -t app",
@@ -17,9 +20,5 @@
   },
   "author": "",
   "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "fs-extra": "^10.1.0",
-    "rimraf": "^3.0.2"
-  }
+  "private": true
 }

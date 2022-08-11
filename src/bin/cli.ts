@@ -9,7 +9,6 @@ import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
 import createReactNative from "../dist/create-react-native";
-import createReactApp from "../dist/create-react-app";
 
 const sepStr = `::::::::::::::::::::::::::::::`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -29,8 +28,8 @@ const descriptions = {
   cli: `command line interface application`,
   stt: `static web page application (next.js - no SSR/SSG)`,
   nxp: `dynamic web page application (next.js + express)`,
-  web: `web application (frontend: next.js + backend: express + next.js)`,
   api: `api server (express + next.js)`,
+  web: `web application (frontend: next.js + backend: express + next.js)`,
   dsk: `desktop application (electron + next.js)`,
   app: `web/desktop application (frontend: next.js + backend: express + next.js + desktop: electron)`,
   mob: `mobile application (react-native)`,
@@ -47,8 +46,8 @@ ${descriptionLine("mod")}
 ${descriptionLine("cli")}
 ${descriptionLine("stt")}
 ${descriptionLine("nxp")}
-${descriptionLine("web")}
 ${descriptionLine("api")}
+${descriptionLine("web")}
 ${descriptionLine("dsk")}
 ${descriptionLine("app")}
 ${descriptionLine("mob")}`);
@@ -104,15 +103,15 @@ const main = async (projectType: string) => {
         await createNextApp(dir, "next");
         succeededProcess(projectType);
         break;
-      case "web":
-        writeCreateDescription("web");
-        changeDir();
-        await createNextApp(dir, "f-b");
-        break;
       case "api":
         writeCreateDescription("api");
         changeDir();
         await createNextApp(dir, "backend");
+        break;
+      case "web":
+        writeCreateDescription("web");
+        changeDir();
+        await createNextApp(dir, "f-b");
         break;
       case "dsk":
       case "desktop":
