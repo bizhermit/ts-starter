@@ -27,7 +27,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     gitignoreContent = gitignoreContent
         .replace("/.next/", "/.next/")
         .replace("/out/", "/.dist/")
-    gitignoreContent += `\n# ${appName}`;
+    gitignoreContent += `\n# develop`;
     const addGitignoreContents = (lines: Array<string>) => {
         lines.forEach(line => {
             gitignoreContent += `\n${line}`;
@@ -120,6 +120,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     await createNextAppCli(frontendDir, { position: "frontend" });
     rimraf.sync(path.join(frontendDir, "src/pages"));
     rimraf.sync(path.join(frontendDir, "src/styles"));
+    if (mode === "nexpress") {
+      await generateTemplate(wdir, "next-app/backend");
+    }
     await generateTemplate(wdir, "next-app/frontend", { destDir: relativeDir });
     if (relativeDir) {
       await generateTemplate(wdir, "dev-env/next-app/frontend", { destDir: relativeDir });
