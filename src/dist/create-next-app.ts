@@ -52,7 +52,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
           `  }`
         ];
         envLines = [
-          `BASE_PATH=/${appName}`,
+          `API_BASE_PATH=/${appName}`,
+          "API_PORT=8080",
         ];
         break;
       default:

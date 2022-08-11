@@ -1,5 +1,5 @@
 /.vscode
 node_modules
-/src/.dev/bin
-/src/.dev/dist
-/src/.dev/sample
+/src/.stg/bin
+/src/.stg/dist
+/src/.stg/sample
