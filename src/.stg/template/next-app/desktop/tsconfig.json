@@ -19,12 +19,13 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "./",
-    "outDir": "../.desktop"
+    "outDir": ".dist"
   },
   "exclude": [
     "node_modules",
   ],
   "include": [
     "*.ts",
+    "../backend/**/*.ts"
   ]
 }

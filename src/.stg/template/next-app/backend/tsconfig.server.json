@@ -19,7 +19,7 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "./",
-    "outDir": ".server"
+    "outDir": ".dist"
   },
   "exclude": ["node_modules"],
   "include": ["main.ts"]

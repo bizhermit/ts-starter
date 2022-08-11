@@ -21,6 +21,19 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     }
     let configAddLines: Array<string> = [];
     let envLines: Array<string> = [];
+
+    const gitignorePath = path.join(targetDir, ".gitignore");
+    let gitignoreContent = (await readFile(gitignorePath)).toString();
+    gitignoreContent = gitignoreContent
+        .replace("/.next/", "/.next/")
+        .replace("/out/", "/.dist/")
+    gitignoreContent += `\n# ${appName}`;
+    const addGitignoreContents = (lines: Array<string>) => {
+        lines.forEach(line => {
+            gitignoreContent += `\n${line}`;
+        });
+    }
+    addGitignoreContents(["/.vscode"]);
     switch (options?.position ?? "alone") {
       case "frontend":
         configAddLines = [
@@ -55,6 +68,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
           `API_BASE_PATH=/${appName}`,
           "API_PORT=8080",
         ];
+        addGitignoreContents(["/resources/config.json"]);
         break;
       default:
         configAddLines = [
@@ -79,6 +93,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     const commitFiles = async () => {
       await writeFile(configFilePath, configFile);
       await writeFile(path.join(targetDir, ".env.ex"), envFile);
+      await writeFile(gitignorePath, gitignoreContent);
     }
     if (options?.preventMoveToSrc) {
       await commitFiles();
@@ -110,6 +125,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
       await generateTemplate(wdir, "dev-env/next-app/frontend", { destDir: relativeDir });
       await replaceAppName(path.join(frontendDir, ".devcontainer/devcontainer.json"), appName + ":frontend");
       await replaceAppName(path.join(frontendDir, ".devcontainer/docker-compose.yml"), appName + ":frontend");
+    }
+    if (mode === "all" || mode === "desktop") {
+      await generateTemplate(wdir, "next-app/frontend-desktop", { destDir: relativeDir });
     }
 
     const pkg = await getPackageJson(frontendDir, { appName, clearScripts: true });
@@ -149,11 +167,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
 
     const pkg = await getPackageJson(backendDir, { appName, clearScripts: true });
     pkg.scripts = {
-      "clean": "npx rimraf .server .next",
+      "clean": "npx rimraf .dist .next",
       "prebuild": "npm run clean && npx tsc -p tsconfig.server.json",
-      "server": "npm run prebuild && node .server/main.js --dev",
+      "dev": "npm run prebuild && node .dist/main.js --dev",
       "build": "npx next build",
-      "start": "npm run build && node .server/main.js",
+      "start": "npm run build && node .dist/main.js",
       "lint": "npx next lint"
     };
     await savePackageJson(backendDir, pkg);
@@ -181,7 +199,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     const pkg = await getPackageJson(wdir, { appName });
     pkg.scripts = {
       "frontend": `cd frontend && npm run dev`,
-      "backend": `cd backend && npm run server`,
+      "backend": `cd backend && npm run dev`,
       "server": "npm run backend & npm run frontend",
       "start": `cd frontend && npm run start && cd backend && npm run start`,
       "desktop": `npx rimraf .desktop && npx tsc -p desktop/tsconfig.json && npx electron .desktop/main.js`,

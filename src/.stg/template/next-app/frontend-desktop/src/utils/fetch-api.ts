@@ -4,6 +4,11 @@ const apiProtocol = process.env.API_PROTOCOL;
 const apiHostName = process.env.API_HOST_NAME;
 const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
+const electron = (global as any).electron as ElectronAccessor;
+
+const fetchToElectron = async <T>(url: string, params?: Struct, options?: RequestInit) => {
+  return electron.fetch(url, params ?? {}, options);
+};
 
 const getOrigin = () => {
   if (isServer) {
@@ -91,6 +96,10 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
 const useApi = () => {
   return {
     get: async <T = Struct>(url: string, params?: QueryParams, options?: RequestInit) => {
+      const isHttp = url.startsWith("http");
+      if (!isHttp && electron) {
+        return await fetchToElectron<T>(url, params, options);
+      }
       const { uri } = assembleUri(url, params);
       const res = await fetch(uri, {
         method: "GET",
@@ -98,6 +107,10 @@ const useApi = () => {
       return convertResponseToData<T>(res);
     },
     post: async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
+      const isHttp = url.startsWith("http");
+      if (!isHttp && electron) {
+        return await fetchToElectron<T>(url, params, options);
+      }
       const { uri } = assembleUri(url);
       console.log(uri);
       const res = await fetch(uri, {
