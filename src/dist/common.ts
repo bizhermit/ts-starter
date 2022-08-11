@@ -22,7 +22,7 @@ const initializePackageContent = (pkg: { [key: string]: any }, values: Array<{ p
   return pkg;
 };
 
-export const getPackageJson = async (wdir: string, options?: { preventInit?: boolean; clearScripts?: boolean; allowNotFoundNpmPackage?: boolean; } & ArgsOptions) => {
+export const getPackageJson = async (wdir: string, options?: { preventInit?: boolean; clearScripts?: boolean; allowNotFoundNpmPackage?: boolean; license?: "MIT"; } & ArgsOptions) => {
   const pkgPath = path.join(wdir, "package.json");
   const { appName } = analyzeArgsOptions(wdir, options);
   if (!existsSync(pkgPath) && options?.allowNotFoundNpmPackage !== true) {
@@ -54,12 +54,6 @@ export const getPackageJson = async (wdir: string, options?: { preventInit?: boo
       propertyName: "contributors",
       initValue: [],
     }, {
-      propertyName: "private",
-      initValue: true,
-    }, {
-      propertyName: "license",
-      initValue: "MIT",
-    }, {
       propertyName: "scripts",
       initValue: {},
     }, {
@@ -69,6 +63,18 @@ export const getPackageJson = async (wdir: string, options?: { preventInit?: boo
       propertyName: "devDependencies",
       initValue: {},
     }]);
+    if (options?.license) {
+      initializePackageContent(pkg, [{
+        propertyName: "license",
+        initValue: "MIT",
+      }]);
+      await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
+    } else {
+      initializePackageContent(pkg, [{
+        propertyName: "private",
+        initValue: true,
+      }]);
+    }
   }
   if (options?.clearScripts) {
     pkg.scripts = {};
@@ -129,11 +135,8 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
   }
 };
 
-export const generateTemplate = async (wdir: string, templateName: string, options?: { license?: boolean; destDir?: string; }) => {
+export const generateTemplate = async (wdir: string, templateName: string, options?: { destDir?: string; }) => {
   await copy(path.join(__dirname, "../template", templateName), path.join(wdir, options?.destDir ?? ""), { overwrite: true, recursive: true });
-  if (options?.license !== false) {
-    await copyFile(path.join(__dirname, "../template/LICENSE"), path.join(wdir, "LICENSE"));
-  }
 };
 
 export const removeGit = (wdir: string) => {

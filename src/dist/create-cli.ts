@@ -3,7 +3,7 @@ import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, inst
 
 const createCli = async (wdir: string, options?: ArgsOptions) => {
   const { appName } = analyzeArgsOptions(wdir, options);
-  const pkg = await getPackageJson(wdir, options);
+  const pkg = await getPackageJson(wdir, { appName, license: "MIT" });
   pkg.scripts = {
     "clean": "npx rimraf package",
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",

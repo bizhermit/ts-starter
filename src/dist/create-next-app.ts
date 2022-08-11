@@ -105,9 +105,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     await createNextAppCli(frontendDir, { position: "frontend" });
     rimraf.sync(path.join(frontendDir, "src/pages"));
     rimraf.sync(path.join(frontendDir, "src/styles"));
-    await generateTemplate(wdir, "next-app/frontend", { destDir: relativeDir, license: false });
+    await generateTemplate(wdir, "next-app/frontend", { destDir: relativeDir });
     if (relativeDir) {
-      await generateTemplate(wdir, "dev-env/next-app/frontend", { destDir: relativeDir, license: false });
+      await generateTemplate(wdir, "dev-env/next-app/frontend", { destDir: relativeDir });
       await replaceAppName(path.join(frontendDir, ".devcontainer/devcontainer.json"), appName + ":frontend");
       await replaceAppName(path.join(frontendDir, ".devcontainer/docker-compose.yml"), appName + ":frontend");
     }
@@ -139,10 +139,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     await createNextAppCli(backendDir, { position: "backend" });
     rimraf.sync(path.join(backendDir, "src/pages"));
     rimraf.sync(path.join(backendDir, "src/styles"));
-    await generateTemplate(wdir, "next-app/backend", { destDir: relativeDir, license: false });
+    await generateTemplate(wdir, "next-app/backend", { destDir: relativeDir });
     await replaceAppName(path.join(backendDir, "main.ts"), appName);
     if (relativeDir) {
-      await generateTemplate(wdir, "dev-env/next-app/backend", { destDir: relativeDir, license: false });
+      await generateTemplate(wdir, "dev-env/next-app/backend", { destDir: relativeDir });
       await replaceAppName(path.join(backendDir, ".devcontainer/devcontainer.json"), appName + ":backend");
       await replaceAppName(path.join(backendDir, ".devcontainer/docker-compose.yml"), appName + ":backend");
     }
@@ -170,12 +170,12 @@ const createNextApp = async (wdir: string, mode: Mode = "all", options?: ArgsOpt
     ]);
   }
 
-  await generateTemplate(wdir, "dev-env/next-app/root", { license: false });
+  await generateTemplate(wdir, "dev-env/next-app/root");
   await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
   await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
 
   if (mode === "all" || mode === "desktop") {
-    await generateTemplate(wdir, "next-app/desktop", { destDir: "desktop", license: false });
+    await generateTemplate(wdir, "next-app/desktop", { destDir: "desktop" });
     await replaceAppName(path.join(wdir, "desktop/main.ts"), appName);
 
     const pkg = await getPackageJson(wdir, { appName });
