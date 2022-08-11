@@ -4,6 +4,7 @@ import path from "path";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
 import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-utils";
+import { fillRight } from "@bizhermit/basic-utils/dist/string-utils";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
@@ -22,17 +23,35 @@ wl(`  dirname: ${dir}`);
 const argProjectType = getKeyArg("-t", "-type");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
 
+const descriptions = {
+  c  : `cancel`,
+  mod: `module`,
+  cli: `command line interface application`,
+  stt: `static web page application (next.js - no SSR/SSG)`,
+  nxp: `dynamic web page application (next.js + express)`,
+  web: `web application (frontend: next.js + backend: express + next.js)`,
+  api: `api server (express + next.js)`,
+  dsk: `desktop application (electron + next.js)`,
+  app: `web/desktop application (frontend: next.js + backend: express + next.js + desktop: electron)`,
+  mob: `mobile application (react-native)`,
+} as const;
+const descriptionLine = (t: keyof typeof descriptions) => {
+  return `- ${fillRight(`[${t}]`, 5)}: ${descriptions[t]}`;
+}
+
 if (!skipInteractive) {
 wl(`
 select project type
-- [c]  : cancel
-- [mod]: module
-- [cli]: command line interface application
-- [spa]: web application (react)
-- [web]: web application (next.js + express)
-- [dsk]: desktop application (next.js + electron)
-- [app]: web and desktop application (next.js + express / electron)
-- [mob]: mobile application (react-native)`);
+${descriptionLine("c")}
+${descriptionLine("mod")}
+${descriptionLine("cli")}
+${descriptionLine("stt")}
+${descriptionLine("nxp")}
+${descriptionLine("web")}
+${descriptionLine("api")}
+${descriptionLine("dsk")}
+${descriptionLine("app")}
+${descriptionLine("mob")}`);
 }
 
 const changeDir = () => {
@@ -52,61 +71,73 @@ const succeededProcess = (projectType: string) => {
   }
 };
 
+const writeCreateDescription = (t: keyof typeof descriptions) => {
+  wl(`create ${descriptions[t]}`);
+};
 const main = async (projectType: string) => {
   wl(" ");
   try {
     switch (projectType) {
       case "mod":
       case "module":
-        wl(`create module`);
+        writeCreateDescription("mod");
         changeDir();
         await createModule(dir);
         succeededProcess(projectType);
         break;
       case "cli":
-        wl(`create command line interface application`);
+        writeCreateDescription("cli");
         changeDir();
         await createCli(dir);
         succeededProcess(projectType);
         break;
-      case "spa":
-      case "react":
-        wl(`create web application (react)`);
+      case "stt":
+        writeCreateDescription("stt");
         changeDir();
-        await createReactApp(dir);
+        await createNextApp(dir, "frontend");
+        succeededProcess(projectType);
+        break;
+      case "nxp":
+      case "nexpress":
+        writeCreateDescription("nxp");
+        changeDir();
+        await createNextApp(dir, "next");
         succeededProcess(projectType);
         break;
       case "web":
-      case "nexpress":
-        wl(`create web application (next.js + express)`);
+        writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, { server: true });
-        succeededProcess(projectType);
+        await createNextApp(dir, "f-b");
+        break;
+      case "api":
+        writeCreateDescription("api");
+        changeDir();
+        await createNextApp(dir, "backend");
         break;
       case "dsk":
       case "desktop":
       case "nextron":
-        wl(`create desktop application (next.js + electron)`);
+        writeCreateDescription("dsk");
         changeDir();
-        await createNextApp(dir, { desktop: true });
+        await createNextApp(dir, "desktop");
         succeededProcess(projectType);
         break;
       case "app":
       case "all":
-        wl(`create web and desktop application (next.js + express / electron)`);
+        writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, { server: true, desktop: true });
+        await createNextApp(dir, "full");
         succeededProcess(projectType);
         break;
       case "mob":
       case "mobile":
-        wl(`create mobile application (react-native)`);
+        writeCreateDescription("mob");
         changeDir();
         await createReactNative(dir);
         succeededProcess(projectType);
         break;
       default:
-        wl(`cancel`);
+        writeCreateDescription("c");
         break;
     }
   } catch (err) {
