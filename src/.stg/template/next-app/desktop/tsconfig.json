@@ -18,14 +18,14 @@
     "strictNullChecks": false,
     "strict": true,
     "target": "esnext",
-    "rootDir": "./",
-    "outDir": ".dist"
+    "rootDir": "../",
+    "outDir": "../nextron"
   },
   "exclude": [
     "node_modules",
   ],
   "include": [
-    "*.ts",
-    "../backend/**/*.ts"
+    "./**/*.ts",
+    "../src/**/*.ts"
   ]
 }

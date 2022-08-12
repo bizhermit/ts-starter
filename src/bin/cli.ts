@@ -3,7 +3,7 @@
 import path from "path";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-utils";
+import { getArg, getKeyArg, hasKeyArg, rl, wl } from "@bizhermit/cli-utils";
 import { fillRight } from "@bizhermit/basic-utils/dist/string-utils";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
@@ -29,16 +29,15 @@ const descriptions = {
   c  : `cancel`,
   mod: `module`,
   cli: `command line interface application`,
-  stt: `static web page application (next.js - no SSR/SSG)`,
-  nxp: `dynamic web page application (next.js + express)`,
-  api: `api server (express + next.js)`,
-  web: `web application (frontend: next.js + backend: express + next.js)`,
-  dsk: `desktop application (electron + next.js)`,
-  app: `web/desktop application (frontend: next.js + backend: express + next.js + desktop: electron)`,
-  mob: `mobile application (react-native)`,
+  gui: "browser application       [ \x1b[36mNext.js\x1b[39m ]",
+  api: "api(backend) server       [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  web: "web application           [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  dsk: "desktop application       [ \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  app: "web & desktop application [ \x1b[36mExpress\x1b[39m + \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  mob: `mobile application        [ \x1b[36mreact-native\x1b[39m ]`,
 } as const;
 const descriptionLine = (t: keyof typeof descriptions) => {
-  return `- ${fillRight(`[\x1b[33m${t}\x1b[39m]`, 5)}: ${descriptions[t]}`;
+  return `- ${fillRight(`[\x1b[33m${t}\x1b[39m]`, 15, " ")}: ${descriptions[t]}`;
 }
 
 if (!skipInteractive) {
@@ -47,8 +46,7 @@ wl(`
 ${descriptionLine("c")}
 ${descriptionLine("mod")}
 ${descriptionLine("cli")}
-${descriptionLine("stt")}
-${descriptionLine("nxp")}
+${descriptionLine("gui")}
 ${descriptionLine("api")}
 ${descriptionLine("web")}
 ${descriptionLine("dsk")}
@@ -96,29 +94,25 @@ const main = async (projectType: string) => {
         await createCli(dir, opts);
         succeededProcess("cli");
         break;
-      case "stt":
-        writeCreateDescription("stt");
+      case "gui":
+      case "frontend":
+        writeCreateDescription("gui");
         changeDir();
-        await createNextApp(dir, "frontend", opts);
-        succeededProcess("stt");
-        break;
-      case "nxp":
-      case "nexpress":
-        writeCreateDescription("nxp");
-        changeDir();
-        await createNextApp(dir, "nexpress", opts);
-        succeededProcess("nxp");
+        await createNextApp(dir, "frontend", hasKeyArg("-s", "--separate"), opts);
+        succeededProcess("gui");
         break;
       case "api":
+      case "backend":
         writeCreateDescription("api");
         changeDir();
-        await createNextApp(dir, "backend", opts);
+        await createNextApp(dir, "backend", hasKeyArg("-s", "--separate"), opts);
         succeededProcess("api");
         break;
       case "web":
+      case "nexpress":
         writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, "f-b", opts);
+        await createNextApp(dir, "web", hasKeyArg("-s", "--separate"), opts);
         succeededProcess("web");
         break;
       case "dsk":
@@ -126,7 +120,7 @@ const main = async (projectType: string) => {
       case "nextron":
         writeCreateDescription("dsk");
         changeDir();
-        await createNextApp(dir, "desktop", opts);
+        await createNextApp(dir, "desktop", hasKeyArg("-s", "--separate"), opts);
         succeededProcess("dsk");
         break;
       case "app":
@@ -134,7 +128,7 @@ const main = async (projectType: string) => {
       case "full":
         writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, "all", opts);
+        await createNextApp(dir, "all", hasKeyArg("-s", "--separate"), opts);
         succeededProcess("app");
         break;
       case "mob":
@@ -157,7 +151,7 @@ const main = async (projectType: string) => {
 if (skipInteractive) {
   main(argProjectType)
 } else {
-  rl(`please input (default c) > `).then(main).catch((err) => {
+  rl(`please input (default \x1b[33mc\x1b[39m) > `).then(main).catch((err) => {
     process.stderr.write(err);
     wl(`${pkg.name} \x1b[41m failed \x1b[49m.`);
     wl(`\n${sepStr}`);

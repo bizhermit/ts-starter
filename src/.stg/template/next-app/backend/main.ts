@@ -7,7 +7,7 @@ import helmet from "helmet";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 
-const isDev = process.argv.includes("--dev");
+const isDev = process.argv.includes("-d");
 dotenv.config({
   debug: isDev,
 });

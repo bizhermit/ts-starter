@@ -24,11 +24,11 @@ const log = {
 
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
-const appRoot = path.join(__dirname, "../../");
+const appRoot = path.join(__dirname, "../");
 
 app.on("ready", async () => {
   const port = 8008;
-  await prepareNext(path.join(appRoot, "/frontend"), port);
+  await prepareNext(appRoot, port);
 
   const mainWindow = new BrowserWindow({
     width: 1280,
