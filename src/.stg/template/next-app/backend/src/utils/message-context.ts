@@ -54,17 +54,17 @@ class MessageContext {
 
   public addInformation(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "info", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
+    return this.addMessage({ ...(typeof message === "string" ? { body: [ message ] } : message), type: "info" }, absolute);
   }
 
   public addWarning(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "warning", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
+    return this.addMessage({ ...(typeof message === "string" ? { body: [ message ] } : message), type: "warning" }, absolute);
   }
 
   public addError(message: string | Message, absolute?: boolean) {
     if (message == null) return this;
-    return this.addMessage({ type: "error", ...(typeof message === "string" ? { body: [ message ] } : message) }, absolute);
+    return this.addMessage({ ...(typeof message === "string" ? { body: [ message ] } : message), type: "error" }, absolute);
   }
 
   public hasMessage(type?: MessageType) {

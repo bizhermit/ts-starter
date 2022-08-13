@@ -24,11 +24,11 @@ const log = {
 
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
-const appRoot = path.join(__dirname, "../");
+const appRoot = path.join(__dirname, "../../");
 
 app.on("ready", async () => {
   const port = 8008;
-  await prepareNext(appRoot, port);
+  if (isDev) await prepareNext(appRoot, port);
 
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -49,8 +49,9 @@ app.on("ready", async () => {
     log.info("app listen start", loadUrl);
   } else {
     mainWindow.setMenu(null);
+    mainWindow.webContents.openDevTools();
     loadUrl = url.format({
-      pathname: path.join(appRoot, "next/out/index.html"),
+      pathname: path.join(appRoot, ".renderer/index.html"),
       protocol: "file:",
       slashes: true,
     });

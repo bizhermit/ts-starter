@@ -109,7 +109,7 @@ class ApiContext extends MessageContext {
   }
 
   public doneAs(code?: number, data: Struct = {}, message?: string, title?: string) {
-    if (StringUtils.isNotEmpty(message)) this.addInformation({ body: message, title });
+    if (StringUtils.isNotEmpty(message)) this.addInformation({ title, body: message, type: "info"});
     this.setData(data).setStatus(code ?? 200);
   }
 

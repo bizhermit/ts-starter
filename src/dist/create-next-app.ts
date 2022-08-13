@@ -25,14 +25,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     let gitignoreContent = (await readFile(gitignorePath)).toString();
     gitignoreContent = gitignoreContent
         .replace("/.next/", "/.next/")
-        .replace("/out/", "/.dist/")
+        .replace("/out/", "/dist/")
     gitignoreContent += `\n# develop`;
     const addGitignoreContents = (lines: Array<string>) => {
         lines.forEach(line => {
             gitignoreContent += `\n${line}`;
         });
     }
-    addGitignoreContents(["/.vscode"]);
+    addGitignoreContents(["/.vscode/settings.json", "/.nexpress/", "/.nextron/"]);
     switch (options?.position ?? "alone") {
       case "frontend":
         configAddLines = [
@@ -119,7 +119,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     // desktop
     if (mode === "desktop" || mode === "all") {
       hasDesktop = true;
-      await generateTemplate(wdir, "next-app/desktop", { destDir: "nextron" });
+      await generateTemplate(wdir, "next-app/desktop");
       await replaceAppName(path.join(wdir, "nextron/main.ts"), appName);
       deps.push(
         "fs-extra",
@@ -138,7 +138,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       hasBackend = true;
       await generateTemplate(wdir, "next-app/backend");
       if (hasDesktop) await generateTemplate(wdir, "next-app/backend-desktop");
-      await replaceAppName(path.join(wdir, "main.ts"), appName);
+      await replaceAppName(path.join(wdir, "nexpress/main.ts"), appName);
       deps.push(
         "dotenv",
         "express",
@@ -176,19 +176,20 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       pkg.scripts = {
         ...pkg.scripts,
         "nexpress": "npx rimraf .next && npm run prestart && node .nexpress/main.js -d",
-        "prestart": "npx rimraf .nexpress && npx tsc -p tsconfig.nexpress.json",
+        "prestart": "npx rimraf .nexpress && npx tsc -p nexpress/tsconfig.json",
         "start": "npm run build && node .nexpress/main.js",
       };
     }
     if (hasDesktop) {
       pkg.scripts = {
         ...pkg.scripts,
-        "nextron": "npx rimraf .next && npm run prepack && npx electron .nextron/main.js",
-        "prepack": "npx rimraf .nextron && npx tsc -p nextron/tsconfig.json",
-        "pack": "npx minifier .nextron && npm run export && npx electron-builder --dir",
-        "pack:linux": "npm run pack -- --linux",
-        "pack:win": "npm run pack -- --win",
-        "pack:mac": "npm run pack -- --mac",
+        "clean:nextron": "npx rimraf .main .renderer",
+        "nextron": "npx rimraf .next && npm run pre_pack && npx electron .main/nextron/main.js",
+        "pre_pack": "npm run clean:nextron && npx tsc -p nextron/tsconfig.json",
+        "_pack": "npm run build && npx next export -o .renderer && npx minifier .main && npx minifier .renderer && npx electron-builder --dir",
+        "pack:linux": "npm run _pack -- --linux",
+        "pack:win": "npm run _pack -- --win",
+        "pack:mac": "npm run _pack -- --mac",
       };
       pkg.build = {
         "appId": `example.${appName}`,
@@ -196,35 +197,41 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "asar": true,
         "extends": null,
         "extraMetadata": {
-          "main": ".nextron/main.js"
+          "main": ".main/nextron/main.js",
         },
         "files": [
-          ".nextron",
-          ".out",
+          "!src",
+          "!nextron",
+          "!nexpress",
+          ".main/**/*",
+          ".renderer/**/*",
+          "src/public",
         ],
-        "extraFiles": [{
-          "from": "LICENSE",
-          "to": "LICENSE",
-        }, {
-          "from": "CREDIT",
-          "to": "CREDIT",
-        }],
+        // "extraFiles": [{
+        //   "from": "LICENSE",
+        //   "to": "LICENSE",
+        // }, {
+        //   "from": "CREDIT",
+        //   "to": "CREDIT",
+        // }],
         "directories": {
-          "output": ".build",
+          "output": "dist",
         },
         "win": {
-          "icon": `.next/favicon.ico`,
+          "icon": `src/public/favicon.ico`,
           "target": {
             "target": "nsis",
-            "arch": ["x64"],
+            "arch": [
+              "x64"
+            ],
           },
         },
         "mac": {
-          "icon": `.next/favicon.ico`,
+          "icon": `src/public/favicon.ico`,
           "target": "dmg"
         },
         "linux": {
-          "icon": `.next/favicon.ico`,
+          "icon": `src/public/favicon.ico`,
           "target":[
             "deb",
             "rpm",
@@ -236,8 +243,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "nsis": {
           "oneClick": false,
           "allowToChangeInstallationDirectory": true,
-          "installerIcon": `.next/favicon.ico`,
-          "installerHeaderIcon": `.next/favicon.ico`,
+          "installerIcon": `src/public/favicon.ico`,
+          "installerHeaderIcon": `src/public/favicon.ico`,
         },
       };
       pkg.browser = {
@@ -248,13 +255,13 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     switch (mode) {
       case "desktop":
         pkg.scripts = {
-          "clean": "npx rimraf dist .nextron .next node_modules",
+          "clean": "npx rimraf dist .main .renderer .next node_modules",
           ...pkg.scripts,
         };
         break;
       case "backend":
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .nextron .next node_modules",
+          "clean": "npx rimraf dist .nexpress .main .renderer .next node_modules",
           ...pkg.scripts,
         };
         break;
@@ -272,7 +279,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         break;
       default:
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .nextron .next node_modules",
+          "clean": "npx rimraf dist .nexpress .main .renderer .next node_modules",
           ...pkg.scripts,
         };
         break;

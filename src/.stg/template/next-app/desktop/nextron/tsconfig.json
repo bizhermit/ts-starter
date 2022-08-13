@@ -19,13 +19,16 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "../",
-    "outDir": "../nextron"
+    "outDir": "../.main"
   },
   "exclude": [
     "node_modules",
+    "../src/components",
+    "../src/hooks",
+    "../src/styles"
   ],
   "include": [
-    "./**/*.ts",
+    "**/*.ts",
     "../src/**/*.ts"
   ]
 }
