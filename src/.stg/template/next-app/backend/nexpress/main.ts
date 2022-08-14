@@ -67,7 +67,7 @@ nextApp.prepare().then(async () => {
   server.use(express.static(path.join(appRoot, "__srcDir__/public")));
 
   const handler = nextApp.getRequestHandler();
-  const basePath = process.env.API_BASE_PATH || "";
+  const basePath = process.env.BASE_PATH || "";
   server.all(`${basePath}/api/*`, (req, res) => {
     log.debug("api call:", req.url);
     return handler(req, res);
@@ -76,7 +76,7 @@ nextApp.prepare().then(async () => {
     return handler(req, res);
   });
 
-  const port = Number(process.env.API_PORT || (isDev ? 8000 : 80));
+  const port = Number(process.env.PORT || (isDev ? 8000 : 80));
   server.listen(port, () => {
     log.info(`http://localhost:${port}${basePath}`);
   });

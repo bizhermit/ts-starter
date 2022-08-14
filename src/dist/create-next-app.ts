@@ -45,12 +45,12 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       case "frontend":
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
-          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : undefined,`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
-          `    public: {`,
-          `      API_BASE_PATH: process.env.BASE_PATH,`,
-          `    }`,
+          `    API_PROTOCOL: process.env.API_PROTOCOL,`,
+          `    API_HOST_NAME: process.env.API_HOST_NAME,`,
+          `    API_PORT: process.env.API_PORT,`,
+          `    API_BASE_PATH: process.env.API_BASE_PATH,`,
           `  }`
         ];
         envLines = [
@@ -67,27 +67,27 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           `  basePath: process.env.BASE_PATH,`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
+          `    PORT: process.env.PORT,`,
           `  }`
         ];
         envLines = [
-          `API_BASE_PATH=/${appName}`,
-          "API_PORT=8080",
+          `BASE_PATH=/${appName}`,
+          "PORT=8000",
         ];
         addGitignoreContents(["/resources/config.json"]);
         break;
       default:
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
-          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : undefined,`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
-          `    public: {`,
-          `      API_BASE_PATH: process.env.BASE_PATH,`,
-          `    }`,
+          `    PORT: process.env.PORT,`,
+          `    API_BASE_PATH: process.env.BASE_PATH,`,
           `  }`
         ];
         envLines = [
           `BASE_PATH=/${appName}`,
+          `PORT=3000`,
         ];
         break;
     }
