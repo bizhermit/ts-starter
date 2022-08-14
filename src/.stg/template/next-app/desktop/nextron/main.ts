@@ -57,16 +57,28 @@ app.on("ready", async () => {
     });
     log.info("app boot");
 
+    const rendererRoot = path.join(appRoot, "__rendererDistDir__");
     protocol.interceptFileProtocol("file", (req, callback) => {
-      let url = req.url.substring(7);
-      if (!path.extname(url)) url += ".html";
-      if (path.isAbsolute(url)) {
-        callback(path.join(appRoot, "__rendererDistDir__", url));
-        return;
+      try {
+        let url = req.url.substring(7);
+        const splited = url.split(/\/|\\/);
+        const [pathName, queryStr] = splited[splited.length - 1].split("?");
+        const extension = path.extname(pathName);
+        url = decodeURI(url.substring(0, url.lastIndexOf("/") + 1) + pathName);
+        if (StringUtils.isEmpty(extension) && StringUtils.isNotEmpty(queryStr)) {
+          url += `?${queryStr}`;
+        }
+        if (path.isAbsolute(url)) {
+          callback(path.join(rendererRoot, url));
+          return;
+        }
+        callback(url);
+      } catch (e) {
+        log.error("url convert error:", String(e));
       }
-      callback(url);
     });
   }
+
   $global._session = {};
   const appDirname = isDev ? appRoot : path.dirname(process.argv[0]);
 
