@@ -115,28 +115,30 @@ export const savePackageJson = async (wdir: string, pkg: { [key: string]: any })
 };
 
 export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Array<string> = [], options?: { audit?: boolean; }) => {
-  cli.wl(`npm install...`);
   if (args.length > 0) {
-    cli.wl(` install dependencies`);
+    cli.wl(`Installing dependencies:`);
     for (const arg of args) {
-      cli.wl(`  - ${arg}`);
+      cli.wl(` - \x1b[36m${arg}\x1b[39m`);
     }
     spawnSync("npm", ["i", "--legacy-peer-deps", ...args], { shell: true, stdio: "inherit", cwd: wdir });
   }
   if (devArgs.length > 0) {
-    cli.wl(` install devDependencies`);
+    cli.wl(`Installing devDependencies:`);
     for (const arg of devArgs) {
-      cli.wl(`  - ${arg}`);
+      cli.wl(` - \x1b[36m${arg}\x1b[39m`);
     }
     spawnSync("npm", ["i", "--save-dev", ...devArgs], { shell: true, stdio: "inherit", cwd: wdir });
   }
   if (options?.audit !== false) {
+    cli.wl(`Auditing dependencies:`);
     spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd: wdir });
   }
 };
 
 export const generateTemplate = async (wdir: string, templateName: string, options?: { destDir?: string; }) => {
+  cli.wl(`Create files from template: \x1b[36m${templateName}\x1b[39m`);
   await copy(path.join(__dirname, "../template", templateName), path.join(wdir, options?.destDir ?? ""), { overwrite: true, recursive: true });
+  process.stdout.write("\n");
 };
 
 export const removeGit = (wdir: string) => {
@@ -148,25 +150,23 @@ export const npmPackageInit = (wdir: string) => {
 };
 
 export const replaceAppName = async (filePath: string, appName: string) => {
-  if (!existsSync(filePath)) {
-    return false;
-  }
-  let targetFile = (await readFile(filePath)).toString();
-  targetFile = targetFile.replace(/__appName__/g, appName);
-  await writeFile(filePath, targetFile);
-  return true;
+  return replaceTexts(filePath, [{ anchor: "__appName__", text: appName }]);
 };
 
 export const replaceTexts = async (filePath: string, replaces: Array<{ anchor: string; text: string }>) => {
+  cli.wl(`Replace texts: ${filePath}`);
   if (!existsSync(filePath)) {
+    cli.wl(`\x1b[43m WARN \x1b[49m file not found: ${filePath}`);
     return false;
   }
   let targetFile = (await readFile(filePath)).toString();
   replaces.forEach(item => {
     const regExp = new RegExp(item.anchor, "g");
     targetFile = targetFile.replace(regExp, item.text);
+    cli.wl(` - replace: ${item.anchor} -> ${item.text}`);
   });
   await writeFile(filePath, targetFile);
+  process.stdout.write("\n");
   return true;
 };
 
