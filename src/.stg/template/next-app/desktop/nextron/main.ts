@@ -27,7 +27,7 @@ log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 const appRoot = path.join(__dirname, "../../");
 
 app.on("ready", async () => {
-  const port = 8008;
+  const port = Number(process.env.PORT || "8008");
   if (isDev) await prepareNext(appRoot, port);
 
   const mainWindow = new BrowserWindow({
@@ -44,7 +44,7 @@ app.on("ready", async () => {
 
   let loadUrl = "";
   if (isDev) {
-    loadUrl = `http://localhost:${port}/`;
+    loadUrl = `http://localhost:${port}${process.env.BASE_PATH || ""}/`;
     mainWindow.webContents.openDevTools();
     log.info("app listen start", loadUrl);
   } else {
