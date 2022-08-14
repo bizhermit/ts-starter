@@ -6,10 +6,6 @@ const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
 const electron = (global as any).electron as ElectronAccessor;
 
-const fetchToElectron = async <T>(url: string, params?: Struct, options?: RequestInit) => {
-  return electron.fetch<T>(url, params ?? {}, options);
-};
-
 type GetParamType = string | number | boolean | null | undefined;
 type QueryParams = { [key: string]: GetParamType | Array<GetParamType> };
 
@@ -57,6 +53,21 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
   return encodeURI(uri);
 };
 
+const toData = <T = Struct>(responseBody: Struct) => {
+  const messages: Array<Message> = Array.isArray(responseBody.messages) ? responseBody.messages : [];
+  return {
+    data: responseBody.data as T,
+    messages,
+    hasError: () => messages.some(msg => msg.type === "error"),
+    hasMessage: () => messages.length > 0
+  };
+};
+
+const fetchToElectron = async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
+  const res = await electron.fetch<{ data: T; messages: Array<Message>; }>(url, params ?? {}, options);;
+  return toData(res);
+};
+
 type FetchResponseData<T> = {
   data: T;
   messages: Array<Message>
@@ -77,13 +88,7 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
     };
   }
   const json = await res.json();
-  const messages: Array<Message> = Array.isArray(json.messages) ? json.messages : [];
-  return {
-    data: json.data as T,
-    messages,
-    hasError: () => messages.some(msg => msg.type === "error"),
-    hasMessage: () => messages.length > 0
-  };
+  return toData(json);
 };
 
 const useApi = () => {

@@ -52,6 +52,16 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
   return encodeURI(uri);
 };
 
+const toData = <T = Struct>(responseBody: Struct) => {
+  const messages: Array<Message> = Array.isArray(responseBody.messages) ? responseBody.messages : [];
+  return {
+    data: responseBody.data as T,
+    messages,
+    hasError: () => messages.some(msg => msg.type === "error"),
+    hasMessage: () => messages.length > 0
+  };
+};
+
 type FetchResponseData<T> = {
   data: T;
   messages: Array<Message>
@@ -72,25 +82,21 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
     };
   }
   const json = await res.json();
-  const messages: Array<Message> = Array.isArray(json.messages) ? json.messages : [];
-  return {
-    data: json.data as T,
-    messages,
-    hasError: () => messages.some(msg => msg.type === "error"),
-    hasMessage: () => messages.length > 0
-  };
+  return toData(json);
 };
 
 const useApi = () => {
   return {
-    get: async <T = Struct>(url: string, params?: QueryParams) => {
+    get: async <T = Struct>(url: string, params?: QueryParams, options?: RequestInit) => {
+      const isHttp = url.startsWith("http");
       const uri = assembleUri(url, params);
       const res = await fetch(uri, {
         method: "GET",
       });
       return convertResponseToData<T>(res);
     },
-    post: async <T = Struct>(url: string, params?: Struct) => {
+    post: async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
+      const isHttp = url.startsWith("http");
       const uri = assembleUri(url);
       console.log(uri);
       const res = await fetch(uri, {

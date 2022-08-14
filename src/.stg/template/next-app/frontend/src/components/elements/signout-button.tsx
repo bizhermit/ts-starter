@@ -7,12 +7,12 @@ const SignoutButton: FC = () => {
   const router = useRouter();
   const msgBox = useMessageBox();
 
-  const signout = async () => {
+  const signout = async (unlock: VoidFunc) => {
     if (!await msgBox.confirm(<>サインアウトします。<br/>よろしいですか？</>, "確認")) {
+      unlock?.();
       return;
     }
-    // TODO signout
-    router.push("/signin");
+    router.push("/signout");
   };
   
   return <Button $icon="signout" $iconRight $click={signout}>Signout</Button>;

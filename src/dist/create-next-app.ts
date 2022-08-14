@@ -45,6 +45,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       case "frontend":
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
+          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : "",`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
           `    public: {`,
@@ -77,6 +78,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       default:
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
+          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : "",`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
           `    public: {`,
@@ -120,7 +122,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const pkg = await getPackageJson(wdir, { appName });
     pkg.version = "0.0.0-alpha.0";
     await replaceTexts(path.join(wdir, "tsconfig.json"), [
-      { anchor: "\"node_modules\"", text: `"node_modules", "/.*", "${nexpressDir}", "${nextronDir}"` },
+      { anchor: "\"node_modules\"", text: `"node_modules", "/.*", "${nexpressDir}", "${nextronDir}", "${mainDistDir}", "${rendererDistDir}"` },
     ]);
 
     const deps: Array<string> = ["@bizhermit/basic-utils"];
@@ -213,9 +215,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "nextron": `npx rimraf ${nextDistDir} && npm run pre_pack && npx electron ${mainDistDir}/${nextronDir}/main.js`,
         "pre_pack": `npm run clean:nextron && npx tsc -p ${nextronDir}/tsconfig.json`,
         "_pack": `npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder --dir`,
-        "pack:linux": "npm run _pack -- --linux",
-        "pack:win": "npm run _pack -- --win",
-        "pack:mac": "npm run _pack -- --mac",
+        "pack:linux": "npm run _pack -- --linux & npm run clean:nextron",
+        "pack:win": "npm run _pack -- --win & npm run clean:nextron",
+        "pack:mac": "npm run _pack -- --mac & npm run clean:nextron",
       };
 
       const faviconPath = `${srcDir}/public/favicon.ico`;
@@ -236,7 +238,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           `${srcDir}/public`,
         ],
         "extraFiles": [{
-          "from": "resources",
+          "from": "resources/**",
           "to": "resources",
           "filter": [
             "**/*",

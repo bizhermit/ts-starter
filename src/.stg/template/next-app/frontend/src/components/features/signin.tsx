@@ -5,12 +5,14 @@ import TextBox from "@bizhermit/react-addon/dist/elements/inputs/text-box";
 import useMessage from "@bizhermit/react-addon/dist/message/message-provider";
 import { FitToOuter } from "@bizhermit/react-addon/dist/styles/css-var";
 import { FC, useState } from "react";
+import { useRouter } from "next/router";
 import useApi from "../../utils/fetch-api";
 
 const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
   const msg = useMessage();
   const [inputs, _setInputs] = useState<Struct>({});
   const api = useApi();
+  const router = useRouter();
 
   const signin = async (unlock?: VoidFunc) => {
     try {
@@ -18,6 +20,8 @@ const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
       msg.append(res.messages);
       if (!res.hasError()) {
         console.log(res.data);
+        router.push(`/user/${res.data.id}`);
+        return;
       }
     } catch (e) {
       msg.error(e);
