@@ -1,6 +1,6 @@
 import path from "path";
 import url from "url";
-import { BrowserWindow, app, ipcMain, screen, nativeTheme, IpcMainEvent, IpcMainInvokeEvent } from "electron";
+import { BrowserWindow, app, protocol, ipcMain, screen, nativeTheme, IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import isDev from "electron-is-dev";
 import prepareNext from "electron-next";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
@@ -51,11 +51,21 @@ app.on("ready", async () => {
     mainWindow.setMenu(null);
     mainWindow.webContents.openDevTools();
     loadUrl = url.format({
-      pathname: path.join(appRoot, "__rendererDistDir__/index.html"),
+      pathname: "index.html",
       protocol: "file:",
       slashes: true,
     });
     log.info("app boot");
+
+    protocol.interceptFileProtocol("file", (req, callback) => {
+      let url = req.url.substring(7);
+      if (!path.extname(url)) url += ".html";
+      if (path.isAbsolute(url)) {
+        callback(path.join(appRoot, "__rendererDistDir__", url));
+        return;
+      }
+      callback(url);
+    });
   }
   $global._session = {};
   const appDirname = isDev ? appRoot : path.dirname(process.argv[0]);
