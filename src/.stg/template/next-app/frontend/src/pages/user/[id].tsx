@@ -17,6 +17,7 @@ const SigninPage: NextPage<InitParams> = ({ user, error }) => {
   return (
     <>
       <Label>User top</Label>
+      <Label>{JSON.stringify(user ?? {})}</Label>
       <SignoutButton />
     </>
   );

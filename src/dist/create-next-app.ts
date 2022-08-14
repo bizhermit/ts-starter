@@ -45,7 +45,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       case "frontend":
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
-          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : "",`,
+          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : undefined,`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
           `    public: {`,
@@ -78,7 +78,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       default:
         configAddLines = [
           `  basePath: process.env.BASE_PATH,`,
-          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : "",`,
+          `  assetPrefix: process.env.NODE_ENV === "production" ? "." : undefined,`,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
           `    public: {`,
