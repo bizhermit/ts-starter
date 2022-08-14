@@ -1,6 +1,7 @@
 import { spawnSync } from "child_process";
 import { existsSync, move, readFile, writeFile } from "fs-extra";
 import path from "path";
+import rimraf from "rimraf";
 import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, installLibs, removeGit, replaceAppName, replaceTexts, savePackageJson } from "./common";
 
 type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
@@ -17,7 +18,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   const mainDistDir = ".main";
   const rendererDistDir = ".renderer";
 
-  const createNextAppCli = async (targetDir: string, options?: { position?: "frontend" | "backend" | "alone" }) => {
+  const createNextAppCli = async (targetDir: string, options?: { position?: "separete" | "alone" }) => {
     spawnSync("npx", ["create-next-app", targetDir, "--ts", "--use-npm"], { shell: true, stdio: "inherit", cwd: wdir });
     const configFilePath = path.join(targetDir, "next.config.js");
     let configFile = (await readFile(configFilePath)).toString();
@@ -41,57 +42,48 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         });
     }
     addGitignoreContents(["/.vscode/settings.json", `/${nexpressDistDir}/`, `/${mainDistDir}/`, `/${rendererDistDir}/`]);
-    switch (options?.position ?? "alone") {
-      case "frontend":
-        configAddLines = [
-          `  basePath: process.env.BASE_PATH,`,
-          `  env: {`,
-          `    BASE_PATH: process.env.BASE_PATH,`,
-          `    API_PROTOCOL: process.env.API_PROTOCOL,`,
-          `    API_HOST_NAME: process.env.API_HOST_NAME,`,
-          `    API_PORT: process.env.API_PORT,`,
-          `    API_BASE_PATH: process.env.API_BASE_PATH,`,
-          `  }`
-        ];
-        envLines = [
-          `BASE_PATH=/${appName}`,
-          "",
-          "API_PROTOCOL=http:",
-          "API_HOST_NAME=localhost",
-          "API_PORT=8000",
-          `API_BASE_PATH=/${appName}`,
-        ];
-        break;
-      case "backend":
-        configAddLines = [
-          `  basePath: process.env.BASE_PATH,`,
-          `  env: {`,
-          `    BASE_PATH: process.env.BASE_PATH,`,
-          `    PORT: process.env.PORT,`,
-          `  }`
-        ];
-        envLines = [
-          `BASE_PATH=/${appName}`,
-          "PORT=8000",
-        ];
-        addGitignoreContents(["/resources/config.json"]);
-        break;
-      default:
-        configAddLines = [
-          `  basePath: process.env.BASE_PATH,`,
-          `  env: {`,
-          `    BASE_PATH: process.env.BASE_PATH,`,
-          `    PORT: process.env.PORT,`,
-          `    API_BASE_PATH: process.env.BASE_PATH,`,
-          `  }`
-        ];
-        envLines = [
-          `BASE_PATH=/${appName}`,
-          `PORT=3000`,
-        ];
-        break;
+    if (separate) {
+      // TODO
+    } else {
+      const configSwitchLines: Array<string> = [];
+      const envSwitchLines: Array<string> = [];;
+      switch (mode) {
+        case "frontend":
+          configSwitchLines.push(
+            `    API_PROTOCOL: process.env.API_PROTOCOL,`,
+            `    API_HOST_NAME: process.env.API_HOST_NAME,`,
+            `    API_PORT: process.env.API_PORT,`,
+            `    API_BASE_PATH: process.env.BASE_PATH,`,
+          );
+          envSwitchLines.push(
+            "API_PROTOCOL=",
+            "API_HOST_NAME=",
+            "API_PORT=",
+            `API_BASE_PATH=$BASE_PATH`,
+          );
+          break;
+        default:
+          configSwitchLines.push(
+            `    PORT: process.env.PORT,`,
+            `    API_BASE_PATH: process.env.BASE_PATH,`,
+          );
+          envSwitchLines.push(`PORT=`);
+          break;
+      }
+
+      configAddLines = [
+        `  basePath: process.env.BASE_PATH,`,
+        `  env: {`,
+        `    BASE_PATH: process.env.BASE_PATH,`,
+        ...configSwitchLines,
+        `  }`
+      ];
+      envLines = [
+        `BASE_PATH=`,
+        ...envSwitchLines,
+      ];
     }
-    configAddLines.forEach((line, idx) => {
+    configAddLines.filter(line => !line).forEach((line, idx) => {
       configLines.splice(endStructIndex + idx, 0, line);
     });
     configFile = configLines.join("\n");
@@ -121,8 +113,19 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await createNextAppCli(wdir, { position: "alone" });
     const pkg = await getPackageJson(wdir, { appName });
     pkg.version = "0.0.0-alpha.0";
+    const ignores = [
+      "node_modules",
+      "/.*",
+      distDir,
+      nextDistDir,
+      nexpressDir,
+      nextronDir,
+      nexpressDistDir,
+      mainDistDir,
+      rendererDistDir
+    ].filter(item => !item.startsWith(".")).map(item => `"${item}"`).join(", ");
     await replaceTexts(path.join(wdir, "tsconfig.json"), [
-      { anchor: "\"node_modules\"", text: `"node_modules", "/.*", "${nexpressDir}", "${nextronDir}", "${mainDistDir}", "${rendererDistDir}"` },
+      { anchor: "\"node_modules\"", text: ignores },
     ]);
 
     const deps: Array<string> = ["@bizhermit/basic-utils"];
@@ -155,7 +158,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       );
     }
     // backend
-    if (mode !== "frontend") {
+    if (mode === "frontend") {
+      await generateTemplate(wdir, "next-app/backend");
+      rimraf.sync(path.join(wdir, nexpressDir));
+    } else {
       hasBackend = true;
       await generateTemplate(wdir, "next-app/backend");
       if (hasDesktop) await generateTemplate(wdir, "next-app/backend-desktop");
@@ -187,6 +193,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "@bizhermit/react-addon",
       );
     }
+    await generateTemplate(wdir, "next-app/api");
 
     pkg.scripts = {
       "dev": "npx next dev",
