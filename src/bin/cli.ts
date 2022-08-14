@@ -29,12 +29,12 @@ const descriptions = {
   c  : `cancel`,
   mod: `module`,
   cli: `command line interface application`,
-  gui: "browser application       [ \x1b[36mNext.js\x1b[39m ]",
-  api: "api(backend) server       [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
-  web: "web application           [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
-  dsk: "desktop application       [ \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
-  app: "web & desktop application [ \x1b[36mExpress\x1b[39m + \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
-  mob: `mobile application        [ \x1b[36mreact-native\x1b[39m ]`,
+  fas: "frontend application server      [ \x1b[36mNext.js\x1b[39m ]",
+  bas: "backend application server       [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  web: "web application server           [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  dsk: "desktop application              [ \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  app: "web & desktop application server [ \x1b[36mExpress\x1b[39m + \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  mob: `mobile application               [ \x1b[36mreact-native\x1b[39m ]`,
 } as const;
 const descriptionLine = (t: keyof typeof descriptions) => {
   return `- ${fillRight(`[\x1b[33m${t}\x1b[39m]`, 15, " ")}: ${descriptions[t]}`;
@@ -46,8 +46,8 @@ wl(`
 ${descriptionLine("c")}
 ${descriptionLine("mod")}
 ${descriptionLine("cli")}
-${descriptionLine("gui")}
-${descriptionLine("api")}
+${descriptionLine("fas")}
+${descriptionLine("bas")}
 ${descriptionLine("web")}
 ${descriptionLine("dsk")}
 ${descriptionLine("app")}
@@ -94,19 +94,21 @@ const main = async (projectType: string) => {
         await createCli(dir, opts);
         succeededProcess("cli");
         break;
+      case "fas":
       case "gui":
       case "frontend":
-        writeCreateDescription("gui");
+        writeCreateDescription("fas");
         changeDir();
         await createNextApp(dir, "frontend", hasKeyArg("-s", "--separate"), opts);
-        succeededProcess("gui");
+        succeededProcess("fas");
         break;
+      case "bas":
       case "api":
       case "backend":
-        writeCreateDescription("api");
+        writeCreateDescription("bas");
         changeDir();
         await createNextApp(dir, "backend", hasKeyArg("-s", "--separate"), opts);
-        succeededProcess("api");
+        succeededProcess("bas");
         break;
       case "web":
       case "nexpress":
