@@ -19,7 +19,7 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "./",
-    "outDir": "../.nexpress"
+    "outDir": "../__nexpressDistDir__"
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts"]

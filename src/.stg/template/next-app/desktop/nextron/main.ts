@@ -34,7 +34,7 @@ app.on("ready", async () => {
     width: 1280,
     height: 720,
     title: "__appName__",
-    icon: path.join(appRoot, "src/public/favicon.ico"),
+    icon: path.join(appRoot, "__srcDir__/public/favicon.ico"),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -51,7 +51,7 @@ app.on("ready", async () => {
     mainWindow.setMenu(null);
     mainWindow.webContents.openDevTools();
     loadUrl = url.format({
-      pathname: path.join(appRoot, ".renderer/index.html"),
+      pathname: path.join(appRoot, "__rendererDistDir__/index.html"),
       protocol: "file:",
       slashes: true,
     });
@@ -187,7 +187,7 @@ app.on("ready", async () => {
               }
             });
           }
-          import(path.join(appRoot, "main/src/pages/api", ap)).then((handler) => {
+          import(path.join(appRoot, "__mainDistDir__/__srcDir__/pages/api", ap)).then((handler) => {
             try {
               handler.default(req, res);
               listener();

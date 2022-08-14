@@ -19,16 +19,16 @@
     "strict": true,
     "target": "esnext",
     "rootDir": "../",
-    "outDir": "../.main"
+    "outDir": "../__mainDistDir__"
   },
   "exclude": [
     "node_modules",
-    "../src/components",
-    "../src/hooks",
-    "../src/styles"
+    "../__srcDir__/components",
+    "../__srcDir__/hooks",
+    "../__srcDir__/styles"
   ],
   "include": [
     "**/*.ts",
-    "../src/**/*.ts"
+    "../__srcDir__/**/*.ts"
   ]
 }

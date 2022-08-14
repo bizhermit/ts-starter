@@ -157,6 +157,19 @@ export const replaceAppName = async (filePath: string, appName: string) => {
   return true;
 };
 
+export const replaceTexts = async (filePath: string, replaces: Array<{ anchor: string; text: string }>) => {
+  if (!existsSync(filePath)) {
+    return false;
+  }
+  let targetFile = (await readFile(filePath)).toString();
+  replaces.forEach(item => {
+    const regExp = new RegExp(item.anchor, "g");
+    targetFile = targetFile.replace(regExp, item.text);
+  });
+  await writeFile(filePath, targetFile);
+  return true;
+};
+
 export const createEnv = async (wdir: string, lines: Array<string> = []) => {
   await writeFile(path.join(wdir, ".env"), lines.join("\n"));
 };

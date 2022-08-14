@@ -1,13 +1,21 @@
 import { spawnSync } from "child_process";
-import { existsSync, move, readFile, readFileSync, rm, rmdir, writeFile } from "fs-extra";
+import { existsSync, move, readFile, writeFile } from "fs-extra";
 import path from "path";
-import rimraf from "rimraf";
-import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, installLibs, removeGit, replaceAppName, savePackageJson } from "./common";
+import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, installLibs, removeGit, replaceAppName, replaceTexts, savePackageJson } from "./common";
 
 type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
 
 const createNextApp = async (wdir: string, mode: Mode = "all", separate = false, options?: ArgsOptions) => {
   const { appName } = analyzeArgsOptions(wdir, options);
+
+  const srcDir = "src";
+  const nexpressDir = "nexpress";
+  const nextronDir = "nextron";
+  const distDir = "dist";
+  const nextDistDir = ".next";
+  const nexpressDistDir = ".nexpress";
+  const mainDistDir = ".main";
+  const rendererDistDir = ".renderer";
 
   const createNextAppCli = async (targetDir: string, options?: { position?: "frontend" | "backend" | "alone" }) => {
     spawnSync("npx", ["create-next-app", targetDir, "--ts", "--use-npm"], { shell: true, stdio: "inherit", cwd: wdir });
@@ -24,15 +32,15 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const gitignorePath = path.join(targetDir, ".gitignore");
     let gitignoreContent = (await readFile(gitignorePath)).toString();
     gitignoreContent = gitignoreContent
-        .replace("/.next/", "/.next/")
-        .replace("/out/", "/dist/")
+        .replace("/.next/", `/${nextDistDir}/`)
+        .replace("/out/", `/${distDir}/`)
     gitignoreContent += `\n# develop`;
     const addGitignoreContents = (lines: Array<string>) => {
         lines.forEach(line => {
             gitignoreContent += `\n${line}`;
         });
     }
-    addGitignoreContents(["/.vscode/settings.json", "/.nexpress/", "/.nextron/"]);
+    addGitignoreContents(["/.vscode/settings.json", `/${nexpressDistDir}/`, `/${mainDistDir}/`, `/${rendererDistDir}/`]);
     switch (options?.position ?? "alone") {
       case "frontend":
         configAddLines = [
@@ -40,10 +48,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           `  env: {`,
           `    BASE_PATH: process.env.BASE_PATH,`,
           `    public: {`,
-          `      API_PROTOCOL: process.env.API_PROTOCOL,`,
-          `      API_HOST_NAME: process.env.API_HOST_NAME,`,
-          `      API_PORT: process.env.API_PORT,`,
-          `      API_BASE_PATH: process.env.API_BASE_PATH,`,
+          `      API_BASE_PATH: process.env.BASE_PATH,`,
           `    }`,
           `  }`
         ];
@@ -97,7 +102,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const moveToSrc = async (fileName: string) => {
       const srcFilePath = path.join(targetDir, fileName);
       if (!existsSync(srcFilePath)) return;
-      await move(srcFilePath, path.join(targetDir, "src", fileName), { overwrite: true });
+      await move(srcFilePath, path.join(targetDir, srcDir, fileName), { overwrite: true });
     };
     await moveToSrc("next-env.d.ts");
     await moveToSrc("pages");
@@ -113,6 +118,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   } else {
     await createNextAppCli(wdir, { position: "alone" });
     const pkg = await getPackageJson(wdir, { appName });
+    pkg.version = "0.0.0-alpha.0";
+    await replaceTexts(path.join(wdir, "tsconfig.json"), [
+      { anchor: "\"node_modules\"", text: `"node_modules", "/.*", "${nexpressDir}", "${nextronDir}"` },
+    ]);
+
     const deps: Array<string> = ["@bizhermit/basic-utils"];
     const devDeps: Array<string> = ["rimraf"];
     let hasDesktop = false, hasBackend = false, hasFrontend = false;
@@ -120,7 +130,16 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (mode === "desktop" || mode === "all") {
       hasDesktop = true;
       await generateTemplate(wdir, "next-app/desktop");
-      await replaceAppName(path.join(wdir, "nextron/main.ts"), appName);
+      await replaceTexts(path.join(wdir, nextronDir, "main.ts"), [
+        { anchor: "__appName__", text: appName },
+        { anchor: "__srcDir__", text: srcDir },
+        { anchor: "__mainDistDir__", text: mainDistDir },
+        { anchor: "__rendererDistDir__", text: rendererDistDir },
+      ]);
+      await replaceTexts(path.join(wdir, nextronDir, "tsconfig.json"), [
+        { anchor: "__srcDir__", text: srcDir },
+        { anchor: "__mainDistDir__", text: mainDistDir },
+      ]);
       deps.push(
         "fs-extra",
         "electron-is-dev",
@@ -138,7 +157,13 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       hasBackend = true;
       await generateTemplate(wdir, "next-app/backend");
       if (hasDesktop) await generateTemplate(wdir, "next-app/backend-desktop");
-      await replaceAppName(path.join(wdir, "nexpress/main.ts"), appName);
+      await replaceTexts(path.join(wdir, nexpressDir, "main.ts"), [
+        { anchor: "__appName__", text: appName },
+        { anchor: "__srcDir__", text: srcDir },
+      ]);
+      await replaceTexts(path.join(wdir, nexpressDir, "tsconfig.json"), [
+        { anchor: "__nexpressDistDir__", text: nexpressDistDir },
+      ]);
       deps.push(
         "dotenv",
         "express",
@@ -164,8 +189,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     pkg.scripts = {
       "dev": "npx next dev",
       "build": "npx next build",
-      "next": "npx next start",
-      "export": "npx rimraf dist/next && npm run build && npx next export -o dist/next",
+      "next": "npm run build && npx next start",
+      "export": `npx rimraf ${distDir}/next && npm run build && npx next export -o ${distDir}/next`,
     };
     if (hasFrontend) {
       pkg.scripts = {
@@ -175,50 +200,60 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (hasBackend) {
       pkg.scripts = {
         ...pkg.scripts,
-        "nexpress": "npx rimraf .next && npm run prestart && node .nexpress/main.js -d",
-        "prestart": "npx rimraf .nexpress && npx tsc -p nexpress/tsconfig.json",
-        "start": "npm run build && node .nexpress/main.js",
+        "nexpress": `npx rimraf ${nextDistDir} && npm run prestart && node ${nexpressDistDir}/main.js -d`,
+        "prestart": `npx rimraf ${nexpressDistDir} && npx tsc -p ${nexpressDir}/tsconfig.json`,
+        "start": `npm run build && node ${nexpressDistDir}/main.js`,
       };
     }
+
     if (hasDesktop) {
       pkg.scripts = {
         ...pkg.scripts,
-        "clean:nextron": "npx rimraf .main .renderer",
-        "nextron": "npx rimraf .next && npm run pre_pack && npx electron .main/nextron/main.js",
-        "pre_pack": "npm run clean:nextron && npx tsc -p nextron/tsconfig.json",
-        "_pack": "npm run build && npx next export -o .renderer && npx minifier .main && npx minifier .renderer && npx electron-builder --dir",
+        "clean:nextron": `npx rimraf ${mainDistDir} ${rendererDistDir}`,
+        "nextron": `npx rimraf ${nextDistDir} && npm run pre_pack && npx electron ${mainDistDir}/${nextronDir}/main.js`,
+        "pre_pack": `npm run clean:nextron && npx tsc -p ${nextronDir}/tsconfig.json`,
+        "_pack": `npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder --dir`,
         "pack:linux": "npm run _pack -- --linux",
         "pack:win": "npm run _pack -- --win",
         "pack:mac": "npm run _pack -- --mac",
       };
+
+      const faviconPath = `${srcDir}/public/favicon.ico`;
       pkg.build = {
         "appId": `example.${appName}`,
         "productName": appName,
         "asar": true,
         "extends": null,
         "extraMetadata": {
-          "main": ".main/nextron/main.js",
+          "main": `${mainDistDir}/${nextronDir}/main.js`,
         },
         "files": [
-          "!src",
-          "!nextron",
-          "!nexpress",
-          ".main/**/*",
-          ".renderer/**/*",
-          "src/public",
+          `!${srcDir}`,
+          `!${nextronDir}`,
+          `!${nexpressDir}`,
+          `${mainDistDir}/**/*`,
+          `${rendererDistDir}/**/*`,
+          `${srcDir}/public`,
         ],
-        // "extraFiles": [{
-        //   "from": "LICENSE",
-        //   "to": "LICENSE",
-        // }, {
-        //   "from": "CREDIT",
-        //   "to": "CREDIT",
-        // }],
+        "extraFiles": [{
+          "from": "resources",
+          "to": "resources",
+          "filter": [
+            "**/*",
+            "!config.json",
+          ]
+        }, {
+          "from": "LICENSE",
+          "to": "LICENSE",
+        }, {
+          "from": "CREDIT",
+          "to": "CREDIT",
+        }],
         "directories": {
-          "output": "dist",
+          "output": distDir,
         },
         "win": {
-          "icon": `src/public/favicon.ico`,
+          "icon": faviconPath,
           "target": {
             "target": "nsis",
             "arch": [
@@ -227,11 +262,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           },
         },
         "mac": {
-          "icon": `src/public/favicon.ico`,
+          "icon": faviconPath,
           "target": "dmg"
         },
         "linux": {
-          "icon": `src/public/favicon.ico`,
+          "icon": faviconPath,
           "target":[
             "deb",
             "rpm",
@@ -243,8 +278,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "nsis": {
           "oneClick": false,
           "allowToChangeInstallationDirectory": true,
-          "installerIcon": `src/public/favicon.ico`,
-          "installerHeaderIcon": `src/public/favicon.ico`,
+          "installerIcon": faviconPath,
+          "installerHeaderIcon": faviconPath,
         },
       };
       pkg.browser = {
@@ -255,31 +290,31 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     switch (mode) {
       case "desktop":
         pkg.scripts = {
-          "clean": "npx rimraf dist .main .renderer .next node_modules",
+          "clean": `npx rimraf ${distDir} ${mainDistDir} ${rendererDistDir} ${nextDistDir} node_modules`,
           ...pkg.scripts,
         };
         break;
       case "backend":
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .main .renderer .next node_modules",
+          "clean": `npx rimraf ${distDir} ${nexpressDistDir} ${mainDistDir} ${rendererDistDir} ${nextDistDir} node_modules`,
           ...pkg.scripts,
         };
         break;
       case "frontend":
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .next node_modules",
+          "clean": `npx rimraf ${distDir} ${nexpressDistDir} ${nextDistDir} node_modules`,
           ...pkg.scripts,
         };
         break;
       case "web":
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .next node_modules",
+          "clean": `npx rimraf ${distDir} ${nexpressDistDir} ${nextDistDir} node_modules`,
           ...pkg.scripts,
         };
         break;
       default:
         pkg.scripts = {
-          "clean": "npx rimraf dist .nexpress .main .renderer .next node_modules",
+          "clean": `npx rimraf ${distDir} ${nexpressDistDir} ${mainDistDir} ${rendererDistDir} ${nextDistDir} node_modules`,
           ...pkg.scripts,
         };
         break;

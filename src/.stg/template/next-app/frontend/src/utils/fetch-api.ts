@@ -5,32 +5,31 @@ const apiHostName = process.env.API_HOST_NAME;
 const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
 
-const getOrigin = () => {
-  if (isServer) {
-    return {
-      protocol: apiProtocol || "http:",
-      hostname: apiHostName || "localhost",
-      port: apiPort || "",
-    };
-  }
-  return {
-    protocol: apiProtocol || window.location.protocol,
-    hostname: apiHostName || window.location.hostname,
-    port: apiPort || "",
-  };
-};
-
 type GetParamType = string | number | boolean | null | undefined;
 type QueryParams = { [key: string]: GetParamType | Array<GetParamType> };
 
 const assembleUri = (url: string, queryParams?: QueryParams) => {
   const isHttp = url.startsWith("http");
   let uri = "";
-  const { protocol, hostname, port } = getOrigin();
   if (isHttp) {
     uri = url;
   } else {
-    uri = `${protocol}//${hostname}${port ? `:${port}` : ""}${apiBasePath || ""}/api${url.startsWith("/") ? url : `/${url}`}`;
+    let origin = "";
+    if (isServer) {
+      origin = `${apiProtocol || "http"}//${apiHostName || "localhost"}`;
+      if (apiPort) origin += `:${apiPort}`;
+    } else {
+      if (apiProtocol) {
+        origin = `${apiProtocol}//${apiHostName || "localhost"}`;
+        if (apiPort) origin += `:${apiPort}`;
+      } else if (apiHostName) {
+        origin = `${window.location.protocol}//${apiHostName}`;
+        if (apiPort) origin += `:${apiPort}`;
+      } else if (apiPort) {
+        origin = `${window.location.protocol}//${window.location.hostname}:${apiPort}`;
+      }
+    }
+    uri = `${origin}${apiBasePath || ""}/api${url.startsWith("/") ? url : `/${url}`}`;
   }
   if (queryParams) {
     const query: Array<string> = [];
@@ -50,12 +49,7 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
       uri += "?" + query.join("&");
     }
   }
-  return {
-    uri: encodeURI(uri),
-    protocol,
-    hostname,
-    port,
-  };
+  return encodeURI(uri);
 };
 
 type FetchResponseData<T> = {
@@ -65,7 +59,6 @@ type FetchResponseData<T> = {
   hasError: () => boolean;
 };
 const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchResponseData<T>> => {
-  console.log(res);
   if (!res.ok) {
     return {
       data: {} as T,
@@ -90,15 +83,15 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
 
 const useApi = () => {
   return {
-    get: async <T = Struct>(url: string, params?: QueryParams, options?: RequestInit) => {
-      const { uri } = assembleUri(url, params);
+    get: async <T = Struct>(url: string, params?: QueryParams) => {
+      const uri = assembleUri(url, params);
       const res = await fetch(uri, {
         method: "GET",
       });
       return convertResponseToData<T>(res);
     },
-    post: async <T = Struct>(url: string, params?: Struct, options?: RequestInit) => {
-      const { uri } = assembleUri(url);
+    post: async <T = Struct>(url: string, params?: Struct) => {
+      const uri = assembleUri(url);
       console.log(uri);
       const res = await fetch(uri, {
         method: "POST",

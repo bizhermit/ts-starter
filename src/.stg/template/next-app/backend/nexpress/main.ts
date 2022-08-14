@@ -64,7 +64,7 @@ nextApp.prepare().then(async () => {
   }));
   server.disable("x-powered-by");
 
-  server.use(express.static(path.join(appRoot, "next/public")));
+  server.use(express.static(path.join(appRoot, "__srcDir__/public")));
 
   const handler = nextApp.getRequestHandler();
   const basePath = process.env.API_BASE_PATH || "";
