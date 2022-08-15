@@ -130,6 +130,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const deps: Array<string> = ["@bizhermit/basic-utils"];
     const devDeps: Array<string> = ["rimraf"];
     let hasDesktop = false, hasBackend = false, hasFrontend = false;
+
     // desktop
     if (mode === "desktop" || mode === "all") {
       hasDesktop = true;
@@ -156,10 +157,12 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "electron-builder",
       );
     }
+
     // backend
-    if (mode === "frontend") {
+    if (mode === "frontend" || mode === "desktop") {
       await generateTemplate(wdir, "next-app/backend");
       rimraf.sync(path.join(wdir, nexpressDir));
+      if (hasDesktop) await generateTemplate(wdir, "next-app/backend-desktop");
     } else {
       hasBackend = true;
       await generateTemplate(wdir, "next-app/backend");
@@ -183,6 +186,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "@types/express-session",
       );
     }
+
     // frontend
     if (mode !== "backend") {
       hasFrontend = true;
@@ -192,6 +196,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "@bizhermit/react-addon",
       );
     }
+
     // api
     await generateTemplate(wdir, "next-app/api");
 
