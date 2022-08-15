@@ -101,7 +101,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await moveToSrc("next-env.d.ts");
     await moveToSrc("pages");
     await moveToSrc("public");
-    rimraf.sync(path.join(targetDir, srcDir, "styles"));
+    rimraf.sync(path.join(targetDir, "styles"));
     await commitFiles();
   };
 
