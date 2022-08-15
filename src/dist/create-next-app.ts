@@ -35,15 +35,15 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const gitignorePath = path.join(targetDir, ".gitignore");
     let gitignoreContent = (await readFile(gitignorePath)).toString();
     gitignoreContent = gitignoreContent
-        .replace("/.next/", `/${nextDistDir}/`)
-        .replace("/out/", `/${distDir}/`)
+      .replace("/.next/", `/${nextDistDir}/`)
+      .replace("/out/", `/${distDir}/`)
     gitignoreContent += `\n# develop`;
     const addGitignoreContents = (lines: Array<string>) => {
-        lines.forEach(line => {
-            gitignoreContent += `\n${line}`;
-        });
+      lines.forEach(line => {
+        gitignoreContent += `\n${line}`;
+      });
     }
-    addGitignoreContents(["/.vscode/settings.json", `/${nexpressDistDir}/`, `/${mainDistDir}/`, `/${rendererDistDir}/`]);
+    addGitignoreContents(["/.vscode/settings.json", `/${nexpressDistDir}/`, `/${mainDistDir}/`, `/${rendererDistDir}/`, `/resources/config.json`]);
     if (separate) {
       // TODO
     } else {
@@ -68,6 +68,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           );
           break;
         case "desktop":
+          // no env
           break;
         default:
           configAddLines = [
@@ -107,9 +108,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await commitFiles();
   };
 
-// type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
   if (separate) {
-
+    // TODO:
   } else {
     await createNextAppCli(wdir, { position: "alone" });
     const pkg = await getPackageJson(wdir, { appName });
@@ -259,7 +259,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           `${srcDir}/public`,
         ],
         "extraFiles": [{
-          "from": "resources/",
+          "from": "resources",
           "to": "resources",
           "filter": [
             "**/*",
@@ -346,123 +346,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
 
     installLibs(wdir, deps, devDeps);
   }
-
-  // frontend
-  // if (mode !== "backend") {
-  //   const relativeDir = (mode !== "frontend" && mode !== "nexpress") ? "frontend" : "";
-  //   const frontendDir = path.join(wdir, relativeDir);
-
-  //   await createNextAppCli(frontendDir, { position: "frontend" });
-  //   rimraf.sync(path.join(frontendDir, "src/pages"));
-  //   rimraf.sync(path.join(frontendDir, "src/styles"));
-  //   if (mode === "nexpress") {
-  //     await generateTemplate(wdir, "next-app/backend");
-  //   }
-  //   await generateTemplate(wdir, "next-app/frontend", { destDir: relativeDir });
-  //   if (relativeDir) {
-  //     await generateTemplate(wdir, "dev-env/next-app/frontend", { destDir: relativeDir });
-  //     await replaceAppName(path.join(frontendDir, ".devcontainer/devcontainer.json"), appName + ":frontend");
-  //     await replaceAppName(path.join(frontendDir, ".devcontainer/docker-compose.yml"), appName + ":frontend");
-  //   }
-  //   if (mode === "all" || mode === "desktop") {
-  //     await generateTemplate(wdir, "next-app/frontend-desktop", { destDir: relativeDir });
-  //   }
-
-  //   const pkg = await getPackageJson(frontendDir, { appName, clearScripts: true });
-  //   pkg.scripts = {
-  //     "clean": "npx rimraf .next .dist",
-  //     "dev": "npm run clean && npx next dev",
-  //     "build": "npm run clean && npx next build",
-  //     "start": "npm run build && npx next start",
-  //     "export": "npm run build && npx next export -o .dist",
-  //     "lint": "npx next lint"
-  //   };
-  //   await savePackageJson(frontendDir, pkg);
-
-  //   installLibs(frontendDir, [
-  //     "@bizhermit/react-addon",
-  //     "@bizhermit/basic-utils"
-  //   ], [
-  //     "rimraf",
-  //   ]);
-  // }
-
-  // // backend
-  // if (mode !== "frontend" && mode !== "nexpress") {
-  //   const relativeDir = (mode !== "backend") ? "backend" : "";
-  //   const backendDir = path.join(wdir, relativeDir);
-
-  //   await createNextAppCli(backendDir, { position: "backend" });
-  //   rimraf.sync(path.join(backendDir, "src/pages"));
-  //   rimraf.sync(path.join(backendDir, "src/styles"));
-  //   await generateTemplate(wdir, "next-app/backend", { destDir: relativeDir });
-  //   await replaceAppName(path.join(backendDir, "main.ts"), appName);
-  //   if (relativeDir) {
-  //     await generateTemplate(wdir, "dev-env/next-app/backend", { destDir: relativeDir });
-  //     await replaceAppName(path.join(backendDir, ".devcontainer/devcontainer.json"), appName + ":backend");
-  //     await replaceAppName(path.join(backendDir, ".devcontainer/docker-compose.yml"), appName + ":backend");
-  //   }
-  //   if (mode === "all" || mode === "desktop") {
-  //     await generateTemplate(wdir, "next-app/backend-desktop", { destDir: relativeDir });
-  //   }
-
-  //   const pkg = await getPackageJson(backendDir, { appName, clearScripts: true });
-  //   pkg.scripts = {
-  //     "clean": "npx rimraf .dist .next",
-  //     "prebuild": "npm run clean && npx tsc -p tsconfig.server.json",
-  //     "dev": "npm run prebuild && node .dist/main.js --dev",
-  //     "build": "npx next build",
-  //     "start": "npm run build && node .dist/main.js",
-  //     "lint": "npx next lint"
-  //   };
-  //   await savePackageJson(backendDir, pkg);
-
-  //   installLibs(backendDir, [
-  //     "dotenv",
-  //     "express",
-  //     "express-session",
-  //     "helmet",
-  //   ], [
-  //     "@types/dotenv",
-  //     "@types/express",
-  //     "@types/express-session",
-  //   ]);
-  // }
-
-  // await generateTemplate(wdir, "dev-env/next-app/root");
-  // await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
-  // await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
-
-  // if (mode === "all" || mode === "desktop") {
-  //   await generateTemplate(wdir, "next-app/desktop", { destDir: "desktop" });
-  //   await replaceAppName(path.join(wdir, "desktop/main.ts"), appName);
-
-  //   const pkg = await getPackageJson(wdir, { appName });
-  //   pkg.scripts = {
-  //     "frontend": `cd frontend && npm run dev`,
-  //     "backend": `cd backend && npm run dev`,
-  //     "server": "npm run backend & npm run frontend",
-  //     "start": `cd frontend && npm run start && cd backend && npm run start`,
-  //     "desktop": `npx rimraf .desktop && npx tsc -p desktop/tsconfig.json && npx electron .desktop/main.js`,
-  //     "prepack": `npx rimraf .desktop .dist && npx tsc -p desktop/tsconfig.json && npx minifier .desktop && cd frontend && npm run export`,
-  //     "pack": "npx electron-builder --dir",
-  //     "pack:linux": "npm run pack -- --linux",
-  //     "pack:win": "npm run pack -- --win",
-  //     "pack:mac": "npm run pack -- --mac",      
-  //   };
-
-  
-  //   await savePackageJson(wdir, pkg);
-
-  //   installLibs(wdir, [
-  //     "@bizhermit/basic-utils",
-  //     "fs-extra",
-  //     "electron-is-dev",
-  //     "electron-next",
-  //   ], [
-  //     "@types/fs-extra"
-  //   ]);
-  // }
 
   removeGit(wdir);
 };
