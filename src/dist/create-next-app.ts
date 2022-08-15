@@ -231,14 +231,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (hasDesktop) {
       pkg.scripts = {
         ...pkg.scripts,
-        "clean:nextron": `npx rimraf ${mainDistDir} ${rendererDistDir} ${distDir}/${distPackDir}`,
+        "clean:nextron": `npx rimraf ${mainDistDir} ${rendererDistDir}`,
         "nextron": `npx rimraf ${nextDistDir} && npm run pre_pack && npx electron ${mainDistDir}/${nextronDir}/main.js`,
-        "pre_dist": `npm run clean:nextron && npx tsc -p ${nextronDir}/tsconfig.json`,
-        "_dist": `npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder`,
-        "dist:linux": "npm run _dist -- --linux & npm run clean:nextron",
-        "dist:win": "npm run _dist -- --win & npm run clean:nextron",
-        "dist:mac": "npm run _dist -- --mac & npm run clean:nextron",
-        "pack": `npm run _dist -- --dir --${platform} & npm run clean:nextron`
+        "predist": `npm run clean:nextron -- ${distDir}/${distPackDir}`,
+        "dist": `npx tsc -p ${nextronDir}/tsconfig.json && npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder`,
+        "dist:linux": "npm run dist -- --linux & npm run clean:nextron",
+        "dist:win": "npm run dist -- --win & npm run clean:nextron",
+        "dist:mac": "npm run dist -- --mac & npm run clean:nextron",
+        "pack": `npm run dist -- --dir --${platform} & npm run clean:nextron`
       };
 
       const faviconPath = `${srcDir}/public/favicon.ico`;
@@ -259,7 +259,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           `${srcDir}/public`,
         ],
         "extraFiles": [{
-          "from": "resources/**",
+          "from": "resources/",
           "to": "resources",
           "filter": [
             "**/*",
