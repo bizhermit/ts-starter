@@ -90,7 +90,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     const envFile = envLines.join("\n");
     const commitFiles = async () => {
       await writeFile(configFilePath, configFile);
-      await writeFile(path.join(targetDir, ".env.ex"), envFile);
+      await writeFile(path.join(targetDir, "..env"), envFile);
       await writeFile(gitignorePath, gitignoreContent);
     }
     const moveToSrc = async (fileName: string) => {
@@ -193,14 +193,21 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "@bizhermit/react-addon",
       );
     }
+    // api
     await generateTemplate(wdir, "next-app/api");
 
-    pkg.scripts = {
-      "dev": "npx next dev",
-      "build": "npx next build",
-      "next": "npm run build && npx next start",
-      "export": `npx rimraf ${distDir}/next && npm run build && npx next export -o ${distDir}/next`,
-    };
+    if (mode === "backend") {
+      pkg.scripts = {
+        "build": "npx next build",
+      };
+    } else {
+      pkg.scripts = {
+        "dev": "npx next dev -p 3000",
+        "build": "npx next build",
+        "next": "npm run build && npx next start -p 3000",
+        "export": `npx rimraf ${distDir}/next && npm run build && npx next export -o ${distDir}/next`,
+      };
+    }
     if (hasFrontend) {
       pkg.scripts = {
         ...pkg.scripts,
