@@ -7,12 +7,14 @@ import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, inst
 type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
 
 const createNextApp = async (wdir: string, mode: Mode = "all", separate = false, options?: ArgsOptions) => {
-  const { appName } = analyzeArgsOptions(wdir, options);
+  const { appName, platform } = analyzeArgsOptions(wdir, options);
 
   const srcDir = "src";
   const nexpressDir = "nexpress";
   const nextronDir = "nextron";
   const distDir = "dist";
+  const distNextDir = "next";
+  const distPackDir = "pack";
   const nextDistDir = ".next";
   const nexpressDistDir = ".nexpress";
   const mainDistDir = ".main";
@@ -209,7 +211,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         "dev": "npx next dev -p 3000",
         "build": "npx next build",
         "next": "npm run build && npx next start -p 3000",
-        "export": `npx rimraf ${distDir}/next && npm run build && npx next export -o ${distDir}/next`,
+        "export": `npx rimraf ${distDir}/${distNextDir} && npm run build && npx next export -o ${distDir}/${distNextDir}`,
       };
     }
     if (hasFrontend) {
@@ -229,13 +231,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (hasDesktop) {
       pkg.scripts = {
         ...pkg.scripts,
-        "clean:nextron": `npx rimraf ${mainDistDir} ${rendererDistDir}`,
+        "clean:nextron": `npx rimraf ${mainDistDir} ${rendererDistDir} ${distDir}/${distPackDir}`,
         "nextron": `npx rimraf ${nextDistDir} && npm run pre_pack && npx electron ${mainDistDir}/${nextronDir}/main.js`,
-        "pre_pack": `npm run clean:nextron && npx tsc -p ${nextronDir}/tsconfig.json`,
-        "_pack": `npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder --dir`,
-        "pack:linux": "npm run _pack -- --linux & npm run clean:nextron",
-        "pack:win": "npm run _pack -- --win & npm run clean:nextron",
-        "pack:mac": "npm run _pack -- --mac & npm run clean:nextron",
+        "pre_dist": `npm run clean:nextron && npx tsc -p ${nextronDir}/tsconfig.json`,
+        "_dist": `npm run build && npx next export -o ${rendererDistDir} && npx minifier ${mainDistDir} && npx minifier ${rendererDistDir} && npx electron-builder`,
+        "dist:linux": "npm run _dist -- --linux & npm run clean:nextron",
+        "dist:win": "npm run _dist -- --win & npm run clean:nextron",
+        "dist:mac": "npm run _dist -- --mac & npm run clean:nextron",
+        "pack": `npm run _dist -- --dir --${platform} & npm run clean:nextron`
       };
 
       const faviconPath = `${srcDir}/public/favicon.ico`;
@@ -270,7 +273,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
           "to": "CREDIT",
         }],
         "directories": {
-          "output": distDir,
+          "output": `${distDir}/${distPackDir}`,
         },
         "win": {
           "icon": faviconPath,

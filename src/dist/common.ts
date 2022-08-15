@@ -10,8 +10,21 @@ export type ArgsOptions = {
 
 export const analyzeArgsOptions = (wdir: string, options?: ArgsOptions) => {
   const appName = options?.appName || path.basename(wdir);
+  let platform = "";
+  switch (process.platform) {
+    case "win32":
+      platform = "win";
+      break;
+    case "darwin":
+      platform = "mac";
+      break;
+    default:
+      platform = "linux";
+      break;
+  };
   return {
     appName: appName.replace(/ /g, "_").replace(/:/g, "-"),
+    platform,
   };
 };
 
