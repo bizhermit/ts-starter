@@ -210,7 +210,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       pkg.scripts = {
         "dev": "npx next dev -p 3000",
         "build": "npx next build",
-        "next": "npm run build && npx next start -p 3000",
+        "next": "npm run build && npx next start -p 80",
         "export": `npx rimraf ${distDir}/${distNextDir} && npm run build && npx next export -o ${distDir}/${distNextDir}`,
       };
     }
