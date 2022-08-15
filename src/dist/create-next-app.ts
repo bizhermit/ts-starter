@@ -45,43 +45,43 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (separate) {
       // TODO
     } else {
-      const configSwitchLines: Array<string> = [];
-      const envSwitchLines: Array<string> = [];;
       switch (mode) {
         case "frontend":
-          configSwitchLines.push(
+          configAddLines = [
+            `  basePath: process.env.BASE_PATH,`,
+            `  env: {`,
+            `    BASE_PATH: process.env.BASE_PATH,`,
             `    API_PROTOCOL: process.env.API_PROTOCOL,`,
             `    API_HOST_NAME: process.env.API_HOST_NAME,`,
             `    API_PORT: process.env.API_PORT,`,
             `    API_BASE_PATH: process.env.BASE_PATH,`,
-          );
-          envSwitchLines.push(
+            `  }`
+          ];
+          envLines.push(
+            `BASE_PATH=`,
             "API_PROTOCOL=",
             "API_HOST_NAME=",
             "API_PORT=",
             `API_BASE_PATH=$BASE_PATH`,
           );
           break;
+        case "desktop":
+          break;
         default:
-          configSwitchLines.push(
+          configAddLines = [
+            `  basePath: process.env.BASE_PATH,`,
+            `  env: {`,
+            `    BASE_PATH: process.env.BASE_PATH,`,
             `    PORT: process.env.PORT,`,
             `    API_BASE_PATH: process.env.BASE_PATH,`,
+            `  }`
+          ];
+          envLines.push(
+            `BASE_PATH=`,
+            `PORT=`,
           );
-          envSwitchLines.push(`PORT=`);
           break;
       }
-
-      configAddLines = [
-        `  basePath: process.env.BASE_PATH,`,
-        `  env: {`,
-        `    BASE_PATH: process.env.BASE_PATH,`,
-        ...configSwitchLines,
-        `  }`
-      ];
-      envLines = [
-        `BASE_PATH=`,
-        ...envSwitchLines,
-      ];
     }
     configAddLines.filter(line => !line).forEach((line, idx) => {
       configLines.splice(endStructIndex + idx, 0, line);
