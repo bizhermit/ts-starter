@@ -49,7 +49,6 @@ app.on("ready", async () => {
     log.info("app listen start", loadUrl);
   } else {
     mainWindow.setMenu(null);
-    mainWindow.webContents.openDevTools();
     loadUrl = url.format({
       pathname: "index.html",
       protocol: "file:",
