@@ -3,7 +3,7 @@ import { spawnSync } from "child_process";
 import { copy, existsSync, move, readFile, writeFile } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
-import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, getTemplateBaseDirname, installLibs, removeGit, replaceTexts, savePackageJson, __appName__ } from "./common";
+import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, getTemplateBaseDirname, installLibs, removeGit, replaceAppName, replaceTexts, savePackageJson, __appName__ } from "./common";
 
 type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
 
@@ -384,6 +384,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       { anchor: "__POWERED_BY__", text: poweredBy.join(", ") },
       { anchor: "__ADDON_README__", text: addonReadme },
     ]);
+
+    await generateTemplate(wdir, "dev-env/next-app/base");
+    await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
   }
 
   removeGit(wdir);
