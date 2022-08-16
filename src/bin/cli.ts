@@ -99,23 +99,17 @@ const main = async (projectType: string) => {
       case "fas":
       case "gui":
       case "frontend":
-      case "fas-s":
-      case "gui-s":
-      case "frontend-s":
         writeCreateDescription("fas");
         changeDir();
-        await createNextApp(dir, "frontend", sep, opts);
+        await createNextApp(dir, "frontend", false, opts);
         succeededProcess("fas");
         break;
       case "bas":
       case "api":
       case "backend":
-      case "bas-s":
-      case "api-s":
-      case "backend-s":
         writeCreateDescription("bas");
         changeDir();
-        await createNextApp(dir, "backend", sep, opts);
+        await createNextApp(dir, "backend", false, opts);
         succeededProcess("bas");
         break;
       case "web":
@@ -129,11 +123,9 @@ const main = async (projectType: string) => {
       case "dsk":
       case "desktop":
       case "nextron":
-      case "dsk-s":
-      case "desktop-s":
         writeCreateDescription("dsk");
         changeDir();
-        await createNextApp(dir, "desktop", sep, opts);
+        await createNextApp(dir, "desktop", false, opts);
         succeededProcess("dsk");
         break;
       case "app":
