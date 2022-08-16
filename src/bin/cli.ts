@@ -79,6 +79,7 @@ const main = async (projectType: string) => {
   const opts = {
     appName
   };
+  const sep = projectType.endsWith("-s") || hasKeyArg("-s", "--separate");
   try {
     switch (projectType) {
       case "mod":
@@ -89,6 +90,7 @@ const main = async (projectType: string) => {
         succeededProcess("mod");
         break;
       case "cli":
+      case "batch":
         writeCreateDescription("cli");
         changeDir();
         await createCli(dir, opts);
@@ -97,40 +99,52 @@ const main = async (projectType: string) => {
       case "fas":
       case "gui":
       case "frontend":
+      case "fas-s":
+      case "gui-s":
+      case "frontend-s":
         writeCreateDescription("fas");
         changeDir();
-        await createNextApp(dir, "frontend", hasKeyArg("-s", "--separate"), opts);
+        await createNextApp(dir, "frontend", sep, opts);
         succeededProcess("fas");
         break;
       case "bas":
       case "api":
       case "backend":
+      case "bas-s":
+      case "api-s":
+      case "backend-s":
         writeCreateDescription("bas");
         changeDir();
-        await createNextApp(dir, "backend", hasKeyArg("-s", "--separate"), opts);
+        await createNextApp(dir, "backend", sep, opts);
         succeededProcess("bas");
         break;
       case "web":
       case "nexpress":
+      case "web-s":
         writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, "web", hasKeyArg("-s", "--separate"), opts);
+        await createNextApp(dir, "web", sep, opts);
         succeededProcess("web");
         break;
       case "dsk":
       case "desktop":
       case "nextron":
+      case "dsk-s":
+      case "desktop-s":
         writeCreateDescription("dsk");
         changeDir();
-        await createNextApp(dir, "desktop", hasKeyArg("-s", "--separate"), opts);
+        await createNextApp(dir, "desktop", sep, opts);
         succeededProcess("dsk");
         break;
       case "app":
       case "all":
       case "full":
+      case "app-s":
+      case "all-s":
+      case "full-s":
         writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, "all", hasKeyArg("-s", "--separate"), opts);
+        await createNextApp(dir, "all", sep, opts);
         succeededProcess("app");
         break;
       case "mob":
