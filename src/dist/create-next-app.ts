@@ -44,7 +44,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         gitignoreContent += `\n${line}`;
       });
     }
-    addGitignoreContents(["/.vscode/settings.json", `/${nexpressDistDir}/`, `/${mainDistDir}/`, `/${rendererDistDir}/`, `/resources/config.json`]);
+    addGitignoreContents([
+      "/.vscode/settings.json",
+      `/${nexpressDistDir}/`,
+      `/${mainDistDir}/`,
+      `/${rendererDistDir}/`,
+      `/resources/config.json`,
+    ]);
+    
     if (separate) {
       // TODO
     } else {
