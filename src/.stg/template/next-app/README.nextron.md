@@ -10,13 +10,13 @@
 npm run nextron
 ```
 
-#### generate executable file
+#### build executable file
 
 ```bash
 npm run pack
 ```
 
-#### generate installer
+#### build installer
 
 ```bash
 # for current work OS

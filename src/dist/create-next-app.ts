@@ -3,13 +3,14 @@ import { spawnSync } from "child_process";
 import { copy, existsSync, move, readFile, writeFile } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
-import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, getTemplateBaseDirname, installLibs, removeGit, replaceAppName, replaceTexts, savePackageJson } from "./common";
+import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, getTemplateBaseDirname, installLibs, removeGit, replaceTexts, savePackageJson, __appName__ } from "./common";
 
 type Mode = "all" | "frontend" | "backend" | "web" | "desktop";
 
 const createNextApp = async (wdir: string, mode: Mode = "all", separate = false, options?: ArgsOptions) => {
   const { appName, platform } = analyzeArgsOptions(wdir, options);
 
+  const __srcDir__ = "__srcDir__";
   const srcDir = "src";
   const nexpressDir = "nexpress";
   const nextronDir = "nextron";
@@ -17,8 +18,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   const distNextDir = "next";
   const distPackDir = "pack";
   const nextDistDir = ".next";
+  const __nexpressDistDir__ = "__nexpressDistDir__";
   const nexpressDistDir = ".nexpress";
+  const __mainDistDir__ = "__mainDistDir__";
   const mainDistDir = ".main";
+  const __rendererDistDir__ = "__rendererDistDir__";
   const rendererDistDir = ".renderer";
 
   const createNextAppCli = async (targetDir: string, options?: { position?: "separete" | "alone" }) => {
@@ -142,14 +146,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       tsConfigExcludes.push(distDir);
       await generateTemplate(wdir, "next-app/desktop");
       await replaceTexts(path.join(wdir, nextronDir, "main.ts"), [
-        { anchor: "__appName__", text: appName },
-        { anchor: "__srcDir__", text: srcDir },
-        { anchor: "__mainDistDir__", text: mainDistDir },
-        { anchor: "__rendererDistDir__", text: rendererDistDir },
+        { anchor: __appName__, text: appName },
+        { anchor: __srcDir__, text: srcDir },
+        { anchor: __mainDistDir__, text: mainDistDir },
+        { anchor: __rendererDistDir__, text: rendererDistDir },
       ]);
       await replaceTexts(path.join(wdir, nextronDir, "tsconfig.json"), [
-        { anchor: "__srcDir__", text: srcDir },
-        { anchor: "__mainDistDir__", text: mainDistDir },
+        { anchor: __srcDir__, text: srcDir },
+        { anchor: __mainDistDir__, text: mainDistDir },
       ]);
       deps.push(
         "fs-extra",
@@ -174,11 +178,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       await generateTemplate(wdir, "next-app/backend");
       if (hasDesktop) await generateTemplate(wdir, "next-app/backend-desktop");
       await replaceTexts(path.join(wdir, nexpressDir, "main.ts"), [
-        { anchor: "__appName__", text: appName },
-        { anchor: "__srcDir__", text: srcDir },
+        { anchor: __appName__, text: appName },
+        { anchor: __srcDir__, text: srcDir },
       ]);
       await replaceTexts(path.join(wdir, nexpressDir, "tsconfig.json"), [
-        { anchor: "__nexpressDistDir__", text: nexpressDistDir },
+        { anchor: __nexpressDistDir__, text: nexpressDistDir },
       ]);
       deps.push(
         "dotenv",
