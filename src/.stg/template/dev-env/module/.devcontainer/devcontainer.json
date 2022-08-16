@@ -4,5 +4,5 @@
   "service": "node",
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-  "postStartCommand": "npm i && cd /workspace/src && npm i && cd /workspace/src/.stg && npm i"
+  "postStartCommand": "npm i && cd /workspace/__srcDir__ && npm i && cd /workspace/__srcDir__/__stgDir__ && npm i"
 }

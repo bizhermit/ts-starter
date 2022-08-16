@@ -1,7 +1,7 @@
 .vscode/settings.json
 node_modules
-.dist
-/src/.stg/bin
-/src/.stg/dist
-/src/.stg/ts-index.js
+/__distDir__/
+/__srcDir__/__stgDir__/dist
+/__srcDir__/__stgDir__/bin
+/__srcDir__/__stgDir__/ts-index.js
 /test/results.json

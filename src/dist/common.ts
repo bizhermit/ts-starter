@@ -166,8 +166,9 @@ export const npmPackageInit = (wdir: string) => {
   spawnSync("npx", ["npm-package-utils", "init"], { shell: true, stdio: "inherit", cwd: wdir });
 };
 
+export const __appName__ = "__appName__";
 export const replaceAppName = async (filePath: string, appName: string) => {
-  return replaceTexts(filePath, [{ anchor: "__appName__", text: appName }]);
+  return replaceTexts(filePath, [{ anchor: __appName__, text: appName }]);
 };
 
 export const replaceTexts = async (filePath: string, replaces: Array<{ anchor: string; text: string }>) => {

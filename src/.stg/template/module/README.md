@@ -8,5 +8,5 @@ npm run build
 
 ## Develop
 
-change directory `./src/.stg`  
-[more](src/.stg/README.md)
+change directory `./__srcDir__/__stgDir__`  
+[more](__srcDir__/__stgDir__/README.md)

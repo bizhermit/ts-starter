@@ -9,19 +9,19 @@ npm run build
 ## Build executable file
 
 ```bash
-npm run build:exe
+npm run dist
 
 # for linux
-npm run build:linux
+npm run dist:linux
 
 # for windows
-npm run build:win
+npm run dist:win
 
 # for mac
-npm run build:mac
+npm run dist:mac
 ```
 
 ## Develop
 
-change directory `./src/.stg`  
-[more](src/.stg/README.md)
+change directory `./__srcDir__/__stgDir__`  
+[more](__srcDir__/__stgDir__/README.md)

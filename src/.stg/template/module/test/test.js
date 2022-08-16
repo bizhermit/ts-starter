@@ -1,6 +1,6 @@
 // https://jestjs.io/
 
-const index = require("../package/dist/index");
+const index = require("../__packageDir__/dist/index");
 
 test("sync test", () => {
   expect(index.getNumberTextSync()).toBe("0123456789");

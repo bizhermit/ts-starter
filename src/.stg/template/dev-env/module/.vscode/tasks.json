@@ -3,13 +3,13 @@
 	"tasks": [
 		{
 			"type": "typescript",
-			"tsconfig": "src/.stg/tsconfig.json",
+			"tsconfig": "__srcDir__/__stgDir__/tsconfig.json",
 			"option": "watch",
 			"problemMatcher": [
 				"$tsc-watch"
 			],
 			"group": "build",
-			"label": "tsc: watch - debug stg"
+			"label": "tsc: watch - debug"
 		}
 	]
 }
