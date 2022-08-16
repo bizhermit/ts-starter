@@ -148,9 +148,13 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
   }
 };
 
+export const getTemplateBaseDirname = () => {
+  return path.join(__dirname, "../template");
+};
+
 export const generateTemplate = async (wdir: string, templateName: string, options?: { destDir?: string; }) => {
   cli.wl(`Create files from template: \x1b[36m${templateName}\x1b[39m`);
-  await copy(path.join(__dirname, "../template", templateName), path.join(wdir, options?.destDir ?? ""), { overwrite: true, recursive: true });
+  await copy(path.join(getTemplateBaseDirname(), templateName), path.join(wdir, options?.destDir ?? ""), { overwrite: true, recursive: true });
   process.stdout.write("\n");
 };
 
