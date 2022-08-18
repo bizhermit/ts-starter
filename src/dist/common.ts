@@ -142,7 +142,7 @@ export const installLibs = (wdir: string, args: Array<string> = [], devArgs: Arr
     }
     spawnSync("npm", ["i", "--save-dev", ...devArgs], { shell: true, stdio: "inherit", cwd: wdir });
   }
-  if (options?.audit !== false) {
+  if (options?.audit !== false && (args.length > 0 || devArgs.length > 0)) {
     cli.wl(`Auditing dependencies:`);
     spawnSync("npm", ["audit"], { shell: true, stdio: "inherit", cwd: wdir });
   }
