@@ -9,7 +9,7 @@ const apiBasePath = process.env.API_BASE_PATH;
 const electron = (global as any).electron as ElectronAccessor;
 
 type GetParamType = string | number | boolean | null | undefined;
-type QueryParams = { [key: string]: GetParamType | Array<GetParamType> };
+type QueryParams = { [key: string]: GetParamType | Array<GetParamType> } | null;
 type Options = {
   req?: IncomingMessage;
   res?: ServerResponse;

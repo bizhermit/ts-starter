@@ -8,7 +8,7 @@ const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
 
 type GetParamType = string | number | boolean | null | undefined;
-type QueryParams = { [key: string]: GetParamType | Array<GetParamType> };
+type QueryParams = { [key: string]: GetParamType | Array<GetParamType> } | null;
 type Options = {
   req?: IncomingMessage;
   res?: ServerResponse;
