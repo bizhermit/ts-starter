@@ -1,4 +1,6 @@
 import isServer from "./is-server";
+import { getCookie } from "cookies-next";
+import { IncomingMessage, ServerResponse } from "http";
 
 const apiProtocol = process.env.API_PROTOCOL;
 const apiHostName = process.env.API_HOST_NAME;
@@ -7,6 +9,11 @@ const apiBasePath = process.env.API_BASE_PATH;
 
 type GetParamType = string | number | boolean | null | undefined;
 type QueryParams = { [key: string]: GetParamType | Array<GetParamType> };
+type Options = {
+  req?: IncomingMessage;
+  res?: ServerResponse;
+  useFormData?: boolean;
+};
 
 const assembleUri = (url: string, queryParams?: QueryParams) => {
   const isHttp = url.startsWith("http");
@@ -52,6 +59,22 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
   return encodeURI(uri);
 };
 
+const getToken = (options?: Options) => {
+  const token = getCookie("XSRF-TOKEN", { req: options?.req, res: options?.res });
+  if (typeof token === "string") return token;
+  return "";
+};
+
+const toFormData = (params?: Struct) => {
+  if (!params) return undefined;
+  const formData = new FormData();
+  Object.keys(params).forEach(key => {
+    formData.append(key, JSON.stringify(params[key]));
+    console.log(key, JSON.stringify(params[key]));
+  });
+  return formData;
+};
+
 const toData = <T = Struct>(responseBody: Struct) => {
   const messages: Array<Message> = Array.isArray(responseBody.messages) ? responseBody.messages : [];
   return {
@@ -87,21 +110,22 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
 
 const useApi = () => {
   return {
-    get: async <T = Struct>(url: string, params?: QueryParams, _options?: RequestInit) => {
-      const uri = assembleUri(url, params);
-      const res = await fetch(uri, {
+    get: async <T = Struct>(url: string, params?: QueryParams, options?: Options) => {
+      const res = await fetch(assembleUri(url, params), {
         method: "GET",
+        headers: {
+          "CSRF-Token": getToken(options),
+        },
       });
       return convertResponseToData<T>(res);
     },
-    post: async <T = Struct>(url: string, params?: Struct, _options?: RequestInit) => {
-      const uri = assembleUri(url);
-      console.log(uri);
-      const res = await fetch(uri, {
+    post: async <T = Struct>(url: string, params?: Struct, options?: Options) => {
+      const res = await fetch(assembleUri(url), {
         method: "POST",
-        body: JSON.stringify(params ?? {}),
+        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
         headers: {
-          "Content-Type": "application/json",
+          ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
+          "CSRF-Token": getToken(options),
         },
       });
       return convertResponseToData<T>(res);
