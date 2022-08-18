@@ -79,7 +79,6 @@ const main = async (projectType: string) => {
   const opts = {
     appName
   };
-  const sep = projectType.endsWith("-s") || hasKeyArg("-s", "--separate");
   try {
     switch (projectType) {
       case "mod":
@@ -117,7 +116,7 @@ const main = async (projectType: string) => {
       case "web-s":
         writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, "web", sep, opts);
+        await createNextApp(dir, "web", projectType.endsWith("-s") || hasKeyArg("-s", "--separate"), opts);
         succeededProcess("web");
         break;
       case "dsk":
@@ -136,7 +135,7 @@ const main = async (projectType: string) => {
       case "full-s":
         writeCreateDescription("app");
         changeDir();
-        await createNextApp(dir, "all", sep, opts);
+        await createNextApp(dir, "all", false, opts);
         succeededProcess("app");
         break;
       case "mob":
