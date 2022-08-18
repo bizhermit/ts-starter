@@ -169,7 +169,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       "cors",
       "csurf",
       "cookie-parser",
-      "body-parser",
+      "cookies-next",
     );
     devDeps.push(
       "@types/dotenv",
@@ -178,7 +178,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       "@types/cors",
       "@types/csurf",
       "@types/cookie-parser",
-      "@types/body-parser"
     );
   }
 
