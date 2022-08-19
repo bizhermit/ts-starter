@@ -70,8 +70,9 @@ nextApp.prepare().then(async () => {
   if (!isDev) server.set("trust proxy", 1);
   server.disable("x-powered-by");
 
+
   const corsProtection = cors({
-    origin: undefined,
+    origin: isDev ? `https://localhost:8000` : `https://localhost:80`
   });
 
   const csrfProtection = csrf({
@@ -81,7 +82,7 @@ nextApp.prepare().then(async () => {
 
   const handler = nextApp.getRequestHandler();  
 
-  server.get(`${basePath}/frsc`, corsProtection, csrfProtection, (req, res) => {
+  server.get(`${basePath}/csrf-c`, corsProtection, csrfProtection, (req, res) => {
     res.cookie("XSRF-TOKEN", req.csrfToken());
     res.status(204);
     res.send();
