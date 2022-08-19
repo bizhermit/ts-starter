@@ -27,8 +27,8 @@ const assembleUri = (url: string, queryParams?: QueryParams, options?: Options) 
     let origin = "";
     if (isServer) {
       const hostname = options?.req?.headers.host?.split(":") ?? [];
-      origin = `${apiProtocol || (isDev ? "http:" : "https:")}//${hostname[0] || apiHostName || "localhost"}`;
-      const port = hostname[1] || apiPort;
+      origin = `${apiProtocol || (isDev ? "http:" : "https:")}//${apiHostName || hostname[0] || "localhost"}`;
+      const port = apiPort || hostname[1];
       if (port) origin += `:${port}`;
     } else {
       if (apiProtocol) {
@@ -94,13 +94,13 @@ const fetchToElectron = async <T = Struct>(url: string, params?: Struct, options
   return toData(res);
 };
 
-type FetchResponseData<T> = {
+type FetchResponseData<T extends Struct | string> = {
   data: T;
   messages: Array<Message>
   hasMessage: () => boolean;
   hasError: () => boolean;
 };
-const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchResponseData<T>> => {
+const convertResponseToData = async <T extends Struct | string = Struct>(res: Response): Promise<FetchResponseData<T>> => {
   if (!res.ok) {
     return {
       data: {} as T,
@@ -114,12 +114,21 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
     };
   }
   if (res.status === 204) return toData({});
-  const json = await res.json();
-  return toData(json);
+  const text = await res.text();
+  try {
+    return toData<T>(JSON.parse(text));
+  } catch {
+    return {
+      data: text as T,
+      messages: [],
+      hasError: () => false,
+      hasMessage: () => false,
+    };
+  }
 };
 
 const fetchApi = {
-  get: async <T = Struct>(url: string, params?: QueryParams, options?: Options) => {
+  get: async <T extends Struct | string = Struct>(url: string, params?: QueryParams, options?: Options) => {
     const isHttp = url.startsWith("http");
     const requestInit: RequestInit = {
       method: "GET",
@@ -134,7 +143,7 @@ const fetchApi = {
     const res = await fetch(uri, requestInit);
     return convertResponseToData<T>(res);
   },
-  post: async <T = Struct>(url: string, params?: Struct, options?: Options) => {
+  post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
     const isHttp = url.startsWith("http");
     const requestInit: RequestInit = {
       method: "POST",

@@ -24,7 +24,7 @@ const AppRoot = ({ Component, pageProps, initProps }: AppProps & { initProps: Ap
         </MessageProvider>
       </MaskProvider>
     </LayoutProvider>
-  )
+  );
 };
 
 AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
@@ -41,7 +41,7 @@ AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
   } else {
     try {
       if (!hasCookie("XSRF-TOKEN", ctx)) {
-        await fetchApi.get("/frsc", null, {
+        await fetchApi.get("/csrf-c", null, {
           req: ctx.req,
           res: ctx.res,
           api: false,
