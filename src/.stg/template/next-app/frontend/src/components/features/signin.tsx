@@ -6,17 +6,16 @@ import useMessage from "@bizhermit/react-addon/dist/message/message-provider";
 import { FitToOuter } from "@bizhermit/react-addon/dist/styles/css-var";
 import { FC, useState } from "react";
 import { useRouter } from "next/router";
-import useApi from "../../utils/fetch-api";
+import fetchApi from "../../utils/fetch-api";
 
 const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
   const msg = useMessage();
   const [inputs, _setInputs] = useState<Struct>({});
-  const api = useApi();
   const router = useRouter();
 
   const signin = async (unlock?: VoidFunc) => {
     try {
-      const res = await api.post("/signin", { inputs });
+      const res = await fetchApi.post("/signin", { inputs });
       msg.append(res.messages);
       if (!res.hasError()) {
         console.log(res.data);

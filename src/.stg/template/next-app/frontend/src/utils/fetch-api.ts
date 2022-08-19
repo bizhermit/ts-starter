@@ -2,20 +2,22 @@ import isServer from "./is-server";
 import { getCookie } from "cookies-next";
 import { IncomingMessage, ServerResponse } from "http";
 
+const isDev = process.env.NODE_ENV === "development";
 const apiProtocol = process.env.API_PROTOCOL;
 const apiHostName = process.env.API_HOST_NAME;
 const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
 
 type GetParamType = string | number | boolean | null | undefined;
-type QueryParams = { [key: string]: GetParamType | Array<GetParamType> } | null;
+type QueryParams = { [key: string]: GetParamType | Array<GetParamType> } | null | undefined;
 type Options = {
   req?: IncomingMessage;
   res?: ServerResponse;
   useFormData?: boolean;
+  api?: boolean;
 };
 
-const assembleUri = (url: string, queryParams?: QueryParams) => {
+const assembleUri = (url: string, queryParams?: QueryParams, options?: Options) => {
   const isHttp = url.startsWith("http");
   let uri = "";
   if (isHttp) {
@@ -23,8 +25,10 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
   } else {
     let origin = "";
     if (isServer) {
-      origin = `${apiProtocol || "http"}//${apiHostName || "localhost"}`;
-      if (apiPort) origin += `:${apiPort}`;
+      const hostname = options?.req?.headers.host?.split(":") ?? [];
+      origin = `${apiProtocol || (isDev ? "http:" : "https:")}//${hostname[0] || apiHostName || "localhost"}`;
+      const port = hostname[1] || apiPort;
+      if (port) origin += `:${port}`;
     } else {
       if (apiProtocol) {
         origin = `${apiProtocol}//${apiHostName || "localhost"}`;
@@ -36,7 +40,7 @@ const assembleUri = (url: string, queryParams?: QueryParams) => {
         origin = `${window.location.protocol}//${window.location.hostname}:${apiPort}`;
       }
     }
-    uri = `${origin}${apiBasePath || ""}/api${url.startsWith("/") ? url : `/${url}`}`;
+    uri = `${origin}${apiBasePath || ""}${options?.api === false ? "" : "/api"}${url.startsWith("/") ? url : `/${url}`}`;
   }
   if (queryParams) {
     const query: Array<string> = [];
@@ -70,7 +74,6 @@ const toFormData = (params?: Struct) => {
   const formData = new FormData();
   Object.keys(params).forEach(key => {
     formData.append(key, JSON.stringify(params[key]));
-    console.log(key, JSON.stringify(params[key]));
   });
   return formData;
 };
@@ -104,33 +107,32 @@ const convertResponseToData = async <T = Struct>(res: Response): Promise<FetchRe
       hasMessage: () => true,
     };
   }
+  if (res.status === 204) return toData({});
   const json = await res.json();
   return toData(json);
 };
 
-const useApi = () => {
-  return {
-    get: async <T = Struct>(url: string, params?: QueryParams, options?: Options) => {
-      const res = await fetch(assembleUri(url, params), {
-        method: "GET",
-        headers: {
-          "CSRF-Token": getToken(options),
-        },
-      });
-      return convertResponseToData<T>(res);
-    },
-    post: async <T = Struct>(url: string, params?: Struct, options?: Options) => {
-      const res = await fetch(assembleUri(url), {
-        method: "POST",
-        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
-        headers: {
-          ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
-          "CSRF-Token": getToken(options),
-        },
-      });
-      return convertResponseToData<T>(res);
-    },
-  };
+const fetchApi = {
+  get: async <T = Struct>(url: string, params?: QueryParams, options?: Options) => {
+    const res = await fetch(assembleUri(url, params, options), {
+      method: "GET",
+      headers: {
+        "CSRF-Token": getToken(options),
+      },
+    });
+    return convertResponseToData<T>(res);
+  },
+  post: async <T = Struct>(url: string, params?: Struct, options?: Options) => {
+    const res = await fetch(assembleUri(url, null, options), {
+      method: "POST",
+      body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
+      headers: {
+        ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
+        "CSRF-Token": getToken(options),
+      },
+    });
+    return convertResponseToData<T>(res);
+  },
 };
 
-export default useApi;
+export default fetchApi;

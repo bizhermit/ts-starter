@@ -186,9 +186,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     hasFrontend = true;
     await generateTemplate(targetDir, "next-app/frontend");
     if (hasDesktop) await generateTemplate(targetDir, "next-app/frontend-desktop");
-    deps.push(
-      "@bizhermit/react-addon",
-    );
+    deps.push("@bizhermit/react-addon");
+    if (options?.crossBasePath) {
+      deps.push("cookies-next");
+    }
   }
 
   // api

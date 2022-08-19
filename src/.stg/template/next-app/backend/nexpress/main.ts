@@ -4,6 +4,9 @@ import next from "next";
 import express from "express";
 import expressSession from "express-session";
 import helmet from "helmet";
+import cors from "cors";
+import csrf from "csurf";
+import cookieParser from "cookie-parser";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 
@@ -38,6 +41,11 @@ log.debug("app root: ", appRoot);
 nextApp.prepare().then(async () => {
   const server = express();
 
+  const basePath = process.env.BASE_PATH || "";
+  const port = Number(process.env.PORT || (isDev ? 8000 : 80));
+
+  server.use(express.static(path.join(appRoot, "__srcDir__/public")));
+
   server.use(expressSession({
     name: undefined,
     secret: StringUtils.generateUuidV4(),
@@ -47,13 +55,9 @@ nextApp.prepare().then(async () => {
     cookie: {
       secure: !isDev,
       httpOnly: !isDev,
-      domain: "example.com",
       maxAge: 1000 * 60 * 30,
     },
   }));
-  if (!isDev) {
-    server.set("trust proxy", 1);
-  }
 
   server.use(helmet({
     contentSecurityPolicy: !isDev,
@@ -62,21 +66,36 @@ nextApp.prepare().then(async () => {
     frameguard: true,
     xssFilter: true,
   }));
+
+  if (!isDev) server.set("trust proxy", 1);
   server.disable("x-powered-by");
 
-  server.use(express.static(path.join(appRoot, "__srcDir__/public")));
+  const corsProtection = cors({
+    origin: undefined,
+  });
 
-  const handler = nextApp.getRequestHandler();
-  const basePath = process.env.BASE_PATH || "";
-  server.all(`${basePath}/api/*`, (req, res) => {
+  const csrfProtection = csrf({
+    cookie: true,
+  });
+  server.use(cookieParser());
+
+  const handler = nextApp.getRequestHandler();  
+
+  server.get(`${basePath}/frsc`, corsProtection, csrfProtection, (req, res) => {
+    res.cookie("XSRF-TOKEN", req.csrfToken());
+    res.status(204);
+    res.send();
+  });
+
+  server.all(`${basePath}/api/*`, corsProtection, csrfProtection, (req, res) => {
     log.debug("api call:", req.url);
     return handler(req, res);
   });
-  server.all("*", (req, res) => {
+
+  server.all("*", corsProtection, csrfProtection, (req, res) => {
     return handler(req, res);
   });
 
-  const port = Number(process.env.PORT || (isDev ? 8000 : 80));
   server.listen(port, () => {
     log.info(`http://localhost:${port}${basePath}`);
   });

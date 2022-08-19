@@ -3,6 +3,8 @@ import LayoutProvider from "@bizhermit/react-addon/dist/styles/layout-provider";
 import { MaskProvider } from "@bizhermit/react-addon/dist/popups/mask";
 import { MessageProvider } from "@bizhermit/react-addon/dist/message/message-provider";
 import { LayoutColor, LayoutDesign } from "@bizhermit/react-addon/dist/styles/css-var";
+import { hasCookie } from "cookies-next";
+import fetchApi from "../utils/fetch-api";
 import electronAccessor from "../utils/electron-accessor";
 import '../styles/globals.css'
 
@@ -25,7 +27,7 @@ const AppRoot = ({ Component, pageProps, initProps }: AppProps & { initProps: Ap
   )
 };
 
-AppRoot.getInitialProps = async (_ctx: AppContext) => {
+AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
   const initProps: AppRootInitProps = {
     layout: {
       color: "system",
@@ -36,6 +38,16 @@ AppRoot.getInitialProps = async (_ctx: AppContext) => {
   if (electron) {
     initProps.layout.color = electron.getLayoutColor() ?? initProps.layout.color;
     initProps.layout.design = electron.getLayoutDesign() ?? initProps.layout.design;
+  } else {
+    try {
+      if (!hasCookie("XSRF-TOKEN", ctx)) {
+        await fetchApi.get("/frsc", null, {
+          req: ctx.req,
+          res: ctx.res,
+          api: false,
+        });
+      }
+    } catch {}
   }
   return { initProps };
 }

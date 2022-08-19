@@ -125,7 +125,7 @@ app.on("ready", async () => {
   };
 
   if (isDev) {
-    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any }, options?: RequestInit) => {
+    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
       log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
       const url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
       const opts: RequestInit = { ...options };
@@ -151,7 +151,7 @@ app.on("ready", async () => {
       });
     });
   } else {
-    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any }, options?: RequestInit) => {
+    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
       log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
       return new Promise<any>((resolve, reject) => {
         try {

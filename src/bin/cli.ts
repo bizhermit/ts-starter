@@ -62,8 +62,8 @@ const changeDir = () => {
   cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
 
-const succeededProcess = (t: keyof typeof descriptions) => {
-  wl(`\nset up \x1b[42m succeeded \x1b[49m: \x1b[33m${t}\x1b[39m`);
+const succeededProcess = (t: keyof typeof descriptions, optText?: string) => {
+  wl(`\nset up \x1b[42m succeeded \x1b[49m: \x1b[33m${t}\x1b[39m${optText ?? ""}`);
   const cdDir = getArg();
   if (cdDir != null && process.cwd() !== dir) {
     wl(`\nstart with change directory`);
@@ -116,8 +116,9 @@ const main = async (projectType: string) => {
       case "web-s":
         writeCreateDescription("web");
         changeDir();
-        await createNextApp(dir, "web", projectType.endsWith("-s") || hasKeyArg("-s", "--separate"), opts);
-        succeededProcess("web");
+        const separate = projectType.endsWith("-s") || hasKeyArg("-s", "--separate");
+        await createNextApp(dir, "web", separate, opts);
+        succeededProcess("web", separate ? " ( frontend / backend )" : "");
         break;
       case "dsk":
       case "desktop":
