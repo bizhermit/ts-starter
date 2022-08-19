@@ -1,6 +1,6 @@
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import { spawnSync } from "child_process";
-import { copy, existsSync, move, readFile, writeFile } from "fs-extra";
+import { copy, copyFile, existsSync, move, readFile, writeFile } from "fs-extra";
 import path from "path";
 import rimraf from "rimraf";
 import { analyzeArgsOptions, ArgsOptions, generateTemplate, getPackageJson, getTemplateBaseDirname, installLibs, removeGit, replaceAppName, replaceTexts, savePackageJson, __appName__ } from "./common";
@@ -28,6 +28,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   const mainDistDir = ".main";
   const __rendererDistDir__ = "__rendererDistDir__";
   const rendererDistDir = ".renderer";
+  const nextPort = 3000;
+  const devPort = 8000;
+  const prodPort = 80;
 
   const readReadmeFile = async (name: string) => {
     return (await readFile(path.join(getTemplateBaseDirname(), "next-app", name))).toString();
@@ -80,7 +83,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     configLines[endStructIndex - 1] = configLines[endStructIndex - 1] + ",";
   }
   let configAddLines: Array<string> = [];
-  let envLines: Array<string> = [];
+  let devEnvLines: Array<string> = [];
+  let prodEnvLines: Array<string> = [];
 
   const gitignorePath = path.join(targetDir, ".gitignore");
   let gitignoreContent = (await readFile(gitignorePath)).toString();
@@ -203,9 +207,9 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     tsConfigExcludes.push(distDir);
     const exportDir = options?.distFlat ? distDir : `${distDir}/${distNextDir}`;
     pkg.scripts = {
-      "dev": "npx next dev -p 3000",
+      "dev": `npx next dev -p ${nextPort}`,
       "build": "npx next build",
-      "next": "npm run build && npx next start -p 80",
+      "next": `npm run build && npx next start -p ${prodPort}`,
       "export": `npx rimraf ${exportDir} && npm run build && npx next export -o ${exportDir}`,
     };
   }
@@ -336,10 +340,20 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     `    API_BASE_PATH: process.env.BASE_PATH,`,
     `  }`
   ];
-  envLines = [
-    `# BASE_PATH=/${appName}`,
-    `# PORT=80`,
+  devEnvLines = [
+    `BASE_PATH=`,
+    `PORT=${devPort}`,
+    "",
+    `CORS_ORIGIN=http://localhost:${devPort}`,
+    "CSRF_PATH=/csrf"
   ];
+  prodEnvLines = [
+    `BASE_PATH=`,
+    `PORT=${prodPort}`,
+    "",
+    `CORS_ORIGIN=https://localhost:${prodPort}`,
+    "CSRF_PATH=/csrf"
+  ]
 
   switch (mode) {
     case "desktop":
@@ -372,12 +386,23 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         `    API_BASE_PATH: process.env.API_BASE_PATH,`,
         `  }`
       ];
-      envLines = [
-        `# BASE_PATH=/${appName}`,
-        `# API_PROTOCOL=`,
-        `# API_HOST_NAME=`,
-        `# API_PORT=80`,
-        `# API_BASE_PATH=${options?.crossBasePath ? `/${options?.crossBasePath}` : "$BASE_PATH"}`,
+      devEnvLines = [
+        `BASE_PATH=`,
+        `API_PROTOCOL=http:`,
+        `API_HOST_NAME=localhost`,
+        `API_PORT=${devPort}`,
+        `API_BASE_PATH=`,
+        "",
+        "CSRF_PATH=/csrf",
+      ];
+      prodEnvLines = [
+        `BASE_PATH=`,
+        `API_PROTOCOL=https:`,
+        `API_HOST_NAME=localhost`,
+        `API_PORT=${prodPort}`,
+        `API_BASE_PATH=`,
+        "",
+        "CSRF_PATH=/csrf",
       ];
       break;
     case "web":
@@ -408,7 +433,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   });
 
   await writeFile(configFilePath, configLines.join("\n"));
-  await writeFile(path.join(targetDir, "..env"), envLines.join("\n"));
+  await writeFile(path.join(targetDir, ".env"), devEnvLines.join("\n"));
+  await writeFile(path.join(targetDir, "..env"), prodEnvLines.join("\n"));
   await writeFile(gitignorePath, gitignoreContent);
 
   await copy(path.join(getTemplateBaseDirname(), "next-app/README.md"), path.join(targetDir, "README.md"));

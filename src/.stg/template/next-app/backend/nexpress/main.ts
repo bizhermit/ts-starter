@@ -43,6 +43,8 @@ nextApp.prepare().then(async () => {
 
   const basePath = process.env.BASE_PATH || "";
   const port = Number(process.env.PORT || (isDev ? 8000 : 80));
+  const corsOrigin = process.env.CORS_ORIGIN || undefined;
+  const csrfPath = process.env.CSRF_PATH || "/csrf";
 
   server.use(express.static(path.join(appRoot, "__srcDir__/public")));
 
@@ -72,7 +74,7 @@ nextApp.prepare().then(async () => {
 
 
   const corsProtection = cors({
-    origin: isDev ? `https://localhost:8000` : `https://localhost:80`
+    origin: corsOrigin,
   });
 
   const csrfProtection = csrf({
@@ -82,7 +84,7 @@ nextApp.prepare().then(async () => {
 
   const handler = nextApp.getRequestHandler();  
 
-  server.get(`${basePath}/csrf-c`, corsProtection, csrfProtection, (req, res) => {
+  server.get(`${basePath}${csrfPath}`, corsProtection, csrfProtection, (req, res) => {
     res.cookie("XSRF-TOKEN", req.csrfToken());
     res.status(204);
     res.send();

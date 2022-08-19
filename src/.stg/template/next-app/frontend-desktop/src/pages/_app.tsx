@@ -41,7 +41,8 @@ AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
   } else {
     try {
       if (!hasCookie("XSRF-TOKEN", ctx)) {
-        await fetchApi.get("/csrf-c", null, {
+        const csrfPath = process.env.CSRF_PATH || "/csrf";
+        await fetchApi.get(csrfPath, null, {
           req: ctx.req,
           res: ctx.res,
           api: false,
