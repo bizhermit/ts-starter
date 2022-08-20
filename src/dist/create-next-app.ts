@@ -84,6 +84,13 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       }).join(",\n") }
     ]);
     
+    await copy(path.join(getTemplateBaseDirname(), "next-app/README.separate.md"), path.join(wdir, "README.md"));
+    await replaceTexts(path.join(wdir, "README.md"), [
+      { anchor: "__APP_TYPE__", text: "web application" },
+      { anchor: "__frontendDir__", text: frontendDir },
+      { anchor: "__backendDir__", text: backendDir },
+    ]);
+
     removeGit(wdir);
     return;
   }
@@ -245,7 +252,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     addGitignoreContents([
       `/${nexpressDistDir}/`,
     ]);
-    filesExcludes.push(`${nexpressDir}`);
+    filesExcludes.push(`${nexpressDistDir}`);
 
     pkg.scripts = {
       ...pkg.scripts,
