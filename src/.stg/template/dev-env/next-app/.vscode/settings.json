@@ -12,6 +12,7 @@
     "**/.eslintrc.json": true,
     "**/tsconfig*.json": true,
     "**/next-env.d.ts": true,
+    // "**/..env": true,
 __adds__
   }
 }
