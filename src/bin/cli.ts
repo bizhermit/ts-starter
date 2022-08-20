@@ -9,6 +9,7 @@ import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
 import createReactNative from "../dist/create-react-native";
+import createReactApp from "../dist/create-react-app";
 
 const sepStr = `::::::::::::::::::::::::::::::`;
 const pkg = require("../package.json") as { [key: string]: any };
@@ -34,6 +35,7 @@ const descriptions = {
   web: "web application server      [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
   dsk: "desktop application         [ \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
   app: "web & desktop application   [ \x1b[36mExpress\x1b[39m + \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  stt: "react app",
   mob: `mobile application          [ \x1b[36mreact-native\x1b[39m ]`,
 } as const;
 const descriptionLine = (t: keyof typeof descriptions) => {
@@ -138,6 +140,13 @@ const main = async (projectType: string) => {
         changeDir();
         await createNextApp(dir, "all", false, opts);
         succeededProcess("app");
+        break;
+      case "stt":
+      case "react":
+        writeCreateDescription("stt");
+        changeDir();
+        await createReactApp(dir, opts);
+        succeededProcess("stt");
         break;
       case "mob":
       case "mobile":
