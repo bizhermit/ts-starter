@@ -153,7 +153,7 @@ const fetchApi = {
         credentials: "include",
       };
       if (!isHttp && electron) {
-        return await fetchToElectron<T>(url, {}, requestInit);
+        return await fetchToElectron<T>(url, params as Struct, requestInit);
       }
       const uri = assembleUri(url, params, options);
       const res = await fetch(uri, requestInit);

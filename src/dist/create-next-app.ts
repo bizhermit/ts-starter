@@ -56,6 +56,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     gitIgnoreLines.splice(gitIgnoreLines.indexOf("# develop") - gitIgnoreLines.length + 1);
     gitIgnoreLines.push(
       ".vscode/settings.json",
+      ".env",
       `/${frontendDir}/${distDir}/`,
       `${nextDistDir}`,
       `${nexpressDistDir}`,
@@ -117,7 +118,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       gitignoreContent += `\n${line}`;
     });
   };
-  addGitignoreContents(["/.vscode/settings.json", `/${distDir}/`]);
+  addGitignoreContents(["/.vscode/settings.json", ".env", `/${distDir}/`]);
   const filesExcludes = [nextDistDir];
 
   const moveToSrc = async (fileName: string) => {
