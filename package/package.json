@@ -25,6 +25,7 @@
     "CREDIT"
   ],
   "dependencies": {
+    "@bizhermit/basic-utils": "^2.0.0-rc.2",
     "@bizhermit/cli-utils": "^1.0.0-rc.0",
     "fs-extra": "^10.1.0",
     "rimraf": "^3.0.2"

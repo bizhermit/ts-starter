@@ -1,2 +1,3 @@
-declare const createCli: (wdir: string) => Promise<void>;
+import { ArgsOptions } from "./common";
+declare const createCli: (wdir: string, options?: ArgsOptions) => Promise<void>;
 export default createCli;

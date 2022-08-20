@@ -14,7 +14,9 @@
   "license": "MIT",
   "scripts": {
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
-    "build": "npm run license && npx rimraf package && npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package && npx npm-package-utils pack && npx cpx dev/template/** package/template"
+    "prebuild": "npm run license",
+    "build": "npx rimraf package && npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package && npx npm-package-utils pack",
+    "postbuild": "npx cpx src/.stg/template/** package/template"
   },
   "devDependencies": {
     "@bizhermit/license": "^2.0.0-rc.2",

@@ -1,28 +1,27 @@
-# Developer usage
+# __appName__
 
-## build
+## Build
 
 ```bash
 npm run build
 ```
-## watch
 
-Use VSCode task (Ctrl + Shift + B).
-
-## debug
+## Build executable file
 
 ```bash
-npm run debug
+npm run dist
+
+# for linux
+npm run dist:linux
+
+# for windows
+npm run dist:win
+
+# for mac
+npm run dist:mac
 ```
 
-## release
+## Develop
 
-```bash
-npm run release
-```
-
-## generate eexecutable file
-
-```bash
-npm run pack
-```
+change directory `./__srcDir__/__stgDir__`  
+[more](__srcDir__/__stgDir__/README.md)
