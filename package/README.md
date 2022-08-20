@@ -9,7 +9,7 @@ npx @bizhermit/starter@latest [dirname] <options>
 
 Install
 ```bash
-npm -g @bizhermit/starter@latest
+npm i -g @bizhermit/starter@latest
 npx starter [dirname] <options>
 ```
 
