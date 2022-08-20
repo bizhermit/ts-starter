@@ -16,13 +16,14 @@
     "license": "npx rimraf CREDIT && npx license -o CREDIT --returnError",
     "prebuild": "npm run license",
     "build": "npx rimraf package && npx tsc -p src/tsconfig.json && npx rimraf package/bin/cli.d.ts && npx minifier package && npx npm-package-utils pack",
-    "postbuild": "npx cpx src/.stg/template/** package/template"
+    "postbuild": "node copy-templates"
   },
   "devDependencies": {
     "@bizhermit/license": "^2.0.0-rc.2",
     "@bizhermit/minifier": "^2.0.0-rc.1",
     "@bizhermit/npm-package-utils": "^0.0.0-rc.11",
     "cpx": "^1.5.0",
+    "fs-extra": "^10.1.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
   }
