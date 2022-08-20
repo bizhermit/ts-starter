@@ -152,7 +152,6 @@ app.on("ready", async () => {
     });
   } else {
     setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
-      log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
       return new Promise<any>((resolve, reject) => {
         try {
           let data: { [key: string]: any } = {};
