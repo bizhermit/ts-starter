@@ -9,9 +9,8 @@
     "**/node_modules": true,
     "**/package-lock.json": true,
     // "**/README.md": true,
-    "**/.eslintrc.json": true,
     "**/tsconfig*.json": true,
-    "**/next-env.d.ts": true,
-__adds__
+    "__srcDir__/__stgDir__/bin": true,
+    "__srcDir__/__stgDir__/dist": true,
   }
 }
