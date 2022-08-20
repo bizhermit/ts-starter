@@ -4,7 +4,7 @@ import path from "path";
 import rimraf from "rimraf";
 import { ArgsOptions, getPackageJson, savePackageJson } from "./common";
 
-const createReactNative = async (wdir: string, options?: ArgsOptions) => {
+const createReactNative = async (wdir: string, _options?: ArgsOptions) => {
   const appName = path.basename(wdir);
   spawnSync("npx", ["react-native", "init", appName, "--template", "react-native-template-typescript"], { shell: true, stdio: "inherit", cwd: wdir });
   const renamedAppDirname = `__${appName}`;
