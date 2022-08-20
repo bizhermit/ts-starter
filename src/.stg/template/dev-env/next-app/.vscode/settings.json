@@ -13,6 +13,8 @@
     "**/tsconfig*.json": true,
     "**/next-env.d.ts": true,
     // "**/..env": true,
+    // "**/_app.tsx": true,
+    // "**/_document.tsx": true,
 __adds__
   }
 }
