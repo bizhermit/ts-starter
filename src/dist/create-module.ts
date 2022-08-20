@@ -62,6 +62,10 @@ const createModule = async (wdir: string, options?: ArgsOptions) => {
     { anchor: __srcDir__, text: srcDir },
     { anchor: __stgDir__, text: stgDir },
   ]);
+  await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
+    { anchor: __srcDir__, text: srcDir },
+    { anchor: __stgDir__, text: stgDir },
+  ]);
   await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
   await replaceTexts(path.join(wdir, ".devcontainer/devcontainer.json"), [
     { anchor: __appName__, text: appName },
