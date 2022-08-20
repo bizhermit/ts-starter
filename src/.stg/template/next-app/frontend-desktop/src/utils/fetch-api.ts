@@ -158,7 +158,7 @@ const fetchApi = {
       const res = await fetch(uri, requestInit);
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError(e);
+      catchError<T>(e);
     }
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
@@ -179,7 +179,7 @@ const fetchApi = {
       const res = await fetch(uri, requestInit);
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError(e);
+      catchError<T>(e);
     }
   },
 };
