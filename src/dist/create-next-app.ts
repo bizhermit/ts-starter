@@ -71,6 +71,19 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     };
     await savePackageJson(wdir, pkg);
     await writeFile(path.join(wdir, ".gitignore"), gitIgnoreLines.join("\n"));
+
+    await generateTemplate(wdir, "dev-env/next-app");
+    await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
+    await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
+    await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
+      { anchor: "__adds__", text: [
+        `**/${nextDistDir}`,
+        `**/${nexpressDistDir}`,
+      ].map(file => {
+        return `    "${file}": true`
+      }).join(",\n") }
+    ]);
+    
     removeGit(wdir);
     return;
   }
@@ -98,6 +111,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     });
   };
   addGitignoreContents(["/.vscode/settings.json", `/${distDir}/`]);
+  const filesExcludes = [nextDistDir];
 
   const moveToSrc = async (fileName: string) => {
     const srcFilePath = path.join(targetDir, fileName);
@@ -231,6 +245,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     addGitignoreContents([
       `/${nexpressDistDir}/`,
     ]);
+    filesExcludes.push(`${nexpressDir}`);
 
     pkg.scripts = {
       ...pkg.scripts,
@@ -251,6 +266,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       `/${rendererDistDir}/`,
       `/resources/config.json`,
     ]);
+    filesExcludes.push(
+      `${mainDistDir}`,
+      `${rendererDistDir}`,
+    );
     const exportDir = options?.distFlat ? distDir : `${distDir}/${distPackDir}`;
     pkg.scripts = {
       ...pkg.scripts,
@@ -450,9 +469,14 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     { anchor: "__ADDON_README__", text: addonReadme },
   ]);
 
-  await generateTemplate(targetDir, "dev-env/next-app/base");
-  await replaceAppName(path.join(targetDir, ".devcontainer/docker-compose.yml"), appName);
-  await replaceAppName(path.join(targetDir, ".devcontainer/devcontainer.json"), appName);
+  await generateTemplate(wdir, "dev-env/next-app");
+  await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
+  await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
+  await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
+    { anchor: "__adds__", text: filesExcludes.map(file => {
+      return `    "${file}": true`
+    }).join(",\n") }
+  ]);
 
   removeGit(targetDir);
 };
