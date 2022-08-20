@@ -39,16 +39,17 @@ AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
     initProps.layout.color = electron.getLayoutColor() ?? initProps.layout.color;
     initProps.layout.design = electron.getLayoutDesign() ?? initProps.layout.design;
   } else {
-    try {
-      if (!hasCookie("XSRF-TOKEN", ctx)) {
-        const csrfPath = process.env.CSRF_PATH || "/csrf";
-        await fetchApi.get(csrfPath, null, {
-          req: ctx.req,
-          res: ctx.res,
-          api: false,
-        });
+    if (!hasCookie("XSRF-TOKEN", ctx)) {
+      const csrfPath = process.env.CSRF_PATH || "/csrf";
+      const res = await fetchApi.get(csrfPath, null, {
+        req: ctx.req,
+        res: ctx.res,
+        api: false,
+      });
+      if (res.hasError()) {
+        console.log(res.messages);
       }
-    } catch {}
+    }
   }
   return { initProps };
 }

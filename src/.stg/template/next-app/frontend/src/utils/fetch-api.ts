@@ -143,25 +143,27 @@ const fetchApi = {
         headers: {
           "CSRF-Token": getToken(options),
         },
+        credentials: "include",
       });
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError<T>(e);
+      return catchError<T>(e);
     }
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
     try {
       const res = await fetch(assembleUri(url, null, options), {
         method: "POST",
-        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
         headers: {
           ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
           "CSRF-Token": getToken(options),
         },
+        credentials: "include",
+        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
       });
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError<T>(e);
+      return catchError<T>(e);
     }
   },
 };

@@ -14,6 +14,13 @@ const isDev = process.argv.includes("-d");
 dotenv.config({
   debug: isDev,
 });
+const basePath = process.env.BASE_PATH || "";
+const port = Number(process.env.PORT || (isDev ? 8000 : 80));
+const sessionName = process.env.SESSION_NAME || undefined;
+const sessionSecret = process.env.SESSION_SECRET || StringUtils.generateUuidV4();
+const cookieParserSecret = process.env.COOKIE_PARSER_SECRET || StringUtils.generateUuidV4();
+const corsOrigin = process.env.CORS_ORIGIN || undefined;
+const csrfPath = process.env.CSRF_PATH || "/csrf";
 
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
 const log = {
@@ -39,18 +46,13 @@ const nextApp = next({
 log.debug("app root: ", appRoot);
 
 nextApp.prepare().then(async () => {
-  const server = express();
+  const app = express();
 
-  const basePath = process.env.BASE_PATH || "";
-  const port = Number(process.env.PORT || (isDev ? 8000 : 80));
-  const corsOrigin = process.env.CORS_ORIGIN || undefined;
-  const csrfPath = process.env.CSRF_PATH || "/csrf";
+  app.use(express.static(path.join(appRoot, "__srcDir__/public")));
 
-  server.use(express.static(path.join(appRoot, "__srcDir__/public")));
-
-  server.use(expressSession({
-    name: undefined,
-    secret: StringUtils.generateUuidV4(),
+  app.use(expressSession({
+    name: sessionName,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: true,
     store: undefined,
@@ -60,8 +62,9 @@ nextApp.prepare().then(async () => {
       maxAge: 1000 * 60 * 30,
     },
   }));
+  app.use(cookieParser(cookieParserSecret));
 
-  server.use(helmet({
+  app.use(helmet({
     contentSecurityPolicy: !isDev,
     hidePoweredBy: true,
     hsts: true,
@@ -69,39 +72,41 @@ nextApp.prepare().then(async () => {
     xssFilter: true,
   }));
 
-  if (!isDev) server.set("trust proxy", 1);
-  server.disable("x-powered-by");
-
-
-  const corsProtection = cors({
-    origin: corsOrigin,
-  });
-
-  const csrfProtection = csrf({
-    cookie: true,
-  });
-  server.use(cookieParser());
+  if (!isDev) app.set("trust proxy", 1);
+  app.disable("x-powered-by");
 
   const handler = nextApp.getRequestHandler();  
 
-  server.get(`${basePath}${csrfPath}`, corsProtection, csrfProtection, (req, res) => {
-    res.cookie("XSRF-TOKEN", req.csrfToken());
-    res.status(204);
-    res.send();
+  const corsProtection = cors({
+    origin: corsOrigin,
+    credentials: true,
   });
 
-  server.all(`${basePath}/api/*`, corsProtection, csrfProtection, (req, res) => {
+  // API
+  const csrfProtection = csrf({
+    cookie: true,
+  });
+  app.all(`${basePath}/api/*`, corsProtection, csrfProtection, (req, res) => {
     log.debug("api call:", req.url);
     return handler(req, res);
   });
 
-  server.all("*", corsProtection, csrfProtection, (req, res) => {
+  // CSRF
+  app.use(csrf({ cookie: true }));
+  app.get(`${basePath}${csrfPath}`, corsProtection, (req, res) => {
+    const token = req.csrfToken();
+    res.cookie("XSRF-TOKEN", token).status(204).send();
+  });
+
+  // ALL
+  app.all("*", corsProtection, (req, res) => {
     return handler(req, res);
   });
 
-  server.listen(port, () => {
+  app.listen(port, () => {
     log.info(`http://localhost:${port}${basePath}`);
   });
+
 }).catch((err: any) => {
   log.error(String(err));
   process.exit(1);

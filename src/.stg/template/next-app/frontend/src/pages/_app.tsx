@@ -27,22 +27,23 @@ const AppRoot = ({ Component, pageProps, initProps }: AppProps & { initProps: Ap
 };
 
 AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
-  try {
-    if (!hasCookie("XSRF-TOKEN", ctx)) {
-      const csrfPath = process.env.CSRF_PATH || "/csrf";
-      await fetchApi.get(csrfPath, null, {
-        req: ctx.req,
-        res: ctx.res,
-        api: false,
-      });
-    }
-  } catch {}
   const initProps: AppRootInitProps = {
     layout: {
       color: "system",
       design: "flat",
     },
   };
+  if (!hasCookie("XSRF-TOKEN", ctx)) {
+    const csrfPath = process.env.CSRF_PATH || "/csrf";
+    const res = await fetchApi.get(csrfPath, null, {
+      req: ctx.req,
+      res: ctx.res,
+      api: false,
+    });
+    if (res.hasError()) {
+      console.log(res.messages);
+    }
+  }
   return { initProps };
 }
 

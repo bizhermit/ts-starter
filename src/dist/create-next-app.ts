@@ -11,6 +11,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   targetDir?: string;
   crossBasePath?: string;
   distFlat?: boolean;
+  corsOriginPort?: number;
 }) => {
   const { appName, platform } = analyzeArgsOptions(wdir, options);
 
@@ -34,7 +35,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
 
   const readReadmeFile = async (name: string) => {
     return (await readFile(path.join(getTemplateBaseDirname(), "next-app", name))).toString();
-  }
+  };
 
   if (mode === "web" ? separate : false) {
     const frontendDir = "frontend";
@@ -48,6 +49,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await createNextApp(wdir, backendDir, false, {
       appName: `${appName}-backend`,
       targetDir: backendDir,
+      corsOriginPort: nextPort,
     });
 
     const gitIgnoreLines = (await readFile(path.join(wdir, frontendDir, ".gitignore"))).toString().split(/\n/g);
@@ -344,16 +346,24 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     `BASE_PATH=`,
     `PORT=${devPort}`,
     "",
-    `CORS_ORIGIN=http://localhost:${devPort}`,
-    "CSRF_PATH=/csrf"
+    `SESSION_NAME=${appName}`,
+    `SESSION_SECRET=${appName}`,
+    `COOKIE_PARSER_SECRET=${appName}`,
+    "",
+    `CORS_ORIGIN=http://localhost:${options?.corsOriginPort ?? devPort}`,
+    `CSRF_PATH=/csrf`,
   ];
   prodEnvLines = [
     `BASE_PATH=`,
     `PORT=${prodPort}`,
     "",
+    `SESSION_NAME=${appName}`,
+    `SESSION_SECRET=${appName}`,
+    `COOKIE_PARSER_SECRET=${appName}`,
+    "",
     `CORS_ORIGIN=https://localhost:${prodPort}`,
-    "CSRF_PATH=/csrf"
-  ]
+    `CSRF_PATH=/csrf`,
+  ];
 
   switch (mode) {
     case "desktop":
@@ -392,8 +402,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         `API_HOST_NAME=localhost`,
         `API_PORT=${devPort}`,
         `API_BASE_PATH=`,
-        "",
-        "CSRF_PATH=/csrf",
       ];
       prodEnvLines = [
         `BASE_PATH=`,
@@ -401,8 +409,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         `API_HOST_NAME=localhost`,
         `API_PORT=${prodPort}`,
         `API_BASE_PATH=`,
-        "",
-        "CSRF_PATH=/csrf",
       ];
       break;
     case "web":

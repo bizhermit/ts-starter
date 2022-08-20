@@ -150,6 +150,7 @@ const fetchApi = {
         headers: {
           "CSRF-Token": getToken(options),
         },
+        credentials: "include",
       };
       if (!isHttp && electron) {
         return await fetchToElectron<T>(url, {}, requestInit);
@@ -158,7 +159,7 @@ const fetchApi = {
       const res = await fetch(uri, requestInit);
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError<T>(e);
+      return catchError<T>(e);
     }
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
@@ -166,11 +167,12 @@ const fetchApi = {
       const isHttp = url.startsWith("http");
       const requestInit: RequestInit = {
         method: "POST",
-        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
         headers: {
           ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
           "CSRF-Token": getToken(options),
         },
+        credentials: "include",
+        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
       };
       if (!isHttp && electron) {
         return await fetchToElectron<T>(url, params, requestInit);
@@ -179,7 +181,7 @@ const fetchApi = {
       const res = await fetch(uri, requestInit);
       return convertResponseToData<T>(res);
     } catch (e) {
-      catchError<T>(e);
+      return catchError<T>(e);
     }
   },
 };
