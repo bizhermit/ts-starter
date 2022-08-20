@@ -1,6 +1,5 @@
-.vscode
-package-lock.json
+/.vscode/settings.json
 node_modules
-/test
-/bin
-/dist
+/src/.stg/bin
+/src/.stg/dist
+/src/.stg/sample

@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+p.info {
+  color: #aaa;
+
+  &:hover {
+    font-weight: bold;
+  }
+}

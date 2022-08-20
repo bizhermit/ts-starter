@@ -1,0 +1,5 @@
+.vscode/settings.json
+node_modules
+/__srcDir__/__stgDir__/dist
+/__srcDir__/__stgDir__/ts-index.js
+/test/results.json

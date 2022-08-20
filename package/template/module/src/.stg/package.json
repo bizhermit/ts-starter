@@ -1,0 +1,13 @@
+{
+  "name": "stg",
+  "version": "0.0.0",
+  "description": "stg env",
+  "private": true,
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "npx tsc -p tsconfig.src.json && npx tsc -p tsconfig.json",
+    "js": "node js-index",
+    "ts": "node ts-index"
+  }
+}

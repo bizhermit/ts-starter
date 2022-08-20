@@ -3,7 +3,8 @@
 import path from "path";
 import * as fse from "fs-extra";
 import * as cp from "child_process";
-import { getArg, getKeyArg, rl, wl } from "@bizhermit/cli-sdk";
+import { getArg, getKeyArg, hasKeyArg, rl, wl } from "@bizhermit/cli-utils";
+import { fillRight } from "@bizhermit/basic-utils/dist/string-utils";
 import createCli from "../dist/create-cli";
 import createModule from "../dist/create-module";
 import createNextApp from "../dist/create-next-app";
@@ -19,108 +20,157 @@ wl(`\n${pkg.name} v${pkg.version}`);
 const dir = path.join(process.cwd(), getArg() || "./");
 wl(`  dirname: ${dir}`);
 
-const argProjectType = getKeyArg("-t", "-type");
+const argProjectType = getKeyArg("-t", "--type");
 const skipInteractive = argProjectType != null && argProjectType.length > 0;
+
+const appName = getKeyArg("--appName");
+if (appName) wl(`  appName: ${appName}`);
+
+const descriptions = {
+  c  : `cancel`,
+  mod: `module`,
+  cli: `command line interface application`,
+  fas: "frontend application server [ \x1b[36mNext.js\x1b[39m ]",
+  bas: "backend application server  [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  web: "web application server      [ \x1b[36mExpress\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  dsk: "desktop application         [ \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  app: "web & desktop application   [ \x1b[36mExpress\x1b[39m + \x1b[36mElectron\x1b[39m + \x1b[36mNext.js\x1b[39m ]",
+  stt: "react app",
+  mob: `mobile application          [ \x1b[36mreact-native\x1b[39m ]`,
+} as const;
+const descriptionLine = (t: keyof typeof descriptions) => {
+  return `- ${fillRight(`[\x1b[33m${t}\x1b[39m]`, 15, " ")}: ${descriptions[t]}`;
+}
 
 if (!skipInteractive) {
 wl(`
-select project type
-- [c]  : cancel
-- [mod]: module
-- [cli]: command line interface application
-- [spa]: web application (react)
-- [web]: web application (next.js + express)
-- [dsk]: desktop application (next.js + electron)
-- [app]: web and desktop application (next.js + express / electron)
-- [mob]: mobile application (react-native)`);
+\x1b[32mselect project type\x1b[39m
+${descriptionLine("c")}
+${descriptionLine("mod")}
+${descriptionLine("cli")}
+${descriptionLine("fas")}
+${descriptionLine("bas")}
+${descriptionLine("web")}
+${descriptionLine("dsk")}
+${descriptionLine("app")}
+${descriptionLine("mob")}`);
 }
 
 const changeDir = () => {
-    if (!fse.existsSync(dir)) {
-        wl(`create dir : ${dir}`);
-        fse.mkdirSync(dir, { recursive: true });
-    }
-    cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
+  if (!fse.existsSync(dir)) {
+    wl(`create dir : ${dir}`);
+    fse.mkdirSync(dir, { recursive: true });
+  }
+  cp.spawnSync("cd", [dir], { shell: true, stdio: "inherit", cwd: process.cwd() });
 };
 
-const succeededProcess = (projectType: string) => {
-    wl(`\nset up succeeded: ${projectType}`);
-    const cdDir = getArg();
-    if (cdDir != null && process.cwd() !== dir) {
-        wl(`start with change directory`);
-        wl(`  cd ${cdDir}`);
-    }
+const succeededProcess = (t: keyof typeof descriptions, optText?: string) => {
+  wl(`\nset up \x1b[42m succeeded \x1b[49m: \x1b[33m${t}\x1b[39m${optText ?? ""}`);
+  const cdDir = getArg();
+  if (cdDir != null && process.cwd() !== dir) {
+    wl(`\nstart with change directory`);
+    wl(`  cd ${cdDir}`);
+  }
 };
 
+const writeCreateDescription = (t: keyof typeof descriptions) => {
+  wl(`create \x1b[33m${t}\x1b[39m: ${descriptions[t]}\n`);
+};
 const main = async (projectType: string) => {
-    wl(" ");
-    try {
-        switch (projectType) {
-            case "mod":
-            case "module":
-                wl(`create module`);
-                changeDir();
-                await createModule(dir);
-                succeededProcess(projectType);
-                break;
-            case "cli":
-                wl(`create command line interface application`);
-                changeDir();
-                await createCli(dir);
-                succeededProcess(projectType);
-                break;
-            case "spa":
-            case "react":
-                wl(`create web application (react)`);
-                changeDir();
-                await createReactApp(dir);
-                succeededProcess(projectType);
-                break;
-            case "web":
-            case "nexpress":
-                wl(`create web application (next.js + express)`);
-                changeDir();
-                await createNextApp(dir, { server: true });
-                succeededProcess(projectType);
-                break;
-            case "dsk":
-            case "desktop":
-            case "nextron":
-                wl(`create desktop application (next.js + electron)`);
-                changeDir();
-                await createNextApp(dir, { desktop: true });
-                succeededProcess(projectType);
-                break;
-            case "app":
-            case "all":
-                wl(`create web and desktop application (next.js + express / electron)`);
-                changeDir();
-                await createNextApp(dir, { server: true, desktop: true });
-                succeededProcess(projectType);
-                break;
-            case "mob":
-            case "mobile":
-                wl(`create mobile application (react-native)`);
-                changeDir();
-                await createReactNative(dir);
-                succeededProcess(projectType);
-                break;
-            default:
-                wl(`cancel`);
-                break;
-        }
-    } catch (err) {
-        process.stderr.write(String(err));
-        wl(`\nset up failed: ${projectType}`);
+  wl(" ");
+  const opts = {
+    appName
+  };
+  try {
+    switch (projectType) {
+      case "mod":
+      case "module":
+        writeCreateDescription("mod");
+        changeDir();
+        await createModule(dir, opts);
+        succeededProcess("mod");
+        break;
+      case "cli":
+      case "batch":
+        writeCreateDescription("cli");
+        changeDir();
+        await createCli(dir, opts);
+        succeededProcess("cli");
+        break;
+      case "fas":
+      case "gui":
+      case "frontend":
+        writeCreateDescription("fas");
+        changeDir();
+        await createNextApp(dir, "frontend", false, opts);
+        succeededProcess("fas");
+        break;
+      case "bas":
+      case "api":
+      case "backend":
+        writeCreateDescription("bas");
+        changeDir();
+        await createNextApp(dir, "backend", false, opts);
+        succeededProcess("bas");
+        break;
+      case "web":
+      case "nexpress":
+      case "web-s":
+        writeCreateDescription("web");
+        changeDir();
+        const separate = projectType.endsWith("-s") || hasKeyArg("-s", "--separate");
+        await createNextApp(dir, "web", separate, opts);
+        succeededProcess("web", separate ? " ( frontend / backend )" : "");
+        break;
+      case "dsk":
+      case "desktop":
+      case "nextron":
+        writeCreateDescription("dsk");
+        changeDir();
+        await createNextApp(dir, "desktop", false, opts);
+        succeededProcess("dsk");
+        break;
+      case "app":
+      case "all":
+      case "full":
+      case "app-s":
+      case "all-s":
+      case "full-s":
+        writeCreateDescription("app");
+        changeDir();
+        await createNextApp(dir, "all", false, opts);
+        succeededProcess("app");
+        break;
+      case "stt":
+      case "react":
+        writeCreateDescription("stt");
+        changeDir();
+        await createReactApp(dir, opts);
+        succeededProcess("stt");
+        break;
+      case "mob":
+      case "mobile":
+        writeCreateDescription("mob");
+        changeDir();
+        await createReactNative(dir, opts);
+        succeededProcess("mob");
+        break;
+      default:
+        wl(`cancel`);
+        break;
     }
-    wl(`\n${sepStr}`);
+  } catch (err) {
+    process.stderr.write(String(err));
+    wl(`\nset up \x1b[41m failed \x1b[49m: ${projectType}`);
+  }
+  wl(`\n${sepStr}`);
 };
 if (skipInteractive) {
-    main(argProjectType)
+  main(argProjectType)
 } else {
-    rl(`please input (default c) > `).then(main).catch((err) => {
-        process.stderr.write(err);
-        wl(`${pkg.name} failed.`);
-        wl(`\n${sepStr}`);
-    });
+  rl(`please input (default \x1b[33mc\x1b[39m) > `).then(main).catch((err) => {
+    process.stderr.write(err);
+    wl(`${pkg.name} \x1b[41m failed \x1b[49m.`);
+    wl(`\n${sepStr}`);
+  });
 }

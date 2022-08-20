@@ -1,0 +1,19 @@
+html {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+#__next {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex: none;
+  overflow: auto;
+}
