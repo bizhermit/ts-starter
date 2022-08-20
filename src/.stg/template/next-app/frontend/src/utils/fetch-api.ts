@@ -88,6 +88,20 @@ const toData = <T = Struct>(responseBody: Struct) => {
   };
 };
 
+const catchError = <T>(error: any) => {
+  console.log(error);
+  return {
+    data: undefined as unknown as T,
+    hasError: () => true,
+    hasMessage: () => true,
+    messages: [{
+      title: "システムエラー",
+      body: String(error),
+      type: "error",
+    }]
+  } as FetchResponseData<T>;
+};
+
 type FetchResponseData<T extends Struct | string> = {
   data: T;
   messages: Array<Message>
@@ -123,24 +137,32 @@ const convertResponseToData = async <T extends Struct | string = Struct>(res: Re
 
 const fetchApi = {
   get: async <T extends Struct | string = Struct>(url: string, params?: QueryParams, options?: Options) => {
-    const res = await fetch(assembleUri(url, params, options), {
-      method: "GET",
-      headers: {
-        "CSRF-Token": getToken(options),
-      },
-    });
-    return convertResponseToData<T>(res);
+    try {
+      const res = await fetch(assembleUri(url, params, options), {
+        method: "GET",
+        headers: {
+          "CSRF-Token": getToken(options),
+        },
+      });
+      return convertResponseToData<T>(res);
+    } catch (e) {
+      catchError(e);
+    }
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
-    const res = await fetch(assembleUri(url, null, options), {
-      method: "POST",
-      body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
-      headers: {
-        ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
-        "CSRF-Token": getToken(options),
-      },
-    });
-    return convertResponseToData<T>(res);
+    try {
+      const res = await fetch(assembleUri(url, null, options), {
+        method: "POST",
+        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
+        headers: {
+          ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
+          "CSRF-Token": getToken(options),
+        },
+      });
+      return convertResponseToData<T>(res);
+    } catch (e) {
+      catchError(e);
+    }
   },
 };
 

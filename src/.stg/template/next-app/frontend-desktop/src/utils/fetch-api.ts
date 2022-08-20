@@ -94,6 +94,20 @@ const fetchToElectron = async <T = Struct>(url: string, params?: Struct, options
   return toData(res);
 };
 
+const catchError = <T>(error: any) => {
+  console.log(error);
+  return {
+    data: undefined as unknown as T,
+    hasError: () => true,
+    hasMessage: () => true,
+    messages: [{
+      title: "System Error",
+      body: "Communication failed.",
+      type: "error",
+    }]
+  } as FetchResponseData<T>;
+};
+
 type FetchResponseData<T extends Struct | string> = {
   data: T;
   messages: Array<Message>
@@ -129,36 +143,44 @@ const convertResponseToData = async <T extends Struct | string = Struct>(res: Re
 
 const fetchApi = {
   get: async <T extends Struct | string = Struct>(url: string, params?: QueryParams, options?: Options) => {
-    const isHttp = url.startsWith("http");
-    const requestInit: RequestInit = {
-      method: "GET",
-      headers: {
-        "CSRF-Token": getToken(options),
-      },
-    };
-    if (!isHttp && electron) {
-      return await fetchToElectron<T>(url, {}, requestInit);
+    try {
+      const isHttp = url.startsWith("http");
+      const requestInit: RequestInit = {
+        method: "GET",
+        headers: {
+          "CSRF-Token": getToken(options),
+        },
+      };
+      if (!isHttp && electron) {
+        return await fetchToElectron<T>(url, {}, requestInit);
+      }
+      const uri = assembleUri(url, params, options);
+      const res = await fetch(uri, requestInit);
+      return convertResponseToData<T>(res);
+    } catch (e) {
+      catchError(e);
     }
-    const uri = assembleUri(url, params, options);
-    const res = await fetch(uri, requestInit);
-    return convertResponseToData<T>(res);
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
-    const isHttp = url.startsWith("http");
-    const requestInit: RequestInit = {
-      method: "POST",
-      body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
-      headers: {
-        ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
-        "CSRF-Token": getToken(options),
-      },
-    };
-    if (!isHttp && electron) {
-      return await fetchToElectron<T>(url, params, requestInit);
+    try {
+      const isHttp = url.startsWith("http");
+      const requestInit: RequestInit = {
+        method: "POST",
+        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
+        headers: {
+          ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
+          "CSRF-Token": getToken(options),
+        },
+      };
+      if (!isHttp && electron) {
+        return await fetchToElectron<T>(url, params, requestInit);
+      }
+      const uri = assembleUri(url, null, options);
+      const res = await fetch(uri, requestInit);
+      return convertResponseToData<T>(res);
+    } catch (e) {
+      catchError(e);
     }
-    const uri = assembleUri(url, null, options);
-    const res = await fetch(uri, requestInit);
-    return convertResponseToData<T>(res);
   },
 };
 
