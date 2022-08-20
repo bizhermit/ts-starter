@@ -127,12 +127,27 @@ app.on("ready", async () => {
   if (isDev) {
     setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
       log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
-      const url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
-      const opts: RequestInit = { ...options };
-      if (options?.method !== "GET") {
-        if (StringUtils.isEmpty(opts.method)) opts.method = "POST";
-        opts.headers = { "Content-Type": "application/json", ...opts.headers };
-        if (opts.body == null) opts.body = JSON.stringify(params ?? {});
+      let url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
+      const method = options?.method || "GET";
+      const opts = { ...options };
+      if (method === "GET") {
+        opts.method = "GET";
+        const query: Array<string> = [];
+        Object.keys(params).forEach(key => {
+          const val = params[key];
+          if (val == null) return;
+          if (Array.isArray(val)) {
+            val.forEach(v => {
+              if (v == null) return;
+              query.push(`${key}=${v}`);
+            });
+            return;
+          }
+          query.push(`${key}=${val}`);
+        });
+        if (query.length > 0) {
+          url += "?" + query.join("&");
+        }
       }
       return new Promise<any>((resolve, reject) => {
         fetch(url, opts).then((res) => {
