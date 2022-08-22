@@ -17,7 +17,7 @@ const SigninComponent: FC<{ $fto?: FitToOuter }> = ({ $fto }) => {
     try {
       const res = await fetchApi.post("/signin", { inputs });
       msg.append(res.messages);
-      if (!res.hasError()) {
+      if (res.ok) {
         console.log(res.data);
         router.push(`/user/${res.data.id}`);
         return;

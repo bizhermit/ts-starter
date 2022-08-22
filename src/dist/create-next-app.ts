@@ -56,6 +56,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     gitIgnoreLines.splice(gitIgnoreLines.indexOf("# develop") - gitIgnoreLines.length + 1);
     gitIgnoreLines.push(
       ".vscode/settings.json",
+      ".env",
       `/${frontendDir}/${distDir}/`,
       `${nextDistDir}`,
       `${nexpressDistDir}`,
@@ -117,8 +118,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
       gitignoreContent += `\n${line}`;
     });
   };
-  addGitignoreContents(["/.vscode/settings.json", `/${distDir}/`]);
-  const filesExcludes = [nextDistDir];
+  addGitignoreContents(["/.vscode/settings.json", ".env", `/${distDir}/`]);
+  const filesExcludes: Array<string | { file: string; comment?: boolean; flag?: boolean; }> = [nextDistDir];
 
   const moveToSrc = async (fileName: string) => {
     const srcFilePath = path.join(targetDir, fileName);
@@ -149,16 +150,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     hasDesktop = true;
     tsConfigExcludes.push(distDir);
     await generateTemplate(targetDir, "next-app/desktop");
-    await replaceTexts(path.join(targetDir, nextronDir, "main.ts"), [
-      { anchor: __appName__, text: appName },
-      { anchor: __srcDir__, text: srcDir },
-      { anchor: __mainDistDir__, text: mainDistDir },
-      { anchor: __rendererDistDir__, text: rendererDistDir },
-    ]);
-    await replaceTexts(path.join(targetDir, nextronDir, "tsconfig.json"), [
-      { anchor: __srcDir__, text: srcDir },
-      { anchor: __mainDistDir__, text: mainDistDir },
-    ]);
     deps.push(
       "fs-extra",
       "electron-is-dev",
@@ -181,13 +172,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     hasBackend = true;
     await generateTemplate(targetDir, "next-app/backend");
     if (hasDesktop) await generateTemplate(targetDir, "next-app/backend-desktop");
-    await replaceTexts(path.join(targetDir, nexpressDir, "main.ts"), [
-      { anchor: __appName__, text: appName },
-      { anchor: __srcDir__, text: srcDir },
-    ]);
-    await replaceTexts(path.join(targetDir, nexpressDir, "tsconfig.json"), [
-      { anchor: __nexpressDistDir__, text: nexpressDistDir },
-    ]);
     deps.push(
       "dotenv",
       "express",
@@ -214,13 +198,18 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await generateTemplate(targetDir, "next-app/frontend");
     if (hasDesktop) await generateTemplate(targetDir, "next-app/frontend-desktop");
     deps.push("@bizhermit/react-addon");
-    if (options?.crossBasePath) {
+    if (options?.crossBasePath || mode !== "desktop") {
       deps.push("cookies-next");
     }
   }
 
   // api
   await generateTemplate(targetDir, "next-app/api");
+
+  if (mode === "desktop") {
+    // overwrite
+    await generateTemplate(targetDir, "next-app/desktop");
+  }
 
   if (mode === "backend") {
     pkg.scripts = {
@@ -243,8 +232,20 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     pkg.scripts = {
       ...pkg.scripts,
     };
+    if (options?.crossBasePath || mode !== "frontend") {
+      await replaceTexts(path.join(targetDir, "src/pages/_app.tsx"), [
+        { anchor: "// ", text: "" },
+      ]);
+    }
   }
   if (hasBackend) {
+    await replaceTexts(path.join(targetDir, nexpressDir, "main.ts"), [
+      { anchor: __appName__, text: appName },
+      { anchor: __srcDir__, text: srcDir },
+    ]);
+    await replaceTexts(path.join(targetDir, nexpressDir, "tsconfig.json"), [
+      { anchor: __nexpressDistDir__, text: nexpressDistDir },
+    ]);
     poweredBy.push(`[Express](https://expressjs.com/)`);
     addonReadme += await readReadmeFile("README.nexpress.md");
     tsConfigExcludes.push(nexpressDir);
@@ -252,7 +253,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     addGitignoreContents([
       `/${nexpressDistDir}/`,
     ]);
-    filesExcludes.push(`${nexpressDistDir}`);
+    filesExcludes.push(
+      `${nexpressDistDir}`,
+      { file: `${nexpressDir}`, comment: true },
+    );
 
     pkg.scripts = {
       ...pkg.scripts,
@@ -263,6 +267,16 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   }
 
   if (hasDesktop) {
+    await replaceTexts(path.join(targetDir, nextronDir, "main.ts"), [
+      { anchor: __appName__, text: appName },
+      { anchor: __srcDir__, text: srcDir },
+      { anchor: __mainDistDir__, text: mainDistDir },
+      { anchor: __rendererDistDir__, text: rendererDistDir },
+    ]);
+    await replaceTexts(path.join(targetDir, nextronDir, "tsconfig.json"), [
+      { anchor: __srcDir__, text: srcDir },
+      { anchor: __mainDistDir__, text: mainDistDir },
+    ]);
     poweredBy.push(`[Electron](https://www.electronjs.org/)`);
     addonReadme += await readReadmeFile("README.nextron.md");
     tsConfigExcludes.push(nextronDir);
@@ -276,6 +290,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     filesExcludes.push(
       `${mainDistDir}`,
       `${rendererDistDir}`,
+      { file: `${nextronDir}`, comment: true },
     );
     const exportDir = options?.distFlat ? distDir : `${distDir}/${distPackDir}`;
     pkg.scripts = {
@@ -426,7 +441,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         `BASE_PATH=`,
         `API_PROTOCOL=http:`,
         `API_HOST_NAME=localhost`,
-        `API_PORT=${devPort}`,
+        `API_PORT=${options?.corsOriginPort ? devPort : nextPort}`,
         `API_BASE_PATH=`,
       ];
       prodEnvLines = [
@@ -481,7 +496,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
   await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
     { anchor: "__adds__", text: filesExcludes.map(file => {
-      return `    "${file}": true`
+      if (typeof file === "string") return `    "${file}": true`;
+      return `    ${file.comment ? "// " : ""}"${file.file}": ${String(file.flag ?? true)}`
     }).join(",\n") }
   ]);
 

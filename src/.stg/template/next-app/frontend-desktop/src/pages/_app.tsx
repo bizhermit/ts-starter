@@ -41,13 +41,13 @@ AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
   } else {
     if (!hasCookie("XSRF-TOKEN", ctx)) {
       const csrfPath = process.env.CSRF_PATH || "/csrf";
-      const res = await fetchApi.get(csrfPath, null, {
+      const res = await fetchApi.get(csrfPath, undefined, {
         req: ctx.req,
         res: ctx.res,
         api: false,
       });
-      if (res.hasError()) {
-        console.log(res.messages);
+      if (!res.ok) {
+        console.log(res);
       }
     }
   }
