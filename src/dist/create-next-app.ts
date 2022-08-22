@@ -150,16 +150,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     hasDesktop = true;
     tsConfigExcludes.push(distDir);
     await generateTemplate(targetDir, "next-app/desktop");
-    await replaceTexts(path.join(targetDir, nextronDir, "main.ts"), [
-      { anchor: __appName__, text: appName },
-      { anchor: __srcDir__, text: srcDir },
-      { anchor: __mainDistDir__, text: mainDistDir },
-      { anchor: __rendererDistDir__, text: rendererDistDir },
-    ]);
-    await replaceTexts(path.join(targetDir, nextronDir, "tsconfig.json"), [
-      { anchor: __srcDir__, text: srcDir },
-      { anchor: __mainDistDir__, text: mainDistDir },
-    ]);
     deps.push(
       "fs-extra",
       "electron-is-dev",
@@ -182,13 +172,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     hasBackend = true;
     await generateTemplate(targetDir, "next-app/backend");
     if (hasDesktop) await generateTemplate(targetDir, "next-app/backend-desktop");
-    await replaceTexts(path.join(targetDir, nexpressDir, "main.ts"), [
-      { anchor: __appName__, text: appName },
-      { anchor: __srcDir__, text: srcDir },
-    ]);
-    await replaceTexts(path.join(targetDir, nexpressDir, "tsconfig.json"), [
-      { anchor: __nexpressDistDir__, text: nexpressDistDir },
-    ]);
     deps.push(
       "dotenv",
       "express",
@@ -223,6 +206,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   // api
   await generateTemplate(targetDir, "next-app/api");
 
+  if (mode === "desktop") {
+    // overwrite
+    await generateTemplate(targetDir, "next-app/desktop");
+  }
+
   if (mode === "backend") {
     pkg.scripts = {
       "build": "npx next build",
@@ -246,6 +234,13 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     };
   }
   if (hasBackend) {
+    await replaceTexts(path.join(targetDir, nexpressDir, "main.ts"), [
+      { anchor: __appName__, text: appName },
+      { anchor: __srcDir__, text: srcDir },
+    ]);
+    await replaceTexts(path.join(targetDir, nexpressDir, "tsconfig.json"), [
+      { anchor: __nexpressDistDir__, text: nexpressDistDir },
+    ]);
     poweredBy.push(`[Express](https://expressjs.com/)`);
     addonReadme += await readReadmeFile("README.nexpress.md");
     tsConfigExcludes.push(nexpressDir);
@@ -264,6 +259,16 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   }
 
   if (hasDesktop) {
+    await replaceTexts(path.join(targetDir, nextronDir, "main.ts"), [
+      { anchor: __appName__, text: appName },
+      { anchor: __srcDir__, text: srcDir },
+      { anchor: __mainDistDir__, text: mainDistDir },
+      { anchor: __rendererDistDir__, text: rendererDistDir },
+    ]);
+    await replaceTexts(path.join(targetDir, nextronDir, "tsconfig.json"), [
+      { anchor: __srcDir__, text: srcDir },
+      { anchor: __mainDistDir__, text: mainDistDir },
+    ]);
     poweredBy.push(`[Electron](https://www.electronjs.org/)`);
     addonReadme += await readReadmeFile("README.nextron.md");
     tsConfigExcludes.push(nextronDir);
