@@ -7,7 +7,7 @@ import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
 import DatetimeUtils from "@bizhermit/basic-utils/dist/datetime-utils";
 import { existsSync, mkdir, readFile, writeFile } from "fs-extra";
 
-const $global = global as { [key: string]: any };
+const $global = global as Struct;
 const logFormat = (...contents: Array<string>) => `${DatetimeUtils.format(new Date(), "yyyy-MM-ddThh:mm:ss.SSS")} ${StringUtils.join(" ", ...contents)}\n`;
 const log = {
   debug: (...contents: Array<string>) => {
@@ -86,7 +86,7 @@ app.on("ready", async () => {
     await mkdir(configDir, { recursive: true });
   }
   const configFileName = path.join(configDir, "config.json");
-  let config: { [key: string]: any } = { appDirname, isDev, layout: { color: undefined, design: undefined } };
+  let config: Struct = { appDirname, isDev, layout: { color: undefined, design: undefined } };
   const saveConfig = async () => {
     const c = { ...config };
     delete c.appDirname;
@@ -125,50 +125,90 @@ app.on("ready", async () => {
   };
 
   if (isDev) {
-    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
-      log.debug("fetch api: ", apiPath, JSON.stringify(params), JSON.stringify(options));
-      const url = (loadUrl + "api/" + apiPath).replace(/\/\//g, "/");
-      const opts: RequestInit = { ...options };
-      if (options?.method !== "GET") {
-        if (StringUtils.isEmpty(opts.method)) opts.method = "POST";
-        opts.headers = { "Content-Type": "application/json", ...opts.headers };
-        if (opts.body == null) opts.body = JSON.stringify(params ?? {});
-      }
-      return new Promise<any>((resolve, reject) => {
-        fetch(url, opts).then((res) => {
+    setListener("fetch", "handle", (_e, uri: string, requestInit?: RequestInit) => {
+      log.debug("fetch api: ", uri, JSON.stringify(requestInit ?? {}));
+      const fetchUri = (uri.startsWith("http") ? "" : loadUrl) + uri;
+      return new Promise<FetchResponse<Struct | string>>(async (resolve, reject) => {
+        try {
+          const res = await fetch(fetchUri, requestInit);
           if (!res.ok) {
-            reject(`fetch failed`);
+            resolve({
+              data: {},
+              messages: [{
+                title: "System Error",
+                body: `${res.status} | ${res.statusText}`,
+                type: "error",
+              }],
+              ok: res.ok,
+              status: res.status,
+              statusText: res.statusText
+            });
             return;
           }
-          res.json().then((ret) => {
-            resolve(ret);
-          }).catch((err) => {
-            reject(err);
+          let data: any, messages: Array<Message> = [];
+          if (res.status !== 204) {
+            const text = await res.text();
+            try {
+              const json = JSON.parse(text);
+              data = json.data,
+              messages = Array.isArray(json.messages) ? json.messages : [];
+            } catch {
+              data = text;
+            }
+          }
+          resolve({
+            data,
+            messages,
+            ok: !messages.some(msg => msg.type === "error"),
+            status: res.status,
+            statusText: res.statusText,
           });
-        }).catch((err) => {
-          reject(err);
-        });
+        } catch (e) {
+          console.log(e);
+          reject(e);
+        }
       });
     });
   } else {
-    setListener("fetch", "handle", (_e, apiPath: string, params: { [key: string]: any } = {}, options?: RequestInit) => {
-      return new Promise<any>((resolve, reject) => {
+    setListener("fetch", "handle", (_e, uri: string, requestInit?: RequestInit) => {
+      return new Promise<FetchResponse<Struct | string>>((resolve, reject) => {
         try {
-          let data: { [key: string]: any } = {};
+          let text: Struct | string = {};
           const res = {
             statusCode: 0,
+            statusMessage: "",
             status: (code: number) => {
               res.statusCode = code ?? 0;
               return res;
             },
-            json: (struct: { [key: string]: any }) => {
-              data = struct;
+            json: (value: Struct) => {
+              text = value;
               return res;
             },
+            send: (value: string) => {
+              text = value;
+              return res;
+            }
           };
           const listener = () => {
             if (res.statusCode !== 0) {
-              resolve(JSON.parse(JSON.stringify(data)));
+              try {
+                let data: Struct | string = text;
+                let messages: Array<Message> = [];
+                try {
+                  data = (text as Struct).data as Struct;
+                  messages = (text as Struct).messages;
+                } catch {}
+                resolve({
+                  data,
+                  messages,
+                  ok: !messages.some(msg => msg.type === "error"),
+                  status: res.statusCode,
+                  statusText: res.statusMessage,
+                })
+              } catch(e) {
+                reject(e);
+              }
               return;
             }
             setTimeout(() => {
@@ -182,18 +222,18 @@ app.on("ready", async () => {
             });
             callback?.();
           };
+
           const req = {
-            body: params,
+            ...requestInit,
             session: $global._session,
-            query: {} as { [key: string]: string | Array<string> },
-            cookies: {} as { [key: string]: string },
-            method: options?.method,
+            query: {} as Struct<string | Array<string>>,
+            cookies: {} as Struct<string>,
           };
-          let ap = apiPath;
-          let sepIndex = apiPath.indexOf("?");
+          let apiPath = uri;
+          let sepIndex = uri.indexOf("?");
           if (sepIndex >= 0) {
-            ap = apiPath.substring(0, sepIndex);
-            const queryStrs = apiPath.substring(sepIndex + 1).split("&");
+            apiPath = uri.substring(0, sepIndex);
+            const queryStrs = uri.substring(sepIndex + 1).split("&");
             queryStrs.forEach((q) => {
               sepIndex = q.indexOf("=");
               const key = q.substring(0, sepIndex);
@@ -207,7 +247,16 @@ app.on("ready", async () => {
               }
             });
           }
-          import(path.join(appRoot, "__mainDistDir__/__srcDir__/pages/api", ap)).then((handler) => {
+          if (req.body) {
+            try {
+              if (typeof req.body === "string") {
+                req.body = JSON.parse(req.body);
+              }
+            } catch {}
+          }
+          const apiDirIndex = apiPath.indexOf("/api/");
+          if (apiDirIndex > 0) apiPath = apiPath.substring(apiDirIndex);
+          import(path.join(appRoot, "__mainDistDir__/__srcDir__/pages", apiPath)).then((handler) => {
             try {
               handler.default(req, res);
               listener();
@@ -346,7 +395,7 @@ app.on("ready", async () => {
   setListener("getLayoutDesign", "on", (event) => {
     event.returnValue = $global._session.layoutDesign;
   });
-  setListener("saveConfig", "handle", async (_e, newConfig: { [key: string]: any }) => {
+  setListener("saveConfig", "handle", async (_e, newConfig: Struct) => {
     config = { ...config, ...newConfig };
     await saveConfig();
   });

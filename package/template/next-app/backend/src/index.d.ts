@@ -3,13 +3,13 @@ type VoidFunc = () => void;
 type Message = {
   title?: string;
   body: string | Array<string>;
-  type?: MessageType;
+  type: MessageType;
 };
 type MessageType = "info" | "error" | "warning" | "default" | "primary" | "secondary" | "deprecated";
-type FetchApiResponse<T = Struct> = {
+type FetchResponse<T extends Struct | string> = {
   data: T;
   messages: Array<Message>;
-  hasInformation: () => boolean;
-  hasWarning: () => boolean;
-  hasError: () => boolean;
+  ok: boolean;
+  status: number;
+  statusText: string;
 };

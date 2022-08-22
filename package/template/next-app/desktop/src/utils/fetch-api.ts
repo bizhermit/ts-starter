@@ -1,5 +1,4 @@
 import isServer from "./is-server";
-import { getCookie } from "cookies-next";
 import { IncomingMessage, ServerResponse } from "http";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -62,42 +61,6 @@ const assembleUri = (url: string, queryParams?: Struct, options?: Options) => {
   return encodeURI(uri);
 };
 
-const convertResponseToData = async <T extends Struct | string = Struct>(res: Response): Promise<FetchResponse<T>> => {
-  if (!res.ok) {
-    return {
-      data: undefined as unknown as T,
-      messages: [{
-        title: "System Error",
-        body: `${res.status} | ${res.statusText}`,
-        type: "error",
-      }],
-      ok: res.ok,
-      status: res.status,
-      statusText: res.statusText,
-    };
-  }
-  let data: T, messages: Array<Message> = [];
-  if (res.status === 204) {
-    data = undefined as unknown as T;
-  } else {
-    const text = await res.text();
-    try {
-      const json = JSON.parse(text);
-      data = json.data as T,
-      messages = Array.isArray(json.messages) ? json.messages : [];
-    } catch {
-      data = text as T;
-    }
-  }
-  return {
-    data,
-    messages,
-    ok: !messages.some(msg => msg.type === "error"),
-    status: res.status,
-    statusText: res.statusText,
-  };
-};
-
 const catchError = <T>(_error: any) => {
   // console.log(error);
   return {
@@ -116,17 +79,11 @@ const catchError = <T>(_error: any) => {
 
 const fetchImpl = async <T extends Struct | string = Struct>(method: string = "POST", url: string, params?: Struct, options?: Options) => {
   try {
-    const isHttp = url.startsWith("http");
     const isGet = method === "GET";
     const requestInit: RequestInit = {
       method,
       headers: {
         ...(isGet || options?.useFormData ? {} : { "Content-Type": "application/json" }),
-        "CSRF-Token": (() => {
-          const token = getCookie("XSRF-TOKEN", { req: options?.req, res: options?.res });
-          if (typeof token === "string") return token;
-          return "";
-        })(),
       },
       credentials: "include",
       body: isGet ? undefined : (options?.useFormData ? (() => {
@@ -140,10 +97,7 @@ const fetchImpl = async <T extends Struct | string = Struct>(method: string = "P
       })() : JSON.stringify(params)),
     };
     const uri = assembleUri(url, isGet ? params : undefined, options);
-    if (!isHttp && electron) {
-      return await electron.fetch<T>(uri, requestInit);
-    }
-    return convertResponseToData<T>(await fetch(uri, requestInit));
+    return await electron.fetch<T>(uri, requestInit);
   } catch (e) {
     return catchError<T>(e);
   }

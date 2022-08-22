@@ -5,7 +5,7 @@ import ApiContext from "../../utils/api-context";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const ctx = new ApiContext(req, res);
   try {
-    const { inputs } = ctx.getParams<{ inputs: { user?: string; password?: string; } }>();
+    const { inputs } = ctx.getBody<{ inputs: { user?: string; password?: string; } }>();
     console.log(inputs);
     const id = inputs.user?.replace(/\s/g, "");
     if (StringUtils.isEmpty(id)) {
