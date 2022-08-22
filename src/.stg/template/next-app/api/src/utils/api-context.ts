@@ -1,5 +1,6 @@
 import MessageContext from "./message-context";
 import StringUtils from "@bizhermit/basic-utils/dist/string-utils";
+import { IncomingHttpHeaders } from "http";
 
 class ApiContext extends MessageContext {
 
@@ -22,12 +23,23 @@ class ApiContext extends MessageContext {
     return this.req.method || "";
   }
 
-  public getParams<T = Struct>(): T {
+  public getHeaders(): IncomingHttpHeaders {
+    return this.req.headers;
+  }
+
+  public getBody<T = Struct>(): T {
     return this.req.body as T;
   }
 
   public getQuery(key: string): string | string[] {
     return this.req.query?.[key];
+  }
+
+  public getQueryOne(key: string): string {
+    const val = this.getQuery(key);
+    if (val == null) return "";
+    if (Array.isArray(val)) return val[0];
+    return val;
   }
 
   public getCookie(key: string): string {

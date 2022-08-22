@@ -1,10 +1,9 @@
-import { AppContext, AppProps } from "next/app";
+import { AppProps } from "next/app";
 import LayoutProvider from "@bizhermit/react-addon/dist/styles/layout-provider";
 import { MaskProvider } from "@bizhermit/react-addon/dist/popups/mask";
 import { MessageProvider } from "@bizhermit/react-addon/dist/message/message-provider";
 import { LayoutColor, LayoutDesign } from "@bizhermit/react-addon/dist/styles/css-var";
-import { hasCookie } from "cookies-next";
-import fetchApi from "../utils/fetch-api";
+import electronAccessor from "../utils/electron-accessor";
 import '../styles/globals.css'
 
 type AppRootInitProps = {
@@ -26,23 +25,17 @@ const AppRoot = ({ Component, pageProps, initProps }: AppProps & { initProps: Ap
   );
 };
 
-AppRoot.getInitialProps = async ({ ctx }: AppContext) => {
+AppRoot.getInitialProps = async () => {
   const initProps: AppRootInitProps = {
     layout: {
       color: "system",
       design: "flat",
     },
   };
-  if (!hasCookie("XSRF-TOKEN", ctx)) {
-    const csrfPath = process.env.CSRF_PATH || "/csrf";
-    const res = await fetchApi.get(csrfPath, undefined, {
-      req: ctx.req,
-      res: ctx.res,
-      api: false,
-    });
-    if (!res.ok) {
-      console.log(res);
-    }
+  const electron = electronAccessor();
+  if (electron) {
+    initProps.layout.color = electron.getLayoutColor() ?? initProps.layout.color;
+    initProps.layout.design = electron.getLayoutDesign() ?? initProps.layout.design;
   }
   return { initProps };
 }

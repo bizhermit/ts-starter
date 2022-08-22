@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { contextBridge, ipcRenderer } from "electron";
 
-const $global = global as { [key: string]: any };
+const $global = global as Struct;
 
 process.once("loaded", () => {
   $global.ipcRenderer = ipcRenderer;
@@ -10,7 +10,7 @@ process.once("loaded", () => {
 
 contextBridge.exposeInMainWorld("electron", {
   test: () => ipcRenderer.sendSync("test"),
-  fetch: (path: string, params?: { [key: string]: any }, options?: RequestInit) => ipcRenderer.invoke("fetch", path, params, options),
+  fetch: (uri: string, requestInit?: RequestInit) => ipcRenderer.invoke("fetch", uri, requestInit),
   setSize: (params: { width?: number; height?: number; animate?: boolean; }) => ipcRenderer.sendSync("setSize", params),
   getSize: () => ipcRenderer.sendSync("getSize"),
   setAlwaysOnTop: (alwaysOnTop: boolean) => ipcRenderer.sendSync("setAlwaysOnTop", alwaysOnTop),
@@ -36,7 +36,7 @@ contextBridge.exposeInMainWorld("electron", {
   getLayoutColor: () => ipcRenderer.sendSync("getLayoutColor"),
   setLayoutDesign: (design: string) => ipcRenderer.invoke("setLayoutDesign", design),
   getLayoutDesign: () => ipcRenderer.sendSync("getLayoutDesign"),
-  saveConfig: (config: { [key: string]: any }) => ipcRenderer.invoke("saveConfig", config),
+  saveConfig: (config: Struct) => ipcRenderer.invoke("saveConfig", config),
   getConfig: (key?: string) => ipcRenderer.sendSync("getConfig", key),
   getSession: (key?: string) => ipcRenderer.sendSync("getSession", key),
   setSession: (key: string, value: any) => ipcRenderer.sendSync("setSession", key, value),

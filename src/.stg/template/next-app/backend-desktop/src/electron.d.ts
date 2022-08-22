@@ -9,7 +9,7 @@ type Config<T = { [key: string]: ConfigValue }> = {
 } & T;
 
 type ElectronAccessor = {
-  fetch: <T = Struct>(path: string, params?: Struct, options?: RequestInit) => Promise<T>;
+  fetch: <T>(uri: string, requestInit?: RequestInit) => Promise<FetchResponse<T>>;
   setSize: (params: { width?: number; height?: number; animate?: boolean; }) => boolean;
   getSize: () => { height: number; width: number; };
   setAlwaysOnTop: (alwaysOnTop: boolean) => boolean;

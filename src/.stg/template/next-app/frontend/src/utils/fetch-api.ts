@@ -8,8 +8,6 @@ const apiHostName = process.env.API_HOST_NAME;
 const apiPort = process.env.API_PORT;
 const apiBasePath = process.env.API_BASE_PATH;
 
-type GetParamType = string | number | boolean | null | undefined;
-type QueryParams = { [key: string]: GetParamType | Array<GetParamType> } | null | undefined;
 type Options = {
   req?: IncomingMessage;
   res?: ServerResponse;
@@ -17,7 +15,7 @@ type Options = {
   api?: boolean;
 };
 
-const assembleUri = (url: string, queryParams?: QueryParams, options?: Options) => {
+const assembleUri = (url: string, queryParams?: Struct, options?: Options) => {
   const isHttp = url.startsWith("http");
   let uri = "";
   if (isHttp) {
@@ -63,108 +61,102 @@ const assembleUri = (url: string, queryParams?: QueryParams, options?: Options) 
   return encodeURI(uri);
 };
 
-const getToken = (options?: Options) => {
-  const token = getCookie("XSRF-TOKEN", { req: options?.req, res: options?.res });
-  if (typeof token === "string") return token;
-  return "";
-};
-
-const toFormData = (params?: Struct) => {
-  if (!params) return undefined;
-  const formData = new FormData();
-  Object.keys(params).forEach(key => {
-    formData.append(key, JSON.stringify(params[key]));
-  });
-  return formData;
-};
-
-const toData = <T = Struct>(responseBody: Struct) => {
-  const messages: Array<Message> = Array.isArray(responseBody.messages) ? responseBody.messages : [];
-  return {
-    data: responseBody.data as T,
-    messages,
-    hasError: () => messages.some(msg => msg.type === "error"),
-    hasMessage: () => messages.length > 0
-  };
-};
-
-const catchError = <T>(error: any) => {
-  console.log(error);
-  return {
-    data: undefined as unknown as T,
-    hasError: () => true,
-    hasMessage: () => true,
-    messages: [{
-      title: "システムエラー",
-      body: String(error),
-      type: "error",
-    }]
-  } as FetchResponseData<T>;
-};
-
-type FetchResponseData<T extends Struct | string> = {
-  data: T;
-  messages: Array<Message>
-  hasMessage: () => boolean;
-  hasError: () => boolean;
-};
-const convertResponseToData = async <T extends Struct | string = Struct>(res: Response): Promise<FetchResponseData<T>> => {
+const convertResponseToData = async <T extends Struct | string = Struct>(res: Response): Promise<FetchResponse<T>> => {
   if (!res.ok) {
     return {
-      data: {} as T,
+      data: undefined as unknown as T,
       messages: [{
         title: "System Error",
         body: `${res.status} | ${res.statusText}`,
         type: "error",
       }],
-      hasError: () => true,
-      hasMessage: () => true,
+      ok: res.ok,
+      status: res.status,
+      statusText: res.statusText,
     };
   }
-  if (res.status === 204) return toData({});
-  const text = await res.text();
+  let data: T, messages: Array<Message> = [];
+  if (res.status === 204) {
+    data = undefined as unknown as T;
+  } else {
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text);
+      data = json.data as T,
+      messages = Array.isArray(json.messages) ? json.messages : [];
+    } catch {
+      data = text as T;
+    }
+  }
+  return {
+    data,
+    messages,
+    ok: !messages.some(msg => msg.type === "error"),
+    status: res.status,
+    statusText: res.statusText,
+  };
+};
+
+const catchError = <T>(_error: any) => {
+  // console.log(error);
+  return {
+    data: undefined as unknown as T,
+    messages: [{
+      title: "System Error",
+      body: "fetch error.",
+      type: "error",
+    }],
+    ok: false,
+    status: -1,
+    statusText: "fetch error.",
+
+  } as FetchResponse<T>;
+};
+
+const fetchImpl = async <T extends Struct | string = Struct>(method: string = "POST", url: string, params?: Struct, options?: Options) => {
   try {
-    return toData<T>(JSON.parse(text));
-  } catch {
-    return {
-      data: text as T,
-      messages: [],
-      hasError: () => false,
-      hasMessage: () => false,
+    const isGet = method === "GET";
+    const requestInit: RequestInit = {
+      method,
+      headers: {
+        ...(isGet || options?.useFormData ? {} : { "Content-Type": "application/json" }),
+        "CSRF-Token": (() => {
+          const token = getCookie("XSRF-TOKEN", { req: options?.req, res: options?.res });
+          if (typeof token === "string") return token;
+          return "";
+        })(),
+      },
+      credentials: "include",
+      body: isGet ? undefined : (options?.useFormData ? (() => {
+        const formData = new FormData();
+        if (params) {
+          Object.keys(params).forEach(key => {
+            formData.append(key, JSON.stringify(params[key]));
+          });
+        }
+        return formData;
+      })() : JSON.stringify(params)),
     };
+    const uri = assembleUri(url, isGet ? params : undefined, options);
+    return convertResponseToData<T>(await fetch(uri, requestInit));
+  } catch (e) {
+    return catchError<T>(e);
   }
 };
 
 const fetchApi = {
-  get: async <T extends Struct | string = Struct>(url: string, params?: QueryParams, options?: Options) => {
-    try {
-      const res = await fetch(assembleUri(url, params, options), {
-        method: "GET",
-        headers: {
-          "CSRF-Token": getToken(options),
-        },
-        credentials: "include",
-      });
-      return convertResponseToData<T>(res);
-    } catch (e) {
-      return catchError<T>(e);
-    }
+  exec: fetchImpl,
+  get: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
+    return fetchImpl<T>("GET", url, params, options);
   },
   post: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
-    try {
-      const res = await fetch(assembleUri(url, null, options), {
-        method: "POST",
-        headers: {
-          ...(options?.useFormData ? {} : { "Content-Type": "application/json" }),
-          "CSRF-Token": getToken(options),
-        },
-        credentials: "include",
-        body: options?.useFormData ? toFormData(params) : JSON.stringify(params),
-      });
-      return convertResponseToData<T>(res);
-    } catch (e) {
-      return catchError<T>(e);
-    }
+    return fetchImpl<T>("POST", url, params, options);
+  },
+  put: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
+    return fetchImpl<T>("PUT", url, params, options);
+  },
+  delete: async <T extends Struct | string = Struct>(url: string, params?: Struct, options?: Options) => {
+    return fetchImpl<T>("DELETE", url, params, options);
   },
 };
 
