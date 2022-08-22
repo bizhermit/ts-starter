@@ -119,7 +119,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     });
   };
   addGitignoreContents(["/.vscode/settings.json", ".env", `/${distDir}/`]);
-  const filesExcludes = [nextDistDir];
+  const filesExcludes: Array<string | { file: string; comment?: boolean; flag?: boolean; }> = [nextDistDir];
 
   const moveToSrc = async (fileName: string) => {
     const srcFilePath = path.join(targetDir, fileName);
@@ -253,7 +253,10 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     addGitignoreContents([
       `/${nexpressDistDir}/`,
     ]);
-    filesExcludes.push(`${nexpressDistDir}`);
+    filesExcludes.push(
+      `${nexpressDistDir}`,
+      { file: `${nexpressDir}`, comment: true },
+    );
 
     pkg.scripts = {
       ...pkg.scripts,
@@ -287,6 +290,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     filesExcludes.push(
       `${mainDistDir}`,
       `${rendererDistDir}`,
+      { file: `${nextronDir}`, comment: true },
     );
     const exportDir = options?.distFlat ? distDir : `${distDir}/${distPackDir}`;
     pkg.scripts = {
@@ -492,7 +496,8 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
   await replaceAppName(path.join(wdir, ".devcontainer/devcontainer.json"), appName);
   await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
     { anchor: "__adds__", text: filesExcludes.map(file => {
-      return `    "${file}": true`
+      if (typeof file === "string") return `    "${file}": true`;
+      return `    ${file.comment ? "// " : ""}"${file.file}": ${String(file.flag ?? true)}`
     }).join(",\n") }
   ]);
 
