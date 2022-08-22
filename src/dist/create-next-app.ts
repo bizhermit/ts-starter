@@ -198,7 +198,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     await generateTemplate(targetDir, "next-app/frontend");
     if (hasDesktop) await generateTemplate(targetDir, "next-app/frontend-desktop");
     deps.push("@bizhermit/react-addon");
-    if (options?.crossBasePath) {
+    if (options?.crossBasePath || mode !== "desktop") {
       deps.push("cookies-next");
     }
   }
@@ -232,6 +232,11 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     pkg.scripts = {
       ...pkg.scripts,
     };
+    if (options?.crossBasePath || mode !== "frontend") {
+      await replaceTexts(path.join(targetDir, "src/pages/_app.tsx"), [
+        { anchor: "// ", text: "" },
+      ]);
+    }
   }
   if (hasBackend) {
     await replaceTexts(path.join(targetDir, nexpressDir, "main.ts"), [
@@ -432,7 +437,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
         `BASE_PATH=`,
         `API_PROTOCOL=http:`,
         `API_HOST_NAME=localhost`,
-        `API_PORT=${devPort}`,
+        `API_PORT=${options?.corsOriginPort ? devPort : nextPort}`,
         `API_BASE_PATH=`,
       ];
       prodEnvLines = [
