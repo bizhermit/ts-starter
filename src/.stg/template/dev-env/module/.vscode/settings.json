@@ -8,8 +8,10 @@
     "**/Thumbs.db": true,
     "**/node_modules": true,
     "**/package-lock.json": true,
+    // "**/.devcontainer": true,
     // "**/README.md": true,
     "**/tsconfig*.json": true,
+    // "__packageDir__": true,
     "__srcDir__/__stgDir__/bin": true,
     "__srcDir__/__stgDir__/dist": true,
   }
