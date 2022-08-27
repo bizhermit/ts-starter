@@ -39,12 +39,11 @@ const log = {
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
 const appRoot = path.join(__dirname, "../");
-log.debug("app root: ", appRoot);
-
 const nextApp = next({
   dev: isDev,
   dir: appRoot,
 });
+log.debug("app root: ", appRoot);
 
 nextApp.prepare().then(async () => {
   const app = express();
