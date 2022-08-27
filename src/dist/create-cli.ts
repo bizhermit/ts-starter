@@ -75,6 +75,7 @@ const createCli = async (wdir: string, options?: ArgsOptions) => {
   await replaceTexts(path.join(wdir, ".vscode/settings.json"), [
     { anchor: __srcDir__, text: srcDir },
     { anchor: __stgDir__, text: stgDir },
+    { anchor: __packageDir__, text: packageDir },
   ]);
   await replaceAppName(path.join(wdir, ".devcontainer/docker-compose.yml"), appName);
   await replaceTexts(path.join(wdir, ".devcontainer/devcontainer.json"), [

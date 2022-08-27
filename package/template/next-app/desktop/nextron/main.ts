@@ -25,6 +25,7 @@ const log = {
 log.info(`::: __appName__ :::${isDev ? " [dev]" : ""}`);
 
 const appRoot = path.join(__dirname, "../../");
+log.debug("app root: ", appRoot);
 
 app.on("ready", async () => {
   const port = Number(process.env.PORT || "8008");

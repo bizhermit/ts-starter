@@ -5,7 +5,7 @@ type Message = {
   body: string | Array<string>;
   type: MessageType;
 };
-type MessageType = "info" | "error" | "warning" | "default" | "primary" | "secondary" | "deprecated";
+type MessageType = "info" | "error" | "warning" | "default" | "primary" | "secondary" | "disabled";
 type FetchResponse<T extends Struct | string> = {
   data: T;
   messages: Array<Message>;

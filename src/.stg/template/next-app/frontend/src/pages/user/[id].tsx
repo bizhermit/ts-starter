@@ -1,8 +1,8 @@
 import { NextPage, GetStaticPaths, GetStaticProps } from "next";
 import { useEffect } from "react";
 import Label from "@bizhermit/react-addon/dist/elements/label";
-import SignoutButton from "../../components/elements/signout-button";
 import ArrayUtils from "@bizhermit/basic-utils/dist/array-utils";
+import SignedinContainer from "../../components/layouts/signedin-container";
 
 type InitParams = {
   user: { id: string; name: string; };
@@ -15,11 +15,10 @@ const SigninPage: NextPage<InitParams> = ({ user, error }) => {
   }, [user, error]);
   
   return (
-    <>
+    <SignedinContainer>
       <Label>User top</Label>
       <Label>{JSON.stringify(user ?? {})}</Label>
-      <SignoutButton />
-    </>
+    </SignedinContainer>
   );
 };
 

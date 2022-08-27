@@ -98,7 +98,7 @@ const convertResponseToData = async <T extends Struct | string = Struct>(res: Re
   };
 };
 
-const catchError = <T>(_error: any) => {
+const catchError = <T extends Struct | string = Struct>(_error: any) => {
   // console.log(error);
   return {
     data: undefined as unknown as T,
@@ -110,7 +110,6 @@ const catchError = <T>(_error: any) => {
     ok: false,
     status: -1,
     statusText: "fetch error.",
-
   } as FetchResponse<T>;
 };
 

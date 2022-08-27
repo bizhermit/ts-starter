@@ -126,7 +126,6 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     if (!existsSync(srcFilePath)) return;
     await move(srcFilePath, path.join(targetDir, srcDir, fileName), { overwrite: true });
   };
-  await moveToSrc("next-env.d.ts");
   await moveToSrc("pages");
   await moveToSrc("public");
   rimraf.sync(path.join(targetDir, "styles"));
@@ -379,7 +378,7 @@ const createNextApp = async (wdir: string, mode: Mode = "all", separate = false,
     `  basePath: process.env.BASE_PATH,`,
     `  env: {`,
     `    BASE_PATH: process.env.BASE_PATH,`,
-    `    PORT: process.env.PORT,`,
+    `    API_PORT: process.env.PORT,`,
     `    API_BASE_PATH: process.env.BASE_PATH,`,
     `  }`
   ];

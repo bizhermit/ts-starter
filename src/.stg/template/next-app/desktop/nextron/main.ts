@@ -127,7 +127,7 @@ app.on("ready", async () => {
   if (isDev) {
     setListener("fetch", "handle", (_e, uri: string, requestInit?: RequestInit) => {
       log.debug("fetch api: ", uri, JSON.stringify(requestInit ?? {}));
-      const fetchUri = (uri.startsWith("http") ? "" : loadUrl) + uri;
+      const fetchUri = path.join(loadUrl, uri.substring(Math.max(uri.indexOf("/api/"), 0)));
       return new Promise<FetchResponse<Struct | string>>(async (resolve, reject) => {
         try {
           const res = await fetch(fetchUri, requestInit);
