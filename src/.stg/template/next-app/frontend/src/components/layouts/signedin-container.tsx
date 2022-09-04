@@ -1,20 +1,22 @@
 import NavigationContainer, { Navigation } from "@bizhermit/react-addon/dist/elements/navigation-container";
 import FlexBox from "@bizhermit/react-addon/dist/elements/flex-box";
-import Row from "@bizhermit/react-addon/dist/elements/row";
 import Label from "@bizhermit/react-addon/dist/elements/label";
 import { FC, ReactNode } from "react";
 import SignoutButton from "../elements/signout-button";
+import Header from "@bizhermit/react-addon/dist/elements/header";
 
 const SignedinContainer: FC<{ children: ReactNode; }> = ({ children }) => {
   return (
     <NavigationContainer $fto="f">
       <Navigation $mode="visible" $position="left" $color="default">
-        <SignoutButton />
+        <FlexBox $padding>
+          <SignoutButton />
+        </FlexBox>
       </Navigation>
       <FlexBox $fto="f">
-        <Row $fill $color="default" $colorType="nav" $padding={1}>
+        <Header $color="default" $padding={1}>
           <Label>User</Label>
-        </Row>
+        </Header>
         <FlexBox $fto="fy" $padding $scroll>
           {children}
         </FlexBox>
